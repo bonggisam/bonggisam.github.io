@@ -1,0 +1,23 @@
+{
+  "name": "아들아사랑해",
+  "short_name": "아들아사랑해",
+  "description": "영외마트와 전역일을 가입 없이 알려주는 무료 민간 안내 앱",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F1F3EE",
+  "theme_color": "#F1F3EE",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
