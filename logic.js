@@ -75,6 +75,23 @@ export function summarize({ enlist, service, manualEnd }, now) {
   return { sv, start, end, left, progress, dateProblem, headline, note };
 }
 
+/** 병 계급. 앱의 Ranks와 같다. */
+export const RANKS = ['이병', '일병', '상병', '병장'];
+
+/**
+ * 예상 진급 달. 입대한 달을 첫 달로 쳐서 3개월째 1일에 일병, 그 6개월 뒤 상병, 다시 6개월 뒤 병장.
+ * 병 진급 최저 복무 기간(이병 2·일병 6·상병 6개월)을 따른 예상이라 진급 심사에 따라 늦어질 수 있다.
+ * 입대일이 없거나, 마트 이용 대상이 아니거나, 장교·부사관이거나, 날짜가 어긋나면 null.
+ */
+export function rankTrack(s, now) {
+  if (!s.start || !s.sv.ok || !s.sv.months || s.dateProblem) return null;
+  const firstOf = (k) => { const t = s.start.y * 12 + (s.start.m - 1) + k; return { y: Math.floor(t / 12), m: (t % 12) + 1, d: 1 }; };
+  const days = [s.start, firstOf(2), firstOf(8), firstOf(14)];
+  let current = -1;
+  days.forEach((d, i) => { if (!before(now, d)) current = i; });
+  return { steps: RANKS.map((name, i) => ({ name, from: days[i] })), current };
+}
+
 export function cityOf(store) {
   const words = (store.address || '').split(' ');
   const first = words[0] || '';

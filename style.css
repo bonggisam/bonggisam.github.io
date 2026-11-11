@@ -166,3 +166,83 @@ body { background: var(--paper); }
 .dday .num { font-size: 104px; color: var(--ink); }
 .dday .num em { font-size: 38px; color: var(--accent); }
 .dday .tail { font-size: 15px; color: var(--muted); }
+
+/* ── 2판 5번 "계급장 오르기" (2026-11-11 선택). 위의 기본값을 덮어쓴다. 앱의 Theme과 같은 색.
+   올리브 바탕 위 글씨는 광목색, 광목 칸 안 글씨는 짙은 국방색. 큰 숫자는 가석체(OFL, fonts/OFL-GasoekOne.txt). ── */
+@font-face { font-family: "Gasoek One"; src: url("fonts/GasoekOne-Regular.ttf") format("truetype"); font-display: swap; }
+:root { --olive: #4B5A2A; --deep: #2E3819; --brass: #E3BE5C; --cream: #F3ECD6; --khaki: #E4DDBF;
+  --ground: var(--cream); --paper: var(--olive); --surface: var(--cream); --ink: #2E3819; --graphite: #2E3819; --muted: #5C6340;
+  --accent: #4B5A2A; --accent-deep: #2E3819; --track: #E0D8BC; --card-line: #C9C1A0; --sticker: var(--brass); --number: "Gasoek One", var(--display); }
+body { background: var(--olive); }
+#view { color: var(--cream); --muted: var(--khaki); }
+#view h1, #view > h2, .on-olive { color: var(--cream); font-family: var(--sans); font-weight: 900; letter-spacing: -0.5px; }
+#view > h2.on-olive { font-size: 18px; margin-top: 4px; }
+.back { color: var(--khaki); }
+.card, .row, .tip, details.unit, .visits { color: var(--ink); --muted: #5C6340; background: var(--cream); border: 3px solid var(--brass); border-left-width: 3px; border-radius: 18px; box-shadow: none; }
+.card h2, .card h3, .row-head b { font-weight: 900; }
+.card.hero h2 { font-family: var(--sans); font-weight: 900; font-size: 26px; }
+.bar i { background: var(--olive); }
+.bar i.active { background: #B8862B; }
+.btn { background: var(--deep); color: var(--cream); border: 3px solid var(--brass); box-shadow: none; margin-bottom: 0; }
+.btn.accent { background: var(--brass); color: var(--deep); border-color: var(--brass); box-shadow: none; font-weight: 900; }
+.btn.outline { background: var(--cream); color: var(--ink); border: 3px solid var(--brass); box-shadow: none; }
+.btn:active { transform: translateY(2px); }
+.card .btn { border-color: var(--deep); }
+.card .btn.accent { border-color: var(--deep); }
+.on-dark { color: var(--cream); }
+.chips button { background: var(--cream); color: var(--ink); border: 2px solid var(--brass); }
+.chips button[aria-pressed=true], .form .chips button[aria-pressed=true] { background: var(--deep); color: var(--brass); border-color: var(--brass); }
+#view > input[type=search], .opt { background: var(--cream); color: var(--ink); box-shadow: inset 0 0 0 3px var(--brass); }
+.opt[aria-pressed=true] { background: var(--deep); color: var(--brass); }
+.notice { border: 2px solid currentColor; }
+#tabs { background: var(--deep); border-top: 3px solid var(--brass); }
+#tabs a { color: #C9C9A9; }
+#tabs a[aria-current=page] { color: var(--brass); font-weight: 800; box-shadow: inset 0 4px 0 var(--brass); }
+#tabs a[aria-current=page] svg { color: var(--brass); }
+@media (min-width: 860px) { #tabs { border-top: 0; border-right: 3px solid var(--brass); } #tabs a[aria-current=page] { box-shadow: inset 4px 0 0 var(--brass); } }
+.sticker { background: var(--brass); color: var(--deep); }
+.big { font-family: var(--number); color: var(--olive); }
+
+/* 홈 위쪽: 남은 날과 계급장 */
+.dday { display: grid; gap: 10px; margin: 4px 0 2px; padding: 16px; background: var(--deep); color: var(--cream); border: 3px solid var(--brass); border-radius: 20px; text-decoration: none; }
+.dday::before, .dday::after { content: none; }
+.dday .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
+.dday .lead { display: grid; gap: 2px; font-size: 14px; color: var(--khaki); }
+.dday .lead b { font-size: 16px; color: var(--cream); }
+.dday .num { font-family: var(--number); font-size: 84px; line-height: .85; color: var(--brass); }
+.dday .word { font-family: var(--sans); font-weight: 900; font-size: 24px; color: var(--brass); text-align: right; }
+.dday .tail { font-size: 14px; color: var(--khaki); text-align: left; }
+.dday .ranks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); text-align: center; }
+.dday .ranks > span { display: grid; justify-items: center; gap: 3px; }
+.dday .ranks b { font-size: 14px; color: var(--cream); }
+.dday .ranks small { font-size: 11.5px; color: var(--khaki); }
+.dday .chev { display: flex; flex-direction: column; justify-content: flex-end; gap: 3px; height: 34px; }
+.dday .chev i { display: block; width: 30px; height: 5px; border-radius: 2px; background: #7A8752; }
+.dday .chev.on i { background: var(--brass); }
+.dday .progress { display: block; height: 8px; border-radius: 4px; background: #55633A; overflow: hidden; }
+.dday .progress i { display: block; height: 100%; background: var(--brass); }
+
+/* 홈 바로가기 세 칸 */
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.tile { display: flex; flex-direction: column; justify-content: space-between; gap: 8px; min-height: 92px; padding: 12px; border: 3px solid var(--brass); border-radius: 18px; text-decoration: none; font-weight: 900; font-size: 15px; }
+.tile span { font-size: 30px; line-height: 1; }
+.tile.brass { background: var(--brass); color: var(--deep); }
+.tile.cream { background: var(--cream); color: var(--deep); }
+.tile.deep { background: var(--deep); color: var(--cream); }
+
+/* 만든 사람 탭 */
+.maker { display: flex; align-items: center; gap: 14px; margin-top: 6px; }
+.maker .avatar { display: flex; align-items: center; justify-content: center; flex: none; width: 68px; height: 68px; border-radius: 50%; background: var(--cream); border: 3px solid var(--brass); font-size: 36px; }
+.maker h1 { font-size: 24px; line-height: 1.2; }
+.maker p { color: var(--khaki); font-size: 15px; }
+.card.coffee { background: var(--deep); color: var(--cream); --muted: var(--khaki); }
+.card.coffee h2 { color: var(--cream); font-size: 22px; }
+.coffee-head { display: flex; align-items: center; gap: 12px; }
+.coffee-head > span:first-child { font-size: 46px; line-height: 1; }
+.card.coffee .btn.accent { border-color: var(--brass); }
+.card.story h2 { font-size: 20px; }
+.card .question { color: #6B5A1E; }
+.visits b { color: var(--olive); }
+/* 처음 화면: 올리브 바탕 위 결과 숫자 */
+.welcome .result .num { font-family: var(--number); color: var(--brass); }
+.welcome .result .num em { color: var(--cream); font-family: var(--sans); font-weight: 900; }

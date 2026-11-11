@@ -1,6 +1,6 @@
 // 앱 파일은 저장해 두고 오프라인에서도 연다. 자료(content.json)는 온라인이면 새 자료를 먼저 받는다.
 // 받은 자료는 검사를 통과하고 저장된 자료보다 새 판일 때만 저장한다. 앱 파일을 바꾸면 CACHE 이름을 올린다.
-const CACHE = 'adeul-v10';
+const CACHE = 'adeul-v11';
 const SCHEMA = 1;
 
 // logic.js의 contentProblem과 같은 검사. 서비스워커는 모듈을 못 쓰는 브라우저가 있어 그대로 옮겨 둔다.
@@ -42,7 +42,7 @@ async function freshContent(request) {
   }
   return saved || Response.error();
 }
-const FILES = ['./', 'index.html', 'style.css', 'app.js', 'logic.js', 'content.json', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-180.png', 'fonts/DoHyeon-Regular.ttf'];
+const FILES = ['./', 'index.html', 'style.css', 'app.js', 'logic.js', 'content.json', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-180.png', 'fonts/DoHyeon-Regular.ttf', 'fonts/GasoekOne-Regular.ttf'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(FILES.map((f) => new Request(f, { cache: 'reload' })))).then(() => self.skipWaiting()));

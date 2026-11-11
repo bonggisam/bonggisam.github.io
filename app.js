@@ -1,4 +1,4 @@
-import { SERVICES, badgeText, barPosition, cityOf, contentProblem, dialable, entryRows, longDay, parseDay, staleNotice, storeNotices, storeStatus, suggestedStage, summarize, toIso, today, weekRows } from './logic.js';
+import { SERVICES, badgeText, barPosition, cityOf, contentProblem, dialable, entryRows, longDay, parseDay, rankTrack, staleNotice, storeNotices, storeStatus, suggestedStage, summarize, toIso, today, weekRows } from './logic.js';
 
 /** 제보를 받을 주소. 정해지면 HTTPS 주소를 넣는다. 비어 있으면 내용을 복사해 옮기도록 안내한다. */
 const REPORT_ENDPOINT = '';
@@ -16,13 +16,13 @@ const inAndroidApp = (() => {
 const KEY = 'adeul-local-v1';
 const TOWN = '쇼핑타운';
 const ISSUES = ['영업시간', '들어가는 시간', '주소나 위치', '전화번호', '물건 들어오는 날', '품목', '기타'];
-const TABS = [['home', '홈'], ['shop', '장보기'], ['camps', '훈련소'], ['todo', '팁'], ['about', '앱 소개']];
+const TABS = [['home', '홈'], ['shop', '장보기'], ['camps', '훈련소'], ['todo', '팁'], ['about', '만든 사람']];
 const ICONS = {
   home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
   shop: '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11.5l2-8H6.2"/>',
   camps: '<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',
   todo: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
-  about: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
+  about: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
 };
 
 /** 앱에 바라는 점을 받는 메일. 앱의 WishMailCard와 같다. */
@@ -128,13 +128,13 @@ function storeRow(store) {
   const city = cityOf(store);
   const rows = entryRows(store, now, content);
   const hours = status.kind === 'open' && rows.length ? (status.line.match(/\d{1,2}:\d{2}~\d{1,2}:\d{2}/) || [''])[0] : '';
-  return `<a class="row" href="#/store/${store.id}"><span class="row-head"><span><b>${esc(store.name)}</b>${city ? `<span>${esc(city)}</span>` : ''}</span>${hours ? `<span class="time">${esc(hours)}</span>` : ''}</span>${hours ? `${bar(hours, 'thin')}<small>오늘 열어요${store.separate ? ', 입장 시간 구분 있음' : ''}</small>` : `<span class="status ${status.kind}">${esc(status.line)}</span>`}</a>`;
+  return `<a class="row" href="#/store/${store.id}"><span class="row-head"><span><b>${esc(store.name)}</b>${city ? `<span>${esc(city)}</span>` : ''}</span>${hours ? `<span class="time">${esc(hours)}</span>` : ''}</span>${hours ? `${bar(hours, 'thin')}<small>${em('🟢')}오늘 열어요${store.separate ? ', 입장 시간 구분 있음' : ''}</small>` : `<span class="status ${status.kind}">${esc(status.line)}</span>`}</a>`;
 }
 
 function todayCard(store) {
   const now = nowDay();
   const status = storeStatus(store, now, content);
-  return `<a class="card hero saved" href="#/store/${store.id}"><span class="sticker" aria-hidden="true">⭐ 저장한 마트</span><h2>${esc(store.name)}</h2><p class="headline ${status.kind}">${esc(status.line)}</p>${entryBars(entryRows(store, now, content))}</a>`;
+  return `<a class="card hero saved" href="#/store/${store.id}"><span class="sticker" aria-hidden="true">⭐ 저장한 마트</span><h2>${em('🏪')}${esc(store.name)}</h2><p class="headline ${status.kind}">${esc(status.line)}</p>${entryBars(entryRows(store, now, content))}</a>`;
 }
 
 function renderHome() {
@@ -144,10 +144,10 @@ function renderHome() {
   const saved = local.saved.map(storeById).filter(Boolean);
   return `<h1 class="sr">홈</h1>
   ${ddayHero(s, now)}
+  ${saved.length ? '<h2 class="on-olive">🛒 오늘 갈 마트</h2>' : ''}
   ${saved.length ? `${todayCard(saved[0])}${saved.slice(1).map(storeRow).join('')}${staleBox() || `<small>${esc(baseText())} 운영표와 휴점 공지를 보고 정리했어요.</small>`}`
     : `<div class="card hero"><h2>${em('🛒')}자주 가는 마트가 오늘 몇 시에 여는지 바로 보여 드릴게요</h2><p>마트를 하나 저장해 두시면 여기에 오늘 여는 시간이 나와요.</p><a class="btn" href="#/shop">${em('🛒')}마트 찾으러 가기</a></div>`}
-  <a class="btn accent" href="#/check">${em('🪪')}처음 가신다면 이것부터 볼까요?</a>
-  <a class="btn outline" href="#/papers">${em('🎒')}가져갈 것 보기</a>`;
+  <div class="tiles"><a class="tile brass" href="#/check"><span aria-hidden="true">🪪</span>처음이라면</a><a class="tile cream" href="#/papers"><span aria-hidden="true">🎒</span>가져갈 것</a><a class="tile deep" href="#/camps"><span aria-hidden="true">🎖️</span>수료식</a></div>`;
 }
 
 /** 홈 위쪽. 전역까지 남은 날을 달력처럼 크게 보여 준다. 누르면 날짜를 고친다. 앱의 DischargeHero와 같다. */
@@ -160,13 +160,21 @@ function ddayHero(s, now) {
   else if (s.left > 0) tail = `${longDay(s.end)}에 전역해요`;
   else if (s.left === 0) tail = '그동안 정말 고생 많으셨어요 🎉';
   else tail = `${longDay(s.end)}에 전역했어요`;
-  const big = counting ? `<span class="num">${s.left}<em>일</em></span>` : `<span class="word">${esc(s.headline)}</span>`;
-  // 찢는 달력 한 장: 고리, 빨간 머리(날짜), 큰 숫자, 뜯는 점선. 앱의 DischargeHero와 같다.
-  return `<a class="dday" href="#/dday" aria-label="${esc(`${date}. ${counting ? `전역까지 ${s.left}일` : s.headline}. ${tail}. 눌러서 입대일과 전역일 고치기`)}">
-    <span class="rings" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-    <span class="head" aria-hidden="true"><span>${esc(date)}</span><span>${counting ? '전역까지' : '📅 오늘'}</span></span>
-    <span class="page" aria-hidden="true">${big}<span class="tail">${esc(tail)}</span></span></a>`;
+  const big = counting ? `<span class="num">${s.left}</span>` : `<span class="word">${esc(s.headline)}</span>`;
+  // 계급장 오르기(2판 5번): 남은 날, 이병→병장 예상 진급 달, 복무 진행 막대. 앱의 DischargeHero와 같다.
+  const track = rankTrack(s, now);
+  const chev = (n, on) => `<span class="chev${on ? ' on' : ''}">${'<i></i>'.repeat(n)}</span>`;
+  const ranks = track ? `<span class="ranks" aria-hidden="true">${track.steps.map((r, i) => `<span>${chev(i + 1, i <= track.current)}<b>${r.name}</b><small>${i === 0 ? '입대' : `${r.from.y === now.y ? '' : `${String(r.from.y).slice(2)}년 `}${r.from.m}월`}${i === track.current && i > 0 ? ' 🎉' : ''}</small></span>`).join('')}</span>
+    <span class="progress" aria-hidden="true"><i style="width:${Math.round(s.progress * 100)}%"></i></span>
+    <span class="tail">예상 진급 달이에요. 부대 심사에 따라 늦어질 수 있어요.</span>` : '';
+  const lead = track && track.current >= 0 ? `🪖 지금 ${RANK_NOW[track.current]}` : '🪖 우리 아이';
+  const rankText = track && track.current >= 0 ? ` 지금 ${track.steps[track.current].name}, 복무 ${Math.round(s.progress * 100)}% 지났어요.` : '';
+  return `<a class="dday" href="#/dday" aria-label="${esc(`${date}. ${counting ? `전역까지 ${s.left}일` : s.headline}. ${tail}.${rankText} 눌러서 입대일과 전역일 고치기`)}">
+    <span class="top" aria-hidden="true"><span class="lead"><span>${esc(lead)}</span><b>${counting ? '전역까지' : esc(date)}</b></span>${big}</span>
+    <span class="tail" aria-hidden="true">${esc(tail)}</span>
+    ${ranks}</a>`;
 }
+const RANK_NOW = ['이병이에요', '일병이에요', '상병이에요', '병장이에요'];
 
 const welcome = { service: 'army', date: '' };
 
@@ -423,7 +431,7 @@ function renderTodo() {
   <a class="btn outline" href="#/report">${em('✏️')}틀린 내용 알려 주기</a>`;
 }
 
-/** 다섯 번째 탭 "앱 소개". 앱의 AboutView와 같은 내용. */
+/** 다섯 번째 탭 "만든 사람". 소개, 커피 한 잔, 바라는 점. 앱의 AboutView와 같은 내용. */
 function renderAbout() {
   const reasons = [
     ['🎒', '입대 전', '"뭘 사서 보내야 하나요?"', '막상 알아보면 대부분 부대에서 나눠 줘요. 그래서 꼭 챙길 서류와 사지 않아도 되는 것을 공식 안내 그대로 정리했어요. 입대일만 넣으면 전역일과 남은 날도 바로 계산돼요.'],
@@ -431,8 +439,10 @@ function renderAbout() {
     ['⛺', '자대 배치', '"자대는 언제 알 수 있어요? 연락이 없는데 괜찮은 걸까요?"', '자대 이야기는 공식 답이 "그 부대에 물어보세요"인 경우가 많아요. 그래서 확인할 곳과, 걱정될 때 부모님도 전화할 수 있는 국방헬프콜 1303을 팁에 함께 넣었어요.'],
     ['🛒', '영외마트', '"부모도 갈 수 있나요? 오늘 문 여나요?"', `아이가 군에 있으면 부모님도 영외마트를 쓸 수 있는데, 마트마다 여는 시간과 쉬는 날이 달라요. 전국 ${content.stores.length}곳을 정리해 두었고, 자주 가는 곳을 저장하면 홈에서 오늘 시간을 바로 보여 드려요.`],
   ];
-  return `<h1 class="sr">앱 소개</h1>
-  <div class="story"><span class="big-emoji" aria-hidden="true">❤️</span><h2 class="display">이 앱을 만든 이유</h2>
+  const coffee = DONATE_URL && !inAndroidApp ? `<div class="card coffee"><div class="coffee-head"><span aria-hidden="true">☕</span><span><h2>커피 한 잔 사 주기</h2><small>앱은 지금처럼 무료예요</small></span></div><p>앱이 도움이 되셨다면 만든 사람에게 커피 한 잔 값을 보내 주세요. 앱을 오래 지키는 데 큰 힘이 돼요. 보내셔도 달라지는 기능은 없고, 안 보내셔도 모든 기능을 그대로 쓰실 수 있어요.</p><a class="btn accent" target="_blank" rel="noopener" href="${esc(DONATE_URL)}">${em('☕')}커피 한 잔 사 주기</a><small>송금 서비스 화면이 새로 열려요. 이 앱은 결제 정보를 받지 않아요.</small></div>` : '';
+  return `<div class="maker"><span class="avatar" aria-hidden="true">🫡</span><span><h1>만든 사람</h1><p>아들을 군대에 보낸 한 가족이 만들었어요</p></span></div>
+  ${coffee}
+  <div class="card story"><h2>${em('❤️')}이 앱을 만든 이유</h2>
   <p><b>안녕하세요. 이 앱은 아들을 군대에 보낸 한 가족이 만들었어요.</b></p>
   <p>아이를 군에 보내고 나니 궁금한 게 끝이 없었어요. 소포는 보내도 되는지, 수료식은 언제인지, 자대는 언제 알 수 있는지. 답은 병무청, 국방부, 각 군 누리집에 흩어져 있어서 한 번에 찾기가 쉽지 않았어요.</p>
   <p>나라를 지키는 아이들 덕분에 우리가 편히 지내는 만큼, 그 아이들을 기다리는 가족들은 조금이라도 덜 헤매셨으면 했어요. 그래서 공식 자료를 하나하나 읽고 한곳에 모아 이 앱을 만들었어요.</p>
@@ -440,7 +450,6 @@ function renderAbout() {
   ${visitLine()}</div>
   <h2 class="section">${em('🧭')}이런 정보를 모아 둔 이유</h2>
   ${reasons.map(([e, stage, q, a]) => `<div class="card"><h2>${em(e)}${esc(stage)}</h2><p class="question">${esc(q)}</p><p>${esc(a)}</p></div>`).join('')}
-  ${DONATE_URL && !inAndroidApp ? `<div class="card"><h2>${em('☕️')}커피 한 잔 사 주기</h2><p>이 앱은 광고 없이 무료로 운영해요. 그래도 앱을 스토어에 올려 두는 비용, 새 자료를 내려받는 서버 비용이 들고, 매달 바뀌는 휴점 공지와 훈련소 안내도 누군가 계속 확인해야 해요.</p><p>앱이 도움이 되셨다면 만든 사람에게 커피 한 잔 값을 보내 주세요. 앱을 오래 지키는 데 큰 힘이 돼요. 보내셔도 달라지는 기능은 없고, 안 보내셔도 모든 기능을 그대로 쓰실 수 있어요.</p><a class="btn accent" target="_blank" rel="noopener" href="${esc(DONATE_URL)}">커피 한 잔 사 주기</a><small>송금 서비스 화면이 새로 열려요. 이 앱은 결제 정보를 받지 않아요.</small></div>` : ''}
   <div class="card"><h2>${em('💌')}앱에 바라는 점 보내기</h2><p>이런 정보가 더 있으면 좋겠다, 이건 불편하다, 무엇이든 좋아요. 적어 주신 이야기는 메일로 만든 사람에게 바로 와요.</p>
   <label class="field" for="wish-text">바라는 점</label>
   <textarea id="wish-text" rows="4" placeholder="예: 해군 수료식 날 주변 정보도 있으면 좋겠어요">${esc(wishView.text)}</textarea>
