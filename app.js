@@ -2,8 +2,11 @@ import { SERVICES, badgeText, barPosition, cityOf, contentProblem, dialable, ent
 
 /** 제보를 받을 주소. 정해지면 HTTPS 주소를 넣는다. 비어 있으면 내용을 복사해 옮기도록 안내한다. */
 const REPORT_ENDPOINT = '';
-/** "커피 한 잔 사 주기" 송금 링크(토스, 카카오페이 등). 비어 있으면 후원 칸을 숨긴다. */
+/** "커피 한 잔 사 주기" 송금 링크(토스, 카카오페이 등). 비어 있으면 후원 칸을 숨긴다.
+ *  '/'로 끝나면(예: 토스 아이디 링크) 금액을 뒤에 붙여 버튼마다 금액이 채워진 채 열린다. */
 const DONATE_URL = '';
+/** 아이폰 앱의 인앱 상품과 같은 세 가지. 2026-11-12 추가. */
+const DONATE_OPTIONS = [['☕', '커피 한 잔', 3300], ['☕☕', '커피 두 잔', 6600], ['🍚', '든든한 한 끼', 11000]];
 // 안드로이드 앱은 웹앱을 ?from=android로 연다. 구글 플레이 결제 정책 때문에 앱 안에서는 외부 후원 링크를 보이지 않는다.
 const inAndroidApp = (() => {
   try {
@@ -439,7 +442,10 @@ function renderAbout() {
     ['⛺', '자대 배치', '"자대는 언제 알 수 있어요? 연락이 없는데 괜찮은 걸까요?"', '자대 이야기는 공식 답이 "그 부대에 물어보세요"인 경우가 많아요. 그래서 확인할 곳과, 걱정될 때 부모님도 전화할 수 있는 국방헬프콜 1303을 팁에 함께 넣었어요.'],
     ['🛒', '영외마트', '"부모도 갈 수 있나요? 오늘 문 여나요?"', `아이가 군에 있으면 부모님도 영외마트를 쓸 수 있는데, 마트마다 여는 시간과 쉬는 날이 달라요. 전국 ${content.stores.length}곳을 정리해 두었고, 자주 가는 곳을 저장하면 홈에서 오늘 시간을 바로 보여 드려요.`],
   ];
-  const coffee = DONATE_URL && !inAndroidApp ? `<div class="card coffee"><div class="coffee-head"><span aria-hidden="true">☕</span><span><h2>커피 한 잔 사 주기</h2><small>앱은 지금처럼 무료예요</small></span></div><p>앱이 도움이 되셨다면 만든 사람에게 커피 한 잔 값을 보내 주세요. 앱을 오래 지키는 데 큰 힘이 돼요. 보내셔도 달라지는 기능은 없고, 안 보내셔도 모든 기능을 그대로 쓰실 수 있어요.</p><a class="btn accent" target="_blank" rel="noopener" href="${esc(DONATE_URL)}">${em('☕')}커피 한 잔 사 주기</a><small>송금 서비스 화면이 새로 열려요. 이 앱은 결제 정보를 받지 않아요.</small></div>` : '';
+  const won = (n) => `${n.toLocaleString('ko-KR')}원`;
+  const donateButtons = DONATE_OPTIONS.map(([icon, name, amount]) =>
+    `<a class="btn accent tip" target="_blank" rel="noopener" href="${esc(DONATE_URL.endsWith('/') ? DONATE_URL + amount : DONATE_URL)}">${em(icon)}<span>${name}</span><b>${won(amount)}</b></a>`).join('');
+  const coffee = DONATE_URL && !inAndroidApp ? `<div class="card coffee"><div class="coffee-head"><span aria-hidden="true">☕</span><span><h2>커피 한 잔 사 주기</h2><small>앱은 지금처럼 무료예요</small></span></div><p>앱이 도움이 되셨다면 만든 사람에게 커피나 밥 한 끼 값을 보내 주세요. 앱을 오래 지키는 데 큰 힘이 돼요. 보내셔도 달라지는 기능은 없고, 안 보내셔도 모든 기능을 그대로 쓰실 수 있어요.</p>${donateButtons}<small>송금 서비스 화면이 새로 열려요. 이 앱은 결제 정보를 받지 않아요.</small></div>` : '';
   return `<div class="maker"><span class="avatar" aria-hidden="true">🫡</span><span><h1>만든 사람</h1><p>아들을 군대에 보낸 한 가족이 만들었어요</p></span></div>
   ${coffee}
   <div class="card story"><h2>${em('❤️')}이 앱을 만든 이유</h2>

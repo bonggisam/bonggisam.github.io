@@ -240,9 +240,18 @@ body { background: var(--olive); }
 .coffee-head { display: flex; align-items: center; gap: 12px; }
 .coffee-head > span:first-child { font-size: 46px; line-height: 1; }
 .card.coffee .btn.accent { border-color: var(--brass); }
+.btn.tip { justify-content: flex-start; gap: 10px; }
+.btn.tip b { margin-left: auto; font-variant-numeric: tabular-nums; }
 .card.story h2 { font-size: 20px; }
 .card .question { color: #6B5A1E; }
 .visits b { color: var(--olive); }
 /* 처음 화면: 올리브 바탕 위 결과 숫자 */
 .welcome .result .num { font-family: var(--number); color: var(--brass); }
 .welcome .result .num em { color: var(--cream); font-family: var(--sans); font-weight: 900; }
+
+/* 개인정보처리방침·도움말 페이지(main.doc): 올리브 바탕 위라 글씨를 광목색으로. 표와 칸 안은 짙은 글씨. */
+.doc { color: var(--cream); --muted: var(--khaki); }
+.doc h1, .doc h2 { color: var(--cream); font-family: var(--sans); font-weight: 900; }
+.doc a { color: var(--brass); }
+.doc table, .doc .card, .doc details { color: var(--ink); --muted: #5C6340; }
+.doc table a, .doc .card a:not(.btn) { color: var(--olive); }
