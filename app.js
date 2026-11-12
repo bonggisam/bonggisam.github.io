@@ -28,12 +28,10 @@ const ICONS = {
   about: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
 };
 
-/** 앱에 바라는 점을 받는 메일. 앱의 WishMailCard와 같다. */
-/** 공개 웹에 주소가 글자 그대로 남지 않게 나눠 둔다(메일 주소 수집 프로그램 막기). */
-const WISH_MAIL = ['bbongssem', 'naver.com'].join('@');
+/** 앱에 바라는 점. 2026-11-12부터 메일 대신 질문과 같은 구글 설문지로 받는다(메일 주소를 드러내지 않으려고). */
 /** "다른 부모님께 알려 주기"로 보내는 글. 앱의 ShareInvite.message와 같다. 웹앱 주소는 따로 붙인다. */
 const SHARE_TEXT = "아이를 군에 보낸 부모님께 도움이 되는 무료 앱이에요. 전역일 계산, 훈련소별 수료식 안내, 영외마트 여는 시간까지 가입 없이 볼 수 있어요. '아들아사랑해'";
-const wishView = { text: '' };
+const wishView = { text: '', state: 'idle' };
 
 /** 방문자 수. 서버(functions/api/visits.js)가 없거나 오프라인이면 null로 두고 화면에서 숨긴다.
  *  GitHub Pages에는 서버가 없어 묻지 않는다. */
@@ -500,25 +498,21 @@ function renderAbout() {
   ${visitLine()}</div>
   <h2 class="section">${em('🧭')}이런 정보를 모아 둔 이유</h2>
   ${reasons.map(([e, stage, q, a]) => `<div class="card"><h2>${em(e)}${esc(stage)}</h2><p class="question">${esc(q)}</p><p>${esc(a)}</p></div>`).join('')}
-  <div class="card"><h2>${em('💌')}앱에 바라는 점 보내기</h2><p>이런 정보가 더 있으면 좋겠다, 이건 불편하다, 무엇이든 좋아요. 적어 주신 이야기는 메일로 만든 사람에게 바로 와요.</p>
+  <div class="card"><h2>${em('💌')}앱에 바라는 점 보내기</h2><p>이런 정보가 더 있으면 좋겠다, 이건 불편하다, 무엇이든 좋아요. 적어 주신 이야기는 만든 사람이 하나하나 읽어요.</p>
   <label class="field" for="wish-text">바라는 점</label>
   <textarea id="wish-text" rows="4" placeholder="예: 해군 수료식 날 주변 정보도 있으면 좋겠어요">${esc(wishView.text)}</textarea>
-  <a class="btn accent" id="wish-send" href="${esc(wishMailUrl(wishView.text))}">${em('✉️')}메일로 보내기</a>
-  <small>메일 앱이 열려요. 열리지 않으면 메일 앱이 설정된 기기에서 다시 보내 주세요.</small></div>
+  ${wishView.state === 'opened' ? '<p class="notice caution">설문지가 새 창으로 열렸어요. 거기서 <b>제출</b>을 눌러야 보내져요.</p>' : ''}
+  ${wishView.state === 'copied' ? '<p class="notice caution">아직 받는 곳을 준비하고 있어요. 적으신 내용을 복사해 두었어요.</p>' : ''}
+  <button type="button" class="btn accent" data-send-wish="1">${em('📮')}설문지로 보내기</button>
+  <small>로그인 없이 보내지고, 이름이나 연락처는 묻지 않아요. 따로 답장은 못 드려요.</small></div>
   <h2 class="section">${em('ℹ️')}알아 두실 것</h2>
   ${card({ title: '국군복지단의 공식 앱이 아니에요', emoji: '🏷️', body: '공개된 공식 자료를 사람이 하나하나 읽고 정리한 무료 앱이에요. 법률 상담은 아니라서, 가시기 전엔 마트에 전화해 보시는 게 제일 정확해요.' })}
   ${card({ title: '언제 자료인가요', emoji: '🗓️', body: `마트 ${content.stores.length}곳은 ${baseText()} 운영표로, 휴점 공지는 ${checkedText()}까지 살펴보고 정리했어요. 지금 쓰는 자료는 ${content.revision}판이에요.`, source: '국군복지단 월간 공지' })}
-  ${card({ title: '무엇을 저장하나요', emoji: '🔒', body: '입대일, 복무 형태, 전역일, 저장한 마트만 이 기기에 저장해요. 가입은 없고 위치도 쓰지 않아요. 제보나 바라는 점을 보내시면 적어 주신 내용만 만든 사람에게 가요. 메일로 보내시면 보내신 분의 메일 주소도 함께 와요.' })}
+  ${card({ title: '무엇을 저장하나요', emoji: '🔒', body: '입대일, 복무 형태, 전역일, 저장한 마트만 이 기기에 저장해요. 가입은 없고 위치도 쓰지 않아요. 질문·제보·바라는 점은 구글 설문지로 받고, 적어 주신 내용만 만든 사람에게 가요. 이름이나 연락처는 받지 않아요.' })}
   ${eraseAsked ? '<p class="notice">입대일과 저장한 마트를 모두 지울까요?</p><button type="button" class="btn" data-erase="yes">지우기</button><button type="button" class="btn outline" data-erase="no">취소</button>'
     : `<button type="button" class="btn outline" data-erase="ask">${em('🧹')}이 기기에 저장한 정보 지우기</button>`}`;
 }
 
-/** 바라는 점을 담은 메일 주소. 받는 사람, 제목, 본문을 미리 채운다. */
-function wishMailUrl(text) {
-  const where = inAndroidApp ? '안드로이드' : '웹';
-  const body = `${text.trim()}\n\n---\n아들아사랑해 (${where})`;
-  return `mailto:${WISH_MAIL}?subject=${encodeURIComponent('[아들아사랑해] 앱에 바라는 점')}&body=${encodeURIComponent(body)}`;
-}
 
 function route() {
   const [name = 'home', arg] = location.hash.replace(/^#\/?/, '').split('/');
@@ -623,6 +617,19 @@ document.addEventListener('click', async (event) => {
     draw({ keepFocusId: 'data-toggle-save' });
   } else if (d.issue !== undefined) { report.issue = d.issue; draw(); }
   else if (d.sendReport !== undefined) await sendReport(d.sendReport);
+  else if (d.sendWish) {
+    const text = wishView.text.trim();
+    const box = document.getElementById('wish-text');
+    if (!text) { box?.setAttribute('aria-invalid', 'true'); box?.focus(); return; }
+    const body = `[아들아사랑해 바라는 점]\n${text}`;
+    const url = formUrl(body);
+    if (url) {
+      window.open(url, '_blank', 'noopener');
+      if (!content.questionForm.includes('PREFILL')) await copyText(body);
+      wishView.state = 'opened';
+    } else if (await copyText(body)) wishView.state = 'copied';
+    draw({ keepFocusId: 'data-send-wish' });
+  }
   else if (d.copyReport !== undefined) {
     const store = d.copyReport ? storeById(d.copyReport) : null;
     if (await copyText(reportText(store))) { report.state = 'copied'; draw(); }
@@ -656,9 +663,8 @@ document.addEventListener('input', (event) => {
     report.text = t.value;
     t.removeAttribute('aria-invalid');
   } else if (t.id === 'wish-text') {
-    // 다시 그리지 않고 메일 버튼 주소만 바꾼다(입력 중 커서가 튀지 않게).
+    // 다시 그리지 않는다(입력 중 커서가 튀지 않게).
     wishView.text = t.value;
-    document.getElementById('wish-send')?.setAttribute('href', wishMailUrl(t.value));
   } else if (t.id === 'report-day') {
     report.day = t.value;
   }
