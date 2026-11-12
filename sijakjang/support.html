@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>시약장 도움말·문의</title>
+<style>body{font-family:"Gothic A1","Apple SD Gothic Neo","Noto Sans KR",sans-serif;max-width:720px;margin:0 auto;padding:28px 20px 60px;color:#20303c;background:#e8edf1;line-height:1.7}main{background:#fff;border-radius:16px;padding:24px}h1{font-size:24px}h2{font-size:18px;margin-top:28px}a{color:#0b6e78}.muted{color:#5f6f7c;font-size:14px}</style></head><body><main>
+<h1>🧪 시약장 도움말</h1>
+<p>학교 과학실 시약을 찾고, 잔량을 기록하고, 수업 준비를 돕는 교사용 무료 앱입니다.</p>
+<h2>처음 시작</h2>
+<p>앱을 열고 “우리 학교로 시작”을 누른 뒤 ① 시약장 종류와 개수 ② 단·열 수 ③ 기존 엑셀 대장(선택)을 넣으면 됩니다.</p>
+<h2>다른 교사와 함께 쓰기</h2>
+<p>관리자가 <b>더보기 › 학교·비밀번호</b>에서 비밀번호를 정하고 “학교 데이터 보내기”로 묶음을 만들어 보냅니다. 받는 교사는 “학교 데이터 받기”에 묶음과 비밀번호를 넣습니다.</p>
+<h2>전출할 때</h2>
+<p><b>더보기 › 학교·비밀번호 › 이 기기에서 이 학교 지우기</b>를 누르세요. 관리자는 비밀번호를 바꿔 주세요.</p>
+<h2>자주 묻는 질문</h2>
+<p><b>데이터가 서버에 올라가나요?</b> 아니요. 모든 데이터는 기기 안에만 있습니다.<br>
+<b>비밀번호를 잊었어요.</b> 비밀번호는 복구할 수 없습니다. 관리자 기기에서 새 비밀번호를 정하고 묶음을 다시 받으세요.<br>
+<b>MSDS 정보가 정확한가요?</b> 앱의 그림문자·주의 문구는 참고용입니다. 안전보건공단 MSDS 원문과 교육청 지침을 우선하세요.</p>
+<h2 id="feedback">의견 보내기</h2>
+<p>질문, 문제점, 개선할 점을 남겨 주세요. 앱 안의 <b>더보기 › 의견 보내기</b>와 같은 곳으로 전달됩니다.</p>
+<form id="fb" style="display:grid;gap:10px">
+<label>종류<br><select name="type" style="width:100%;padding:10px;border-radius:10px;border:1px solid #cfd8df"><option>질문</option><option>문제점·오류</option><option>개선 제안</option><option>좋았던 점</option></select></label>
+<label>어느 화면인가요?<br><select name="screen" style="width:100%;padding:10px;border-radius:10px;border:1px solid #cfd8df"><option>찾기</option><option>시약장</option><option>등록</option><option>썼어요·잔량</option><option>수업 준비</option><option>실험별 시약</option><option>구매·폐액·실사</option><option>학교·비밀번호·데이터 받기</option><option>디자인</option><option>커피 한잔</option><option>처음 설정</option><option>기타</option></select></label>
+<label>만족도 (1~5)<br><input name="rating" type="number" min="1" max="5" style="width:100%;padding:10px;border-radius:10px;border:1px solid #cfd8df"></label>
+<label>내용<br><textarea name="text" required minlength="5" maxlength="2000" rows="6" style="width:100%;padding:10px;border-radius:10px;border:1px solid #cfd8df"></textarea></label>
+<label>답을 받을 이메일 (선택)<br><input name="email" type="email" style="width:100%;padding:10px;border-radius:10px;border:1px solid #cfd8df"></label>
+<input name="hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+<p class="muted">이메일을 적으면 답장 목적으로만 쓰고 답장 후 지웁니다.</p>
+<button style="padding:14px;border:0;border-radius:12px;background:#0b6e78;color:#fff;font-size:17px;font-weight:700;cursor:pointer">보내기</button>
+<p id="fbMsg" role="status"></p>
+</form>
+<script>
+/* 앱의 FEEDBACK.endpoint 와 같은 Apps Script 웹 앱 주소를 넣으세요 */
+const ENDPOINT='';
+document.getElementById('fb').onsubmit=async e=>{e.preventDefault();const f=e.target,m=document.getElementById('fbMsg');if(f.hp.value)return;
+  if(!ENDPOINT){m.textContent='지금은 의견 받기를 준비하고 있습니다. 앱의 의견 보내기를 이용해 주세요.';return}
+  const p={type:f.type.value,screen:f.screen.value,rating:f.rating.value,text:f.text.value.trim(),email:f.email.value.trim(),version:'web-support',platform:'web',device:'',design:'',role:''};
+  try{await fetch(ENDPOINT,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)});f.reset();m.textContent='보냈습니다. 고맙습니다!'}catch(err){m.textContent='보내지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주세요.'}};
+</script>
+<p class="muted">유튜브 @chemdict · 인스타그램 chemdict_official, chemdict_off</p>
+</main></body></html>

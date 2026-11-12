@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="시약장">
+<title>시약장 — 우리 학교 시약 관리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="themeFont" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0b6e78">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+/* ---------- 공통 구조 ---------- */
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+header.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bar);color:var(--bar-ink);border-bottom:var(--bar-line)}
+.brand{font-family:var(--display);font-size:22px;letter-spacing:var(--display-track);line-height:1}
+.school{font-size:14px;opacity:.8}
+.sp{flex:1}
+main{max-width:1060px;margin:0 auto;padding:18px 16px 110px}
+nav.tabs{position:fixed;z-index:6;display:flex;justify-content:center;background:var(--nav);border:var(--nav-border)}
+nav.tabs button{background:none;border:0;cursor:pointer;color:var(--nav-ink);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:13px;min-height:54px;min-width:58px;padding:8px 8px 10px}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button[aria-current=page]{color:var(--nav-on);font-weight:700}
+.panel{background:var(--card);border:var(--card-border);border-radius:var(--r);padding:18px;margin-bottom:16px;box-shadow:var(--card-shadow)}
+h2{font-family:var(--display);font-weight:var(--display-w);font-size:21px;letter-spacing:var(--display-track);margin:0 0 10px;line-height:1.25}
+h3{font-size:16px;margin:16px 0 8px}
+.muted{color:var(--quiet);font-size:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grow{flex:1;min-width:150px}
+input,select,textarea{background:var(--field);border:var(--field-border);border-radius:var(--r-s);padding:10px 12px;min-height:46px;width:100%}
+textarea{min-height:88px}
+label{display:block;font-size:13px;color:var(--quiet);margin:10px 0 4px}
+.btn{border:var(--btn-border);background:var(--btn);color:var(--btn-ink);border-radius:var(--r-s);padding:10px 15px;min-height:46px;cursor:pointer;white-space:nowrap;font-weight:600}
+.btn.pri{background:var(--pri);color:var(--pri-ink);border-color:var(--pri-edge)}
+.btn.bad{color:var(--bad);border-color:var(--bad)}
+.btn.sm{min-height:36px;padding:5px 11px;font-size:14px}
+.seg{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px}
+.seg button{border:var(--btn-border);background:var(--btn);border-radius:var(--r-s);padding:8px 14px;cursor:pointer;min-height:42px}
+.seg button[aria-pressed=true]{background:var(--pri);color:var(--pri-ink);border-color:var(--pri-edge)}
+.search{font-size:19px;min-height:58px;border:var(--search-border)}
+/* 저장군 색 */
+.gA1,.gA2,.gA3{--gc:var(--cA)} .gB{--gc:var(--cB)} .gF{--gc:var(--cF)} .gO{--gc:var(--cO)} .gM{--gc:var(--cM)} .gT{--gc:var(--cT)} .gG{--gc:var(--cG)}
+.chip{display:inline-flex;align-items:center;font-size:12px;font-weight:700;padding:1px 7px;border-radius:var(--r-chip);background:var(--gc);color:var(--chip-ink);vertical-align:middle}
+/* 화학식 타일 — 앱의 시그니처 */
+.tile{position:relative;flex:none;width:68px;height:68px;border-radius:var(--tile-r);background:var(--tile-bg);border:var(--tile-border);color:var(--tile-ink);display:flex;flex-direction:column;justify-content:center;align-items:center;overflow:hidden}
+.tile .tg{position:absolute;top:3px;left:5px;font-size:10px;font-weight:700;opacity:.85}
+.tile .tf{font-family:var(--tile-font);font-weight:700;font-size:17px;line-height:1.1;text-align:center;padding:0 3px;word-break:break-all}
+.tile .tn{font-size:10px;opacity:.85;margin-top:2px;max-width:62px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.res{display:flex;gap:12px;align-items:center;padding:10px;border:var(--res-border);border-radius:var(--r);margin-top:8px;cursor:pointer;background:var(--card)}
+.res:hover{background:var(--hover)}
+.res .nm{font-weight:700}
+.path{font-size:14px;color:var(--quiet)}
+.path b{color:var(--ink)}
+.meter{height:8px;width:78px;background:var(--track);border-radius:4px;overflow:hidden;flex:none}
+.meter i{display:block;height:100%;background:var(--ok)}
+.meter i.low{background:var(--bad)}
+.note{padding:10px 12px;border-radius:var(--r-s);font-size:14px;margin:8px 0}
+.note.warn{background:var(--warn-bg);color:var(--warn)}
+.note.bad{background:var(--bad-bg);color:var(--bad)}
+.note.ok{background:var(--ok-bg);color:var(--ok)}
+.note.info{background:var(--info-bg);color:var(--info)}
+.ghs{display:inline-flex;gap:4px;flex-wrap:wrap;vertical-align:middle}
+.ghs svg{width:30px;height:30px}
+/* 시약장 그림 */
+.cabs{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:16px}
+.cab{border:var(--cab-border);border-radius:var(--cab-r);overflow:hidden;background:var(--cab-bg)}
+.cab .hd{display:flex;gap:8px;align-items:center;padding:9px 11px;background:var(--cab-hd);color:var(--cab-hd-ink);font-weight:700;border-bottom:var(--cab-border)}
+.cab .hd .code{font-family:var(--display);font-size:20px;line-height:1}
+.cab .hd .room{margin-left:auto;font-weight:400;font-size:12px;opacity:.8}
+.grid{display:grid}
+.slot{border-right:var(--slot-line);border-bottom:var(--slot-line);min-height:74px;padding:6px;cursor:pointer;font-size:13px;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:2px;background:none;border-top:0;border-left:0;color:inherit}
+.slot:hover{background:var(--hover)}
+.slot .sn{color:var(--quiet);font-size:12px}
+.slot .cnt{font-weight:700}
+.slot .grp{font-size:11px;color:var(--quiet)}
+.slot.hl{background:var(--hl-bg);outline:3px solid var(--hl);outline-offset:-3px}
+.slot .out{font-size:11px;color:var(--warn);font-weight:700}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-bottom:var(--slot-line);padding:8px 6px;text-align:left;vertical-align:top}
+th{color:var(--quiet);font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.stat .n{font-family:var(--display);font-size:34px;line-height:1.1;font-weight:var(--display-w)}
+.stat .l{font-size:13px;color:var(--quiet)}
+.dist{display:flex;height:22px;border-radius:var(--r-s);overflow:hidden;margin:10px 0 6px;border:var(--slot-line)}
+.dist span{background:var(--gc);display:block}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:13px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:2px;background:var(--gc);margin-right:4px;vertical-align:-1px}
+.alert{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:var(--slot-line);cursor:pointer}
+.alert:last-child{border-bottom:0}
+.alert .k{font-size:12px;font-weight:700;padding:2px 8px;border-radius:var(--r-chip);flex:none}
+.k.bad{background:var(--bad-bg);color:var(--bad)} .k.warn{background:var(--warn-bg);color:var(--warn)} .k.info{background:var(--info-bg);color:var(--info)}
+.tag{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;border:var(--slot-line);margin:2px 3px 0 0;cursor:pointer}
+.tag.have{background:var(--ok-bg);color:var(--ok);border-color:transparent}
+.tag.no{background:var(--bad-bg);color:var(--bad);border-color:transparent}
+.sugg{border:var(--field-border);border-radius:var(--r-s);margin-top:4px;max-height:230px;overflow:auto;background:var(--card)}
+.sugg button{display:block;width:100%;text-align:left;padding:9px 12px;border:0;border-bottom:var(--slot-line);background:none;cursor:pointer}
+.sugg button:hover{background:var(--hover)}
+.prog{height:10px;background:var(--track);border-radius:5px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--pri)}
+.thumb{width:68px;height:68px;object-fit:cover;border-radius:var(--tile-r);flex:none}
+.modal-bg{position:fixed;inset:0;background:rgba(10,20,30,.5);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.modal{background:var(--card);color:var(--ink);width:100%;max-width:580px;max-height:90vh;overflow:auto;border-radius:var(--r) var(--r) 0 0;padding:20px;border:var(--card-border)}
+@media(min-width:720px){.modal-bg{align-items:center}.modal{border-radius:var(--r)}}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--ink);color:var(--card);padding:10px 16px;border-radius:var(--r-s);z-index:30;font-size:14px}
+details summary{cursor:pointer;color:var(--link);font-size:14px}
+a{color:var(--link)}
+/* 라벨 미리보기 */
+.label-card{border:2px solid #000;background:#fff;color:#000;padding:12px;border-radius:4px;display:grid;grid-template-columns:1fr auto;gap:8px;font-family:"Noto Sans KR",sans-serif}
+.label-card .ln{font-size:20px;font-weight:800}
+.label-card .ls{font-size:13px}
+@media print{body *{visibility:hidden}.label-card,.label-card *{visibility:visible}.label-card{position:fixed;top:10mm;left:10mm;width:90mm}}
+@media (prefers-reduced-motion:no-preference){.slot.hl{animation:pulse 1.2s ease-out 2}@keyframes pulse{0%{outline-offset:-3px}50%{outline-offset:-8px}100%{outline-offset:-3px}}}
+
+.use{min-width:76px}
+.bigbtn{width:100%;min-height:64px;font-size:19px;border-radius:14px}
+.more{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.more button{background:var(--card);color:var(--ink);border:var(--card-border);border-radius:16px;padding:18px 14px;text-align:left;cursor:pointer;box-shadow:var(--card-shadow);min-height:104px;display:flex;flex-direction:column;gap:6px}
+.more button b{font-size:17px}
+.more button span{font-size:13px;color:var(--quiet)}
+.more button svg{width:26px;height:26px;color:var(--pri)}
+.back{background:none;border:0;color:var(--link);cursor:pointer;padding:6px 0;margin-bottom:6px;font-size:15px}
+.basket-item{display:flex;gap:12px;align-items:center;padding:10px 0;border-bottom:var(--slot-line)}
+.basket-item.got{opacity:.55}
+.check{width:46px;height:46px;border-radius:12px;border:2px solid var(--pri);background:none;cursor:pointer;flex:none;font-size:22px;color:var(--pri-ink)}
+.check[aria-pressed=true]{background:var(--pri)}
+.steps{display:flex;gap:6px;margin-bottom:10px}
+.steps i{flex:1;height:6px;border-radius:3px;background:var(--track)}
+.steps i.on{background:var(--pri)}
+.stepper{display:flex;align-items:center;gap:8px}
+.stepper button{width:40px;height:40px;border-radius:10px;border:var(--btn-border);background:var(--btn);font-size:20px;cursor:pointer}
+.stepper b{min-width:22px;text-align:center}
+/* ---------- 디자인 모드 (값은 THEMES에서) ---------- */
+body{background-image:var(--bg-img,none);background-size:var(--bg-size,auto)}
+nav.tabs{left:0;right:0;bottom:0}
+body.nav-float nav.tabs{left:50%;right:auto;transform:translateX(-50%);bottom:14px;border-radius:999px;padding:0 10px;box-shadow:0 6px 20px rgba(20,40,55,.25)}
+@media(max-width:520px){body.nav-float nav.tabs{left:8px;right:8px;transform:none}nav.tabs button{min-width:0;flex:1}}
+nav.tabs .em{font-size:22px;line-height:1;filter:var(--em-filter,none)}
+nav.tabs button[aria-current=page] .em{filter:none;transform:scale(1.12)}
+.tile{width:72px;height:72px}
+body.tile-fill .tile{background:var(--gc);color:var(--tile-ink);border:0}
+body.tile-line .tile{background:var(--card);border:2px solid var(--gc);color:var(--gc)}
+body.tile-line .tile .tn{color:var(--quiet)}
+body.tile-dark .tile{background:var(--tile-bg);color:var(--tile-ink);box-shadow:inset 0 6px 0 var(--gc)}
+body.tile-dark .tile .tg{top:8px}
+body.tile-glow .tile{background:var(--card);color:var(--ink);border:1.5px solid var(--gc);box-shadow:0 0 12px -2px var(--gc),inset 0 0 10px -4px var(--gc)}
+body.tile-dot .tile{background:var(--card);border:1px solid var(--line);color:var(--ink)}
+body.tile-dot .tile::after{content:"";position:absolute;top:6px;right:6px;width:10px;height:10px;border-radius:50%;background:var(--gc)}
+.tile .tf{font-size:19px}
+.stat{background:var(--field);border-radius:var(--r-s);padding:10px 12px}
+header.top{border-image:var(--bar-grad,none) 1}
+.brand .em{margin-right:4px}
+/* 디자인 고르기 */
+.th-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.th-card{border-radius:12px;padding:10px;cursor:pointer;text-align:left;border:2px solid transparent;min-height:118px}
+.th-card[aria-pressed=true]{outline:3px solid var(--focus);outline-offset:2px}
+.th-card .nm{font-size:15px;font-weight:700;margin-top:6px;display:block}
+.th-card .sw{display:flex;gap:4px;margin-top:6px}
+.th-card .sw i{width:16px;height:16px;border-radius:4px;display:block}
+.lock-screen{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px}
+.lock-box{background:var(--card);border-radius:var(--r);padding:24px;max-width:380px;width:100%;box-shadow:var(--card-shadow);border:var(--card-border)}
+.lock-box .big{font-size:44px;text-align:center}
+</style>
+</head>
+<body>
+<header class="top">
+  <span class="brand" id="brand">시약장</span><button class="school" id="schoolName" style="background:none;border:0;color:inherit;cursor:pointer;padding:6px 4px;font-size:14px" aria-label="학교 바꾸기"></button><span class="sp"></span>
+  <span class="muted" id="who" style="font-size:13px"></span>
+</header>
+<main id="view"></main>
+<nav class="tabs" id="nav" aria-label="메뉴"></nav>
+<div id="modalRoot"></div>
+<script>
+'use strict';
+/* ===== 디자인 10종 ===== */
+const BASEV={'--display-w':'800','--display-track':'0','--focus':'#f08c2e','--bar-line':'0','--nav-border':'0','--card-border':'0','--pri-edge':'var(--pri)','--line':'#e3e8ec',
+ '--ok':'#16794a','--ok-bg':'#ddf2e6','--warn':'#94570a','--warn-bg':'#fcefd9','--bad':'#b3261e','--bad-bg':'#fbe3e1','--chip-ink':'#1d2a33','--tile-ink':'#1d2a33','--tile-bg':'#1d2a33'};
+const gf=(...f)=>'https://fonts.googleapis.com/css2?'+f.map(x=>'family='+x).join('&')+'&display=swap';
+const THEMES=[
+{id:'table',name:'주기율표',desc:'파스텔 원소 타일, 떠 있는 메뉴',font:gf('Gothic+A1:wght@400;600;800'),nav:'float',tile:'fill',
+ emo:{brand:'🧪',search:'🔍',cabinet:'🗄️',add:'📷',more:'🧰',basket:'🧺',exp:'⚗️',buy:'🛒',waste:'🛢️',audit:'📋',admin:'👥',coffee:'☕',lock:'🔐',use:'💧',theme:'🎨'},
+ v:{'--display':'"Gothic A1",sans-serif','--body':'"Gothic A1",system-ui,sans-serif','--tile-font':'"Gothic A1",sans-serif','--display-track':'-.5px',
+ '--bg':'#e8edf1','--ink':'#20303c','--quiet':'#5f6f7c','--card':'#ffffff','--field':'#f3f6f8','--hover':'#eef5f6','--track':'#dfe6eb','--link':'#0b6e78',
+ '--bar':'#e8edf1','--bar-ink':'#20303c','--nav':'#20303c','--nav-ink':'#b9c6cf','--nav-on':'#ffffff','--r':'16px','--r-s':'10px','--r-chip':'6px','--card-shadow':'0 1px 0 #d3dbe1',
+ '--field-border':'1px solid #d3dce3','--btn':'#ffffff','--btn-ink':'#20303c','--btn-border':'1px solid #cfd8df','--pri':'#0b6e78','--pri-ink':'#fff','--search-border':'2px solid #0b6e78','--res-border':'1px solid #e1e7ec',
+ '--tile-r':'10px','--cab-border':'1px solid #d6dee4','--cab-r':'16px','--cab-bg':'#fff','--cab-hd':'#f4f7f9','--cab-hd-ink':'#20303c','--slot-line':'1px solid #e3e9ee','--hl':'#0b6e78','--hl-bg':'#dff1f2',
+ '--cA':'#f6b3ad','--cB':'#a9c8f2','--cF':'#f8c99a','--cO':'#f3df8f','--cM':'#cdb8ef','--cT':'#b8c1c9','--cG':'#bfe0c9','--info':'#0b6e78','--info-bg':'#dff1f2'}},
+{id:'note',name:'실험 노트',desc:'모눈종이와 파란 잉크, 명조 제목',font:gf('Gowun+Batang:wght@400;700','IBM+Plex+Sans+KR:wght@400;600;700'),nav:'bar',tile:'line',
+ emo:{brand:'📓',search:'🔎',cabinet:'📚',add:'✏️',more:'📎',basket:'🧾',exp:'📒',buy:'💳',waste:'🗑️',audit:'✅',admin:'🪪',coffee:'🍵',lock:'🗝️',use:'✍️',theme:'🖋️'},
+ v:{'--display':'"Gowun Batang",serif','--body':'"IBM Plex Sans KR",system-ui,sans-serif','--tile-font':'"Gowun Batang",serif','--display-w':'700',
+ '--bg':'#eef3fa','--bg-img':'linear-gradient(#dbe4f2 1px,transparent 1px),linear-gradient(90deg,#dbe4f2 1px,transparent 1px)','--bg-size':'22px 22px',
+ '--ink':'#1c2a4a','--quiet':'#56638a','--card':'#fffefb','--field':'#fffefb','--hover':'#eef3fd','--track':'#dbe3f0','--link':'#2a52be',
+ '--bar':'#fffefb','--bar-ink':'#1c2a4a','--bar-line':'1px solid #c9d5ea','--nav':'#fffefb','--nav-ink':'#56638a','--nav-on':'#2a52be','--nav-border':'1px solid #c9d5ea',
+ '--r':'6px','--r-s':'4px','--r-chip':'3px','--card-border':'1px solid #c9d5ea','--card-shadow':'none','--field-border':'1px solid #b9c7e0','--btn':'#fffefb','--btn-ink':'#1c2a4a','--btn-border':'1px solid #9fb2d6',
+ '--pri':'#2a52be','--pri-ink':'#fff','--search-border':'2px solid #2a52be','--res-border':'1px solid #d6dfee','--tile-r':'4px','--line':'#c9d5ea',
+ '--cab-border':'1.5px solid #9fb2d6','--cab-r':'6px','--cab-bg':'#fffefb','--cab-hd':'#f3f6fc','--cab-hd-ink':'#1c2a4a','--slot-line':'1px dashed #c3cfe4','--hl':'#2a52be','--hl-bg':'#e3ebfb',
+ '--cA':'#c0392b','--cB':'#2a52be','--cF':'#c76a12','--cO':'#9c7a12','--cM':'#6a4bb5','--cT':'#2b2f3a','--cG':'#3f6b52','--chip-ink':'#fff','--info':'#2a52be','--info-bg':'#e6edfb'}},
+{id:'sign',name:'안전 표지',desc:'검정·노랑 경고 표지, 굵은 각진 테두리',font:gf('Black+Han+Sans','Noto+Sans+KR:wght@400;600;800'),nav:'bar',tile:'dark',
+ emo:{brand:'⚠️',search:'🔦',cabinet:'🚪',add:'🆕',more:'🚧',basket:'🦺',exp:'🧯',buy:'📦',waste:'☣️',audit:'📊',admin:'🛂',coffee:'☕',lock:'🔒',use:'⬇️',theme:'🟨'},
+ v:{'--display':'"Black Han Sans","Noto Sans KR",sans-serif','--body':'"Noto Sans KR",system-ui,sans-serif','--tile-font':'"Noto Sans KR",sans-serif','--display-w':'400','--display-track':'.5px',
+ '--bg':'#ffffff','--ink':'#000000','--quiet':'#454545','--card':'#ffffff','--field':'#ffffff','--hover':'#fff7c2','--track':'#e5e5e5','--link':'#000','--focus':'#0057ff',
+ '--bar':'#000','--bar-ink':'#ffd400','--nav':'#000','--nav-ink':'#cfcfcf','--nav-on':'#ffd400','--r':'0','--r-s':'0','--r-chip':'0','--card-border':'2.5px solid #000','--card-shadow':'none',
+ '--field-border':'2px solid #000','--btn':'#fff','--btn-ink':'#000','--btn-border':'2px solid #000','--pri':'#ffd400','--pri-ink':'#000','--pri-edge':'#000','--search-border':'3px solid #000','--res-border':'2px solid #000',
+ '--tile-r':'0','--tile-bg':'#000','--tile-ink':'#fff','--chip-ink':'#fff','--line':'#000',
+ '--cab-border':'2.5px solid #000','--cab-r':'0','--cab-bg':'#fff','--cab-hd':'#000','--cab-hd-ink':'#fff','--slot-line':'1.5px solid #000','--hl':'#0057ff','--hl-bg':'#fff2a8',
+ '--cA':'#e3000f','--cB':'#0057ff','--cF':'#ff7a00','--cO':'#d4a600','--cM':'#7a2cc9','--cT':'#000','--cG':'#5c5c5c',
+ '--warn':'#000','--warn-bg':'repeating-linear-gradient(-45deg,#ffd400 0 10px,#fff1a0 10px 20px)','--info':'#000','--info-bg':'#f1f1f1'}},
+{id:'chalk',name:'칠판',desc:'초록 칠판에 분필 글씨',font:gf('Gaegu:wght@400;700','Gowun+Dodum'),nav:'bar',tile:'line',
+ emo:{brand:'🖍️',search:'👀',cabinet:'🏫',add:'✍️',more:'📐',basket:'🎒',exp:'🔬',buy:'🛍️',waste:'🧽',audit:'✔️',admin:'🧑‍🏫',coffee:'☕',lock:'🔏',use:'🖊️',theme:'🟩'},
+ v:{'--display':'"Gaegu",cursive','--body':'"Gowun Dodum",system-ui,sans-serif','--tile-font':'"Gaegu",cursive','--display-w':'700',
+ '--bg':'#22392d','--ink':'#f1f3ea','--quiet':'#b6c6b9','--card':'#2b4537','--field':'#22392d','--hover':'#33503f','--track':'#3e5c4a','--link':'#f5d76e','--focus':'#f5d76e',
+ '--bar':'#1c3025','--bar-ink':'#f1f3ea','--bar-line':'4px solid #6b4a2b','--nav':'#1c3025','--nav-ink':'#9fb3a4','--nav-on':'#f5d76e','--nav-border':'0',
+ '--r':'8px','--r-s':'6px','--r-chip':'4px','--card-border':'1px solid #3e5c4a','--card-shadow':'none','--field-border':'1.5px dashed #9fb3a4','--btn':'#2b4537','--btn-ink':'#f1f3ea','--btn-border':'1.5px solid #9fb3a4',
+ '--pri':'#f5d76e','--pri-ink':'#22392d','--search-border':'2px solid #f5d76e','--res-border':'1px solid #3e5c4a','--tile-r':'6px','--line':'#3e5c4a',
+ '--cab-border':'1.5px solid #9fb3a4','--cab-r':'8px','--cab-bg':'#2b4537','--cab-hd':'#1c3025','--cab-hd-ink':'#f1f3ea','--slot-line':'1px dashed #557a62','--hl':'#f5d76e','--hl-bg':'#3d5a2e',
+ '--cA':'#ff9a8b','--cB':'#8fc4ff','--cF':'#ffc078','--cO':'#f5d76e','--cM':'#d0b3ff','--cT':'#e4e4e4','--cG':'#a8e6b8','--chip-ink':'#1c3025',
+ '--ok':'#a8e6b8','--ok-bg':'#2f5a3e','--warn':'#f5d76e','--warn-bg':'#4a4a26','--bad':'#ffb3a8','--bad-bg':'#5a3330','--info':'#cfe8ff','--info-bg':'#2f4a5a','--em-filter':'grayscale(.4)'}},
+{id:'litmus',name:'리트머스',desc:'pH 색 띠, 산은 빨강 염기는 파랑',font:gf('Do+Hyeon','Nanum+Gothic:wght@400;700;800'),nav:'float',tile:'fill',
+ emo:{brand:'🌈',search:'🧐',cabinet:'🗃️',add:'🆕',more:'🍇',basket:'🧺',exp:'🧫',buy:'🛒',waste:'🫙',audit:'📝',admin:'👤',coffee:'☕',lock:'🔐',use:'💜',theme:'🌈'},
+ v:{'--display':'"Do Hyeon",sans-serif','--body':'"Nanum Gothic",system-ui,sans-serif','--tile-font':'"Do Hyeon",sans-serif','--display-w':'400',
+ '--bg':'#f6f3fa','--ink':'#2a1f3d','--quiet':'#6a5d80','--card':'#ffffff','--field':'#faf8fc','--hover':'#f3ecfa','--track':'#e7def0','--link':'#7b2d8e',
+ '--bar':'#ffffff','--bar-ink':'#2a1f3d','--bar-line':'5px solid','--bar-grad':'linear-gradient(90deg,#e5383b,#f77f00,#fcbf49,#90be6d,#43aa8b,#277da1,#5a189a)','--nav':'#2a1f3d','--nav-ink':'#c9bedb','--nav-on':'#fff',
+ '--r':'14px','--r-s':'10px','--r-chip':'999px','--card-shadow':'0 2px 0 #e7def0','--field-border':'1px solid #dccfe8','--btn':'#fff','--btn-ink':'#2a1f3d','--btn-border':'1px solid #d3c4e2',
+ '--pri':'#7b2d8e','--pri-ink':'#fff','--search-border':'2px solid #7b2d8e','--res-border':'1px solid #ece4f3','--tile-r':'50%','--line':'#ece4f3',
+ '--cab-border':'1px solid #e1d5ec','--cab-r':'14px','--cab-bg':'#fff','--cab-hd':'#faf6fd','--cab-hd-ink':'#2a1f3d','--slot-line':'1px solid #efe8f5','--hl':'#7b2d8e','--hl-bg':'#f1e3f7',
+ '--cA':'#ffb3b5','--cB':'#a8cdf0','--cF':'#ffd29c','--cO':'#ffe8a3','--cM':'#d9c2f5','--cT':'#c9c3d3','--cG':'#bfe5c8','--info':'#5a189a','--info-bg':'#f1e3f7'}},
+{id:'uv',name:'형광 램프',desc:'자외선 아래 빛나는 형광 시약',font:gf('Orbit','IBM+Plex+Sans+KR:wght@400;600;700'),nav:'bar',tile:'glow',
+ emo:{brand:'🔦',search:'🔭',cabinet:'🧊',add:'📡',more:'🌌',basket:'🚀',exp:'🧬',buy:'💎',waste:'🫙',audit:'🛰️',admin:'👾',coffee:'🥤',lock:'🛡️',use:'⚡',theme:'✨'},
+ v:{'--display':'"Orbit",sans-serif','--body':'"IBM Plex Sans KR",system-ui,sans-serif','--tile-font':'"Orbit",sans-serif','--display-w':'400',
+ '--bg':'#171230','--ink':'#ece8ff','--quiet':'#a99fd8','--card':'#221b45','--field':'#1b1538','--hover':'#2c2358','--track':'#342a66','--link':'#3ee6d0','--focus':'#ff4fd8',
+ '--bar':'#120e26','--bar-ink':'#ece8ff','--nav':'#120e26','--nav-ink':'#8f86c2','--nav-on':'#3ee6d0','--r':'12px','--r-s':'8px','--r-chip':'4px','--card-border':'1px solid #342a66','--card-shadow':'none',
+ '--field-border':'1px solid #4a3e8a','--btn':'#221b45','--btn-ink':'#ece8ff','--btn-border':'1px solid #4a3e8a','--pri':'#3ee6d0','--pri-ink':'#120e26','--search-border':'2px solid #3ee6d0','--res-border':'1px solid #342a66',
+ '--tile-r':'10px','--line':'#342a66','--cab-border':'1px solid #4a3e8a','--cab-r':'12px','--cab-bg':'#221b45','--cab-hd':'#1b1538','--cab-hd-ink':'#ece8ff','--slot-line':'1px solid #342a66','--hl':'#ff4fd8','--hl-bg':'#3a2160',
+ '--cA':'#ff5c8a','--cB':'#4fa8ff','--cF':'#ffa94d','--cO':'#ffe14f','--cM':'#c77dff','--cT':'#e8e8f0','--cG':'#5cf2a8','--chip-ink':'#120e26',
+ '--ok':'#5cf2a8','--ok-bg':'#173d35','--warn':'#ffe14f','--warn-bg':'#3d3517','--bad':'#ff7aa2','--bad-bg':'#45182c','--info':'#3ee6d0','--info-bg':'#173d40'}},
+{id:'celadon',name:'청자',desc:'비색 청자 빛, 붓글씨 제목',font:gf('Song+Myung','Noto+Serif+KR:wght@400;600;800'),nav:'bar',tile:'line',
+ emo:{brand:'🏺',search:'🍃',cabinet:'🪵',add:'🖌️',more:'🎐',basket:'🧺',exp:'🍶',buy:'🪙',waste:'🫗',audit:'📜',admin:'🏯',coffee:'🍵',lock:'🔐',use:'🫖',theme:'🏺'},
+ v:{'--display':'"Song Myung",serif','--body':'"Noto Serif KR",serif','--tile-font':'"Song Myung",serif','--display-w':'400',
+ '--bg':'#e3ede7','--ink':'#1f3d36','--quiet':'#55716a','--card':'#f9fcfa','--field':'#f9fcfa','--hover':'#e9f3ee','--track':'#cfe0d6','--link':'#2f6f5e',
+ '--bar':'#cfe0d6','--bar-ink':'#1f3d36','--bar-line':'1px solid #a9c6b8','--nav':'#f9fcfa','--nav-ink':'#55716a','--nav-on':'#2f6f5e','--nav-border':'1px solid #a9c6b8',
+ '--r':'4px','--r-s':'3px','--r-chip':'2px','--card-border':'1px solid #bfd6ca','--card-shadow':'none','--field-border':'1px solid #a9c6b8','--btn':'#f9fcfa','--btn-ink':'#1f3d36','--btn-border':'1px solid #8fb3a3',
+ '--pri':'#2f6f5e','--pri-ink':'#fff','--search-border':'2px solid #2f6f5e','--res-border':'1px solid #d3e3da','--tile-r':'50% 50% 8px 8px','--line':'#bfd6ca',
+ '--cab-border':'1px solid #8fb3a3','--cab-r':'4px','--cab-bg':'#f9fcfa','--cab-hd':'#e3ede7','--cab-hd-ink':'#1f3d36','--slot-line':'1px solid #d3e3da','--hl':'#2f6f5e','--hl-bg':'#d6ebe1',
+ '--cA':'#b4483a','--cB':'#3a6ea5','--cF':'#b8742a','--cO':'#8f7a1f','--cM':'#6b5b95','--cT':'#2d3436','--cG':'#4f7f69','--chip-ink':'#fff','--info':'#2f6f5e','--info-bg':'#d6ebe1'}},
+{id:'beaker',name:'비커 눈금',desc:'눈금선과 코발트 파랑',font:gf('Hahmlet:wght@400;600;800','Noto+Sans+KR:wght@400;600'),nav:'bar',tile:'line',
+ emo:{brand:'🫧',search:'🔬',cabinet:'🧱',add:'➕',more:'📏',basket:'🧺',exp:'🧪',buy:'🛒',waste:'🪣',audit:'📐',admin:'🧑‍🔬',coffee:'☕',lock:'🔐',use:'💧',theme:'📏'},
+ v:{'--display':'"Hahmlet",serif','--body':'"Noto Sans KR",system-ui,sans-serif','--tile-font':'"Hahmlet",serif',
+ '--bg':'#edf3f8','--bg-img':'repeating-linear-gradient(0deg,transparent 0 31px,#d6e2ec 31px 32px)','--ink':'#0f2a44','--quiet':'#4d6680','--card':'#ffffff','--field':'#f7fafc','--hover':'#eaf2fb','--track':'#d9e5f0','--link':'#1747a6',
+ '--bar':'#ffffff','--bar-ink':'#0f2a44','--bar-line':'2px solid #1747a6','--nav':'#ffffff','--nav-ink':'#4d6680','--nav-on':'#1747a6','--nav-border':'2px solid #1747a6',
+ '--r':'10px','--r-s':'8px','--r-chip':'4px','--card-border':'1px solid #cfdeea','--card-shadow':'none','--field-border':'1px solid #b8cde0','--btn':'#fff','--btn-ink':'#0f2a44','--btn-border':'1px solid #a9c1d8',
+ '--pri':'#1747a6','--pri-ink':'#fff','--search-border':'2px solid #1747a6','--res-border':'1px solid #dbe6ef','--tile-r':'4px 4px 18px 18px','--line':'#cfdeea',
+ '--cab-border':'1.5px solid #8fb0cf','--cab-r':'10px','--cab-bg':'#fff','--cab-hd':'#eaf2fb','--cab-hd-ink':'#0f2a44','--slot-line':'1px solid #dbe6ef','--hl':'#1747a6','--hl-bg':'#dde9fb',
+ '--cA':'#c8364a','--cB':'#1747a6','--cF':'#d0701c','--cO':'#a07d00','--cM':'#7048b8','--cT':'#22303c','--cG':'#2f7a5a','--chip-ink':'#fff','--info':'#1747a6','--info-bg':'#e1ebfb'}},
+{id:'jelly',name:'젤리',desc:'동글동글 사탕색, 초등 선생님용',font:gf('Jua','Gowun+Dodum'),nav:'float',tile:'fill',
+ emo:{brand:'🍬',search:'🔎',cabinet:'🧸',add:'📸',more:'🎈',basket:'🧁',exp:'🎨',buy:'🛒',waste:'🚮',audit:'⭐',admin:'🐻',coffee:'🧋',lock:'🗝️',use:'🍭',theme:'🍬'},
+ v:{'--display':'"Jua",sans-serif','--body':'"Gowun Dodum",system-ui,sans-serif','--tile-font':'"Jua",sans-serif','--display-w':'400',
+ '--bg':'#f2f5ff','--ink':'#2d2a4a','--quiet':'#6b6890','--card':'#ffffff','--field':'#f7f8ff','--hover':'#fff0f6','--track':'#e4e7fb','--link':'#d6336c','--focus':'#7950f2',
+ '--bar':'#f2f5ff','--bar-ink':'#2d2a4a','--nav':'#ff6b9a','--nav-ink':'#ffe0eb','--nav-on':'#ffffff','--r':'22px','--r-s':'16px','--r-chip':'999px','--card-shadow':'0 3px 0 #e1e5fa',
+ '--field-border':'2px solid #e1e5fa','--btn':'#fff','--btn-ink':'#2d2a4a','--btn-border':'2px solid #e1e5fa','--pri':'#ff6b9a','--pri-ink':'#fff','--search-border':'3px solid #ff6b9a','--res-border':'2px solid #eef0fc',
+ '--tile-r':'20px','--line':'#e1e5fa','--cab-border':'2px solid #e1e5fa','--cab-r':'22px','--cab-bg':'#fff','--cab-hd':'#fff5f9','--cab-hd-ink':'#2d2a4a','--slot-line':'2px solid #f1f2fd','--hl':'#ff6b9a','--hl-bg':'#ffe3ee',
+ '--cA':'#ff9eb5','--cB':'#8ec5ff','--cF':'#ffc580','--cO':'#ffe680','--cM':'#c7a6ff','--cT':'#c3c7d6','--cG':'#9be3b5','--info':'#7950f2','--info-bg':'#efeaff'}},
+{id:'coat',name:'실험복',desc:'하얀 바탕, 색은 작은 점으로만',font:gf('IBM+Plex+Sans+KR:wght@400;600;700'),nav:'bar',tile:'dot',
+ emo:{brand:'🥼',search:'🔍',cabinet:'🗂️',add:'🆕',more:'⚙️',basket:'🧾',exp:'🔬',buy:'📦',waste:'🧴',audit:'☑️',admin:'🧑‍💼',coffee:'☕',lock:'🔒',use:'➖',theme:'⚪'},
+ v:{'--display':'"IBM Plex Sans KR",sans-serif','--body':'"IBM Plex Sans KR",system-ui,sans-serif','--tile-font':'"IBM Plex Sans KR",sans-serif','--display-w':'700','--display-track':'-.3px',
+ '--bg':'#ffffff','--ink':'#15181b','--quiet':'#626a72','--card':'#ffffff','--field':'#ffffff','--hover':'#f5f6f7','--track':'#eceef0','--link':'#c1121f','--focus':'#c1121f',
+ '--bar':'#ffffff','--bar-ink':'#15181b','--bar-line':'1px solid #e4e6e8','--nav':'#ffffff','--nav-ink':'#626a72','--nav-on':'#15181b','--nav-border':'1px solid #e4e6e8',
+ '--r':'2px','--r-s':'2px','--r-chip':'2px','--card-border':'1px solid #e4e6e8','--card-shadow':'none','--field-border':'1px solid #cfd3d7','--btn':'#fff','--btn-ink':'#15181b','--btn-border':'1px solid #cfd3d7',
+ '--pri':'#15181b','--pri-ink':'#fff','--search-border':'1.5px solid #15181b','--res-border':'1px solid #eceef0','--tile-r':'2px','--line':'#e4e6e8',
+ '--cab-border':'1px solid #cfd3d7','--cab-r':'2px','--cab-bg':'#fff','--cab-hd':'#fafafa','--cab-hd-ink':'#15181b','--slot-line':'1px solid #eceef0','--hl':'#c1121f','--hl-bg':'#fdecee',
+ '--cA':'#e5383b','--cB':'#2f6fdb','--cF':'#f08c00','--cO':'#e0b100','--cM':'#8a4fd8','--cT':'#15181b','--cG':'#2b9348','--chip-ink':'#fff','--info':'#15181b','--info-bg':'#f3f4f5','--em-filter':'grayscale(1)'}}
+];
+const TKEY2='sijakjang-design';
+let TH=THEMES[0];
+const DEFEMO={feedback:'💬'};
+const E=k=>TH.emo[k]||DEFEMO[k]||'';
+function applyTheme(id){TH=THEMES.find(t=>t.id===id)||THEMES[0];const b=document.body;
+  b.className='nav-'+TH.nav+' tile-'+TH.tile;b.removeAttribute('style');
+  Object.entries(Object.assign({},BASEV,TH.v)).forEach(([k,v])=>b.style.setProperty(k,v));
+  const l=document.getElementById('themeFont');if(l&&l.href!==TH.font)l.href=TH.font;
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=TH.v['--pri'];
+  try{localStorage.setItem(TKEY2,TH.id)}catch(e){}}
+(()=>{let t=null;try{t=localStorage.getItem(TKEY2)}catch(e){}const h=location.hash.slice(1);if(THEMES.some(x=>x.id===h))t=h;applyTheme(t||'table')})();
+/* ===== 교육과정 시약 마스터 (기획서 표 기준) ===== */
+const MASTER=[
+['염산','Hydrochloric acid','HCl','7647-01-0','A1','진한 원액은 환기장치에서 희석. 물에 산을 조금씩','초·중·고',['염화수소산','hydrochloric']],
+['황산','Sulfuric acid','H₂SO₄','7664-93-9','A1','희석 시 강한 발열. 반드시 물에 산을','고',['sulfuric']],
+['질산','Nitric acid','HNO₃','7697-37-2','A2','유기물·아세트산과 분리 보관','고',['nitric']],
+['아세트산','Acetic acid','CH₃COOH','64-19-7','A3','인화성·부식성, 질산과 분리','중·고',['초산','빙초산','acetic']],
+['시트르산','Citric acid','C₆H₈O₇','77-92-9','A3','눈 자극','초·중',['구연산','citric']],
+['옥살산','Oxalic acid dihydrate','H₂C₂O₄·2H₂O','6153-56-6','A3','삼키면 유해, 표준화용 소량','고',['수산','oxalic']],
+['수산화 나트륨','Sodium hydroxide','NaOH','1310-73-2','B','눈 손상 위험(보안경 필수). 흡습성 → 밀봉','초·중·고',['가성소다','양잿물','sodium hydroxide']],
+['수산화 칼슘','Calcium hydroxide','Ca(OH)₂','1305-62-0','B','석회수용, 눈 자극','초·중',['소석회','calcium hydroxide']],
+['암모니아수','Ammonia solution','NH₃(aq)','1336-21-6','B','자극성 기체, 환기','중·고',['암모니아','ammonia']],
+['수산화 바륨','Barium hydroxide octahydrate','Ba(OH)₂·8H₂O','12230-71-6','B(T)','독성, 흡열 반응 시연용 소량','중',['barium hydroxide']],
+['탄산수소 나트륨','Sodium bicarbonate','NaHCO₃','144-55-8','G','저위험','초·중',['베이킹소다','중탄산나트륨','중조','sodium bicarbonate']],
+['탄산 나트륨','Sodium carbonate','Na₂CO₃','497-19-8','G','눈 자극','중',['소다회','sodium carbonate']],
+['탄산 칼슘','Calcium carbonate','CaCO₃','471-34-1','G','저위험','초·중',['대리석','석회석','calcium carbonate']],
+['염화 나트륨','Sodium chloride','NaCl','7647-14-5','G','저위험','초·중·고',['소금','sodium chloride']],
+['염화 칼슘','Calcium chloride','CaCl₂','10043-52-4','G','용해 시 발열, 흡습성','중',['calcium chloride']],
+['염화 칼륨','Potassium chloride','KCl','7447-40-7','G','저위험','중·고',['potassium chloride']],
+['염화 리튬','Lithium chloride','LiCl','7447-41-8','G','삼키면 유해','중',['lithium chloride']],
+['염화 스트론튬','Strontium chloride hexahydrate','SrCl₂·6H₂O','10025-70-4','G','눈 자극','중',['strontium chloride']],
+['염화 암모늄','Ammonium chloride','NH₄Cl','12125-02-9','G','삼키면 유해','중',['ammonium chloride']],
+['백반','Potassium alum','KAl(SO₄)₂·12H₂O','7784-24-9','G','저위험','초',['명반','황산 알루미늄 칼륨','alum']],
+['황산 구리(II)','Copper(II) sulfate pentahydrate','CuSO₄·5H₂O','7758-99-8','G','삼키면 유해, 중금속 폐액','중·고',['황산구리','황산동','copper sulfate']],
+['염화 구리(II)','Copper(II) chloride dihydrate','CuCl₂·2H₂O','10125-13-0','G','중금속 폐액, 전기 분해 시 염소 → 환기','중·고',['염화구리','copper chloride']],
+['황산 아연','Zinc sulfate heptahydrate','ZnSO₄·7H₂O','7446-20-0','G','중금속 폐액','고',['zinc sulfate']],
+['황산 나트륨','Sodium sulfate','Na₂SO₄','7757-82-6','G','저위험','고',['sodium sulfate']],
+['질산 칼륨','Potassium nitrate','KNO₃','7757-79-1','O','산화제, 유기물과 분리','중·고',['초석','potassium nitrate']],
+['질산 은','Silver nitrate','AgNO₃','7761-88-8','T(O)','피부 착색·부식, 갈색병, 은 폐액 분리','중·고',['질산은','silver nitrate']],
+['염화 바륨','Barium chloride dihydrate','BaCl₂·2H₂O','10326-27-9','T','삼키면 독성, 잠금 보관','중',['barium chloride']],
+['아이오딘화 칼륨','Potassium iodide','KI','7681-11-0','G','빛 차단','중·고',['요오드화칼륨','요오드화 칼륨','potassium iodide']],
+['아이오딘','Iodine','I₂','7553-56-2','T','승화·증기 자극, 밀봉·냉암소','초·중·고',['요오드','옥소','iodine']],
+['과망가니즈산 칼륨','Potassium permanganate','KMnO₄','7722-64-7','O','강한 산화제, 글리세린·유기물과 분리','중·고',['과망간산칼륨','과망간산 칼륨','potassium permanganate']],
+['과산화 수소','Hydrogen peroxide 30%','H₂O₂','7722-84-1','O','피부 백화·화상, 학생은 3% 이하, 냉암소','초·중·고',['과산화수소','옥시돌','hydrogen peroxide']],
+['이산화 망가니즈','Manganese dioxide','MnO₂','1313-13-9','O','가루 흡입 주의','초·중·고',['이산화망간','manganese dioxide']],
+['크로뮴산 칼륨','Potassium chromate','K₂CrO₄','7789-00-6','T(O)','6가 크로뮴(발암성), 소량·장갑·폐액 분리','고',['크롬산칼륨','크롬산 칼륨','potassium chromate']],
+['다이크로뮴산 칼륨','Potassium dichromate','K₂Cr₂O₇','7778-50-9','T(O)','6가 크로뮴(발암성), 교사 시연 권장','고',['중크롬산칼륨','다이크롬산칼륨','potassium dichromate']],
+['염화 코발트(II)','Cobalt(II) chloride hexahydrate','CoCl₂·6H₂O','7791-13-1','T','발암성 의심·피부 감작성, 완제 종이 권장','초·고',['염화코발트','cobalt chloride']],
+['염화 철(III)','Iron(III) chloride hexahydrate','FeCl₃·6H₂O','10025-77-1','G','부식성·흡습성, 금속 선반 피함','고',['염화제이철','iron chloride','ferric chloride']],
+['싸이오사이안산 칼륨','Potassium thiocyanate','KSCN','333-20-0','G','산과 섞이면 유독 기체','고',['티오시안산칼륨','thiocyanate']],
+['싸이오황산 나트륨','Sodium thiosulfate pentahydrate','Na₂S₂O₃·5H₂O','10102-17-7','G','산과 반응 시 SO₂ → 환기','고',['티오황산나트륨','하이포','thiosulfate']],
+['아세트산 나트륨','Sodium acetate trihydrate','CH₃COONa·3H₂O','6131-90-4','G','저위험','고',['초산나트륨','sodium acetate']],
+['마그네슘','Magnesium ribbon','Mg','7439-95-4','M','가연성, 연소 광선 직시 금지','중·고',['마그네슘 리본','magnesium']],
+['아연','Zinc','Zn','7440-66-6','M','가루는 가연성','중·고',['zinc']],
+['철 가루','Iron powder','Fe','7439-89-6','M','가루는 가연성','초·중',['철','iron']],
+['구리','Copper','Cu','7440-50-8','G','저위험','중·고',['구리선','구리판','copper']],
+['산화 구리(II)','Copper(II) oxide','CuO','1317-38-0','G','삼키면 유해','고',['산화구리','copper oxide']],
+['활성탄','Activated carbon','C','7440-44-0','G','가루 흡입 주의','중·고',['탄소 가루','숯','carbon']],
+['에탄올','Ethanol','C₂H₅OH','64-17-5','F','인화성, 램프 리필은 불 끈 뒤','초·중·고',['에틸알코올','알코올','ethanol']],
+['아세톤','Acetone','CH₃COCH₃','67-64-1','F','인화성, 화기 금지','고',['acetone']],
+['헥세인','n-Hexane','C₆H₁₄','110-54-3','F','인화성·신경독성, 헵테인으로 대체 검토','고',['헥산','hexane']],
+['페놀프탈레인','Phenolphthalein','C₂₀H₁₄O₄','77-09-8','G','발암성 의심, 용액은 인화성(F)','초·중·고',['phenolphthalein']],
+['BTB','Bromothymol blue','C₂₇H₂₈Br₂O₅S','76-59-5','G','저위험','초·중·고',['브로모티몰 블루','브로모티몰블루','bromothymol']],
+['메틸 오렌지','Methyl orange','C₁₄H₁₄N₃NaO₃S','547-58-0','G','삼키면 유해','고',['메틸오렌지','methyl orange']],
+['메틸렌 블루','Methylene blue','C₁₆H₁₈ClN₃S','61-73-4','G','착색','중',['메틸렌블루','methylene blue']],
+['수단 III','Sudan III','C₂₂H₁₆N₄O','85-86-9','G','착색, 용액은 인화성(F)','중',['수단3','sudan']],
+['녹말','Soluble starch','(C₆H₁₀O₅)n','9005-84-9','G','저위험','초·중',['전분','가용성 녹말','starch']],
+['포도당','D-Glucose','C₆H₁₂O₆','50-99-7','G','저위험','중·고',['글루코스','glucose']],
+['설탕','Sucrose','C₁₂H₂₂O₁₁','57-50-1','G','저위험','초·고',['수크로스','sucrose']],
+['스테아르산','Stearic acid','C₁₈H₃₆O₂','57-11-4','G','저위험','중',['stearic']],
+['질산 납(II)','Lead(II) nitrate','Pb(NO₃)₂','10099-74-8','T(O)','학교 사용 지양 → 염화 칼슘 + 탄산 나트륨으로 대체','—',['질산납','lead nitrate']]
+];
+const M=MASTER.map(r=>({name:r[0],eng:r[1],formula:r[2],cas:r[3],group:r[4],caution:r[5],level:r[6],alias:r[7]}));
+const findMaster=n=>M.find(m=>m.name===n);
+
+/* ===== 교육과정 실험 (기획서 표 기준) ===== */
+const EXP=[
+['초등','용해와 용액','녹는 양 비교, 용액 진하기',['염화 나트륨','설탕','백반']],
+['초등','혼합물의 분리','자석·거름·증발로 분리',['철 가루','염화 나트륨']],
+['초등','산과 염기','지시약 색 변화',['페놀프탈레인','BTB','염산','수산화 나트륨','수산화 칼슘']],
+['초등','여러 가지 기체','산소·이산화 탄소 발생',['과산화 수소','이산화 망가니즈','탄산 칼슘','염산','탄산수소 나트륨','수산화 칼슘']],
+['초등','연소와 소화','연소 후 생기는 물질',['에탄올','수산화 칼슘','염화 코발트(II)']],
+['중학교','물질의 구성','불꽃 반응',['염화 리튬','염화 나트륨','염화 칼륨','염화 칼슘','염화 스트론튬','염화 구리(II)']],
+['중학교','전해질과 이온','이온의 이동, 앙금 생성',['과망가니즈산 칼륨','황산 구리(II)','질산 칼륨','질산 은','염화 바륨','아이오딘화 칼륨','탄산 나트륨','염화 칼슘']],
+['중학교','물질의 특성','끓는점·녹는점',['에탄올','스테아르산','염화 나트륨']],
+['중학교','화학 반응의 규칙','질량 보존, 일정 성분비',['탄산 칼슘','염산','염화 칼슘','탄산 나트륨','구리','마그네슘']],
+['중학교','화학 반응과 에너지','발열·흡열 반응',['철 가루','염화 나트륨','활성탄','염화 칼슘','염화 암모늄','수산화 바륨']],
+['중학교','소화','영양소 검출',['아이오딘','아이오딘화 칼륨','황산 구리(II)','수산화 나트륨','수단 III','녹말','포도당']],
+['중학교','광합성·호흡','엽록소 탈색 후 녹말 확인',['에탄올','아이오딘','아이오딘화 칼륨','BTB','탄산수소 나트륨']],
+['중학교','세포 관찰','세포 염색',['메틸렌 블루','아세트산']],
+['고 통합과학','산·염기와 중화','중화 반응, 중화열',['염산','수산화 나트륨','BTB','페놀프탈레인']],
+['고 통합과학','산화와 환원','금속 반응성, 산화 구리 환원',['구리','질산 은','아연','황산 구리(II)','마그네슘','산화 구리(II)','활성탄']],
+['고 화학','화학의 언어','몰 농도 용액, 기체 부피로 몰',['황산 구리(II)','마그네슘','염산']],
+['고 화학','물질의 구조와 성질','전기 전도성, 극성·무극성',['염화 나트륨','설탕','아이오딘','헥세인']],
+['고 화학','화학 평형','평형 이동',['크로뮴산 칼륨','다이크로뮴산 칼륨','염화 코발트(II)','염산','염화 철(III)','싸이오사이안산 칼륨']],
+['고 화학','역동적인 화학 반응','중화 적정, 산화 환원',['수산화 나트륨','페놀프탈레인','옥살산','과망가니즈산 칼륨','황산']],
+['고 물질과 에너지','용액·반응열','어는점 내림, 헤스 법칙',['설탕','염화 나트륨','수산화 나트륨','염산']],
+['고 화학 반응의 세계','반응 속도·촉매','농도·온도·촉매 효과',['싸이오황산 나트륨','염산','과산화 수소','아이오딘화 칼륨','이산화 망가니즈','마그네슘']],
+['고 화학 반응의 세계','산·염기 평형','완충 용액',['아세트산','아세트산 나트륨']],
+['고 화학 반응의 세계','전기 화학','화학 전지, 전기 분해',['아연','구리','황산 아연','황산 구리(II)','질산 칼륨','염화 구리(II)','황산 나트륨','BTB']],
+['고 생명과학 계열','효소·호흡·DNA','카탈레이스, 효모 발효, DNA 추출',['과산화 수소','포도당','BTB','염화 나트륨','에탄올']],
+['고 지구과학 계열','암석 판별','석회암 거품 반응',['염산']]
+].map(r=>({level:r[0],topic:r[1],title:r[2],reagents:r[3]}));
+
+/* ===== 저장군 ===== */
+const GROUPS={A1:'무기산',A2:'산화성 산',A3:'유기산',B:'염기',F:'인화성',O:'산화제',M:'반응성 금속',T:'독성',G:'일반'};
+const baseGroup=g=>(g||'G').split('(')[0];
+const gcls=g=>'g'+baseGroup(g);
+const CONFLICT=[['A1','B'],['A2','B'],['A3','B'],['A2','A3'],['A2','F'],['O','F'],['O','A3'],['O','M'],['M','A1'],['M','A2'],['M','A3']];
+function conflicts(g1,g2){const a=baseGroup(g1),b=baseGroup(g2);return CONFLICT.some(([x,y])=>(x===a&&y===b)||(x===b&&y===a));}
+
+/* ===== GHS 그림문자 (참고용, MSDS 원문 우선) ===== */
+const GHSN={GHS01:'폭발성',GHS02:'인화성',GHS03:'산화성',GHS04:'고압가스',GHS05:'부식성',GHS06:'급성 독성',GHS07:'유해·자극',GHS08:'건강 유해',GHS09:'수생 환경'};
+const GHSMAP={'염산':[5,7],'황산':[5],'질산':[3,5],'아세트산':[2,5],'시트르산':[7],'옥살산':[5,7],'수산화 나트륨':[5],'수산화 칼슘':[5,7],'암모니아수':[5,7,9],'수산화 바륨':[5,7],
+'탄산 나트륨':[7],'염화 칼슘':[7],'염화 리튬':[7],'염화 스트론튬':[5],'염화 암모늄':[7],'황산 구리(II)':[7,9],'염화 구리(II)':[5,7,9],'황산 아연':[5,7,9],'질산 칼륨':[3],'질산 은':[3,5,9],
+'염화 바륨':[6],'아이오딘':[7,8,9],'과망가니즈산 칼륨':[3,7,8,9],'과산화 수소':[5,7],'이산화 망가니즈':[7],'크로뮴산 칼륨':[7,8,9],'다이크로뮴산 칼륨':[3,5,6,8,9],'염화 코발트(II)':[7,8,9],
+'염화 철(III)':[5,7],'싸이오사이안산 칼륨':[7],'마그네슘':[2],'아연':[2,9],'철 가루':[2],'산화 구리(II)':[9],'에탄올':[2,7],'아세톤':[2,7],'헥세인':[2,7,8,9],'페놀프탈레인':[8],
+'메틸 오렌지':[6],'메틸렌 블루':[7],'질산 납(II)':[3,5,7,8,9]};
+const ghsOf=n=>(GHSMAP[n]||[]).map(i=>'GHS0'+i);
+function ghsSVG(code){const t=GHSN[code];const short={GHS01:'폭발',GHS02:'인화',GHS03:'산화',GHS04:'가스',GHS05:'부식',GHS06:'독성',GHS07:'유해',GHS08:'건강',GHS09:'환경'}[code];
+  return '<svg viewBox="0 0 40 40" role="img" aria-label="'+t+'"><title>'+t+'</title><rect x="8" y="8" width="24" height="24" transform="rotate(45 20 20)" fill="#fff" stroke="#e00" stroke-width="3"/><text x="20" y="24" text-anchor="middle" font-size="10" font-weight="800" fill="#000" font-family="Noto Sans KR,sans-serif">'+short+'</text></svg>'}
+const ghsHTML=n=>{const c=ghsOf(n);return c.length?'<span class="ghs">'+c.map(ghsSVG).join('')+'</span>':''};
+
+/* ===== 저장 (이 기기에만) ===== */
+const KEY='sijakjang-v1',TKEY='sijakjang-theme';
+let S=null;
+function uid(){return Math.random().toString(36).slice(2,9)}
+function pushH(b,h){b.hist.push(h);b.mt=Date.now()}
+function tombAdd(id){S.tomb=S.tomb||[];S.tomb.push({id,t:Date.now()});if(S.tomb.length>2000)S.tomb.shift()}
+function cfgBump(){S.cfgMt=Date.now()}
+const APP_VERSION='1.0.0';
+const IDX='sijakjang-schools',DK=id=>'sijakjang-data-'+id,UK=id=>'sijakjang-unlock-'+id;
+let IX={active:null,list:[]};
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
+function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
+function saveIX(){lsSet(IDX,JSON.stringify(IX))}
+function save(){if(!IX.active){IX.active=uid();IX.list.push({id:IX.active,school:''})}
+  const it=IX.list.find(x=>x.id===IX.active);if(it){it.school=S.school;it.sid=S.sid}saveIX();
+  if(!lsSet(DK(IX.active),JSON.stringify(S)))toast('저장 공간이 부족합니다. 사진을 줄여 주세요')}
+function load(){try{const ix=lsGet(IDX);if(ix){IX=JSON.parse(ix);const t=lsGet(DK(IX.active));if(t)return JSON.parse(t)}
+  const old=lsGet(KEY);if(old){const d=JSON.parse(old);IX={active:uid(),list:[]};IX.list.push({id:IX.active,school:d.school||''});lsSet(DK(IX.active),old);saveIX();lsDel(KEY);return d}}catch(e){}return null}
+const slotKey=(r,c)=>r+'-'+c;
+function makeCab(roomId,code,name,rows,cols,allowed){const cab={id:uid(),roomId,code,name,rows,cols,slots:{}};
+  for(let r=1;r<=rows;r++)for(let c=1;c<=cols;c++)cab.slots[slotKey(r,c)]={name:'',allowed:allowed.slice()};return cab}
+const WASTE=['산·염기 폐액','중금속 폐액','유기 용제 폐액','은 폐액','크로뮴 폐액'];
+function demo(){
+  const room={id:uid(),name:'2층 화학실'},prep={id:uid(),name:'준비실'};
+  const A=makeCab(room.id,'A','산 전용장',3,2,['A1','A2']);A.slots['2-2'].allowed=['A2'];A.slots['2-2'].name='질산 트레이';
+  const F=makeCab(room.id,'F','인화성 전용장',3,1,['F','A3']);
+  const G=makeCab(room.id,'G','일반 시약장',3,2,['G']);G.slots['2-1'].allowed=['O'];G.slots['2-2'].allowed=['M'];G.slots['3-1'].allowed=['B'];G.slots['3-2'].allowed=['B'];G.slots['1-2'].name='지시약';
+  const T=makeCab(prep.id,'T','잠금 독성장',3,1,['T']);
+  const mid=uid();const st={version:4,sid:uid(),demo:true,cfgMt:1,tomb:[],school:'○○고등학교',me:{id:mid,name:'나',role:'관리자'},members:[{id:mid,name:'나',role:'관리자',active:true},{id:uid(),name:'김교사',role:'구성원',active:true}],
+    rooms:[room,prep],cabinets:[A,F,G,T],bottles:[],buy:[],log:[],waste:[],audit:null,basket:null,setupDone:true};
+  const add=(n,cab,key,size,unit,remain,extra)=>{const m=findMaster(n);st.bottles.push(Object.assign({id:uid(),name:m.name,formula:m.formula,cas:m.cas,group:m.group,size,unit,remain,cabId:cab.id,slot:key,maker:'덕산',grade:'GR',opened:'2026-03-02',expiry:'',memo:'',made:false,tags:[],photo:'',out:null,hist:[{t:'2026-03-02',who:'나',what:'등록'}]},extra||{}))};
+  add('황산',A,'1-1',500,'mL',0.8);add('염산',A,'2-1',500,'mL',0.5,{tags:['중화 반응']});add('염산',A,'2-1',500,'mL',1);
+  add('질산',A,'2-2',500,'mL',0.6);add('에탄올',F,'1-1',1000,'mL',0.15);add('아세트산',F,'3-1',500,'mL',0.7);
+  add('염화 나트륨',G,'1-1',500,'g',0.9);add('BTB',G,'1-2',25,'g',0.4,{tags:['지시약']});add('페놀프탈레인',G,'1-2',25,'g',0.1,{tags:['지시약']});
+  add('과망가니즈산 칼륨',G,'2-1',500,'g',0.7);add('마그네슘',G,'2-2',25,'g',0.5);add('수산화 나트륨',G,'3-1',500,'g',0.6,{out:{who:'김교사',where:'화학실 실험대',t:'2026-10-30'}});
+  add('암모니아수',G,'3-2',500,'mL',0.3,{expiry:'2026-11-20'});add('질산 은',T,'1-1',25,'g',0.5);add('아이오딘',T,'2-1',25,'g',0.8);
+  add('염산',A,'3-1',100,'mL',0.9,{name:'염산',made:true,memo:'0.1 M, 2026-10 제조',maker:'자체 제조',grade:''});
+  st.waste.push({id:uid(),type:'산·염기 폐액',amount:3500,t:'2026-10-20',who:'나',memo:''},{id:uid(),type:'중금속 폐액',amount:1200,t:'2026-10-22',who:'나',memo:'황산 구리'});
+  return st;
+}
+function blank(){const mid=uid();return {version:4,sid:uid(),demo:false,cfgMt:Date.now(),tomb:[],school:'',me:{id:mid,name:'나',role:'관리자'},members:[{id:mid,name:'나',role:'관리자',active:true}],rooms:[{id:uid(),name:'화학실'}],cabinets:[],bottles:[],buy:[],log:[],waste:[],audit:null,basket:null,setupDone:false}}
+function migrate(s){s.sid=s.sid||uid();s.tomb=s.tomb||[];s.cfgMt=s.cfgMt||1;s.members=(s.members||[]).map(m=>Object.assign({active:true},m));if(s.me&&!s.me.id){const m=s.members.find(x=>x.name===s.me.name)||s.members[0];if(m)s.me.id=m.id}
+  s.waste=s.waste||[];s.audit=s.audit||null;s.basket=s.basket||null;if(s.setupDone===undefined)s.setupDone=true;s.buy=s.buy||[];s.log=s.log||[];s.bottles.forEach(b=>{b.tags=b.tags||[];b.photo=b.photo||'';b.out=b.out||null;b.hist=b.hist||[]});return s}
+const SAVED=load();S=migrate(SAVED||demo());const FIRST=!SAVED;if(FIRST)IX={active:null,list:[]};
+
+/* ===== 검색 ===== */
+const CHO='ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+function cho(s){let o='';for(const ch of s){const c=ch.charCodeAt(0);if(c>=0xAC00&&c<=0xD7A3)o+=CHO[Math.floor((c-0xAC00)/588)];else if(CHO.includes(ch))o+=ch}return o}
+const norm=s=>(s||'').toLowerCase().replace(/[\s()·\-_,.#]/g,'').replace(/[₀-₉]/g,d=>String(d.charCodeAt(0)-0x2080));
+const isCho=q=>q.length>0&&[...q].every(ch=>CHO.includes(ch));
+function matchText(q,fields){const nq=norm(q);if(!nq)return false;const qc=q.replace(/\s/g,'');
+  if(isCho(qc))return fields.some(f=>cho((f||'').replace(/\s/g,'')).startsWith(qc));
+  return fields.some(f=>norm(f).includes(nq))}
+function bottleFields(b){const m=findMaster(b.name);return [b.name,b.formula,b.cas,b.memo,...b.tags,...(m?[m.eng,...m.alias]:[])]}
+
+/* ===== 위치 ===== */
+const cabOf=id=>S.cabinets.find(c=>c.id===id);
+const roomOf=id=>S.rooms.find(r=>r.id===id);
+function colName(cab,c){if(cab.cols===2)return c===1?'좌':'우';if(cab.cols===3)return ['좌','중','우'][c-1];return String(c)}
+function slotLabel(cab,key){const [r,c]=key.split('-').map(Number);const s=cab.slots[key];const auto=cab.code+'-'+r+(cab.cols>1?'-'+colName(cab,c):'');return s&&s.name?s.name+' ('+auto+')':auto}
+function pathOf(b){const cab=cabOf(b.cabId);if(!cab)return '위치 미지정';const room=roomOf(cab.roomId);const [r,c]=b.slot.split('-').map(Number);
+  return esc(room?room.name:'')+' › '+esc(cab.code+' '+cab.name)+' › <b>'+r+'단'+(cab.cols>1?' '+colName(cab,c):'')+'</b>'+(cab.slots[b.slot]&&cab.slots[b.slot].name?' ('+esc(cab.slots[b.slot].name)+')':'')}
+const bottlesIn=(cabId,key)=>S.bottles.filter(b=>b.cabId===cabId&&b.slot===key);
+function slotWarnings(cab,key,group,exceptId){const w=[];const s=cab.slots[key];const g=baseGroup(group);
+  if(s&&s.allowed&&s.allowed.length&&!s.allowed.includes(g))w.push('이 칸의 허용 저장군('+s.allowed.join('·')+')과 다릅니다: '+g+' '+(GROUPS[g]||''));
+  bottlesIn(cab.id,key).filter(b=>b.id!==exceptId).forEach(b=>{if(conflicts(group,b.group))w.push(b.name+'('+baseGroup(b.group)+')와 같은 칸에 두면 안 됩니다')});return [...new Set(w)]}
+function recommendSlots(group){const out=[];const g=baseGroup(group);
+  S.cabinets.forEach(cab=>Object.keys(cab.slots).forEach(k=>{if((cab.slots[k].allowed||[]).includes(g)&&!slotWarnings(cab,k,group).length)out.push({cab,k})}));return out}
+function cabMainGroup(cab){const cnt={};Object.values(cab.slots).forEach(s=>(s.allowed||[]).forEach(a=>cnt[a]=(cnt[a]||0)+1));const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];return top?top[0]:'G'}
+
+/* ===== 공통 UI ===== */
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+const chip=g=>'<span class="chip '+gcls(g)+'">'+esc(g)+'</span>';
+const meter=v=>'<span class="meter" aria-label="잔량 '+Math.round(v*100)+'%"><i class="'+(v<=0.2?'low':'')+'" style="width:'+Math.round(v*100)+'%"></i></span>';
+function tile(b){return b.photo?'<img class="thumb" src="'+b.photo+'" alt="'+esc(b.name)+' 사진">':'<span class="tile '+gcls(b.group)+'"><span class="tg">'+esc(baseGroup(b.group))+'</span><span class="tf">'+esc(b.formula||'?')+'</span><span class="tn">'+esc(b.name)+'</span></span>'}
+function toast(t){const d=document.createElement('div');d.className='toast';d.setAttribute('role','status');d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2300)}
+const today=()=>new Date().toISOString().slice(0,10);
+const daysTo=d=>d?Math.round((Date.parse(d)-Date.parse(today()))/864e5):null;
+function modal(html){const root=document.getElementById('modalRoot');root.innerHTML='<div class="modal-bg" id="mbg"><div class="modal" role="dialog" aria-modal="true">'+html+'</div></div>';
+  document.getElementById('mbg').addEventListener('click',e=>{if(e.target.id==='mbg')closeModal()});const f=root.querySelector('input,button');if(f)f.focus()}
+function closeModal(){document.getElementById('modalRoot').innerHTML=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+const isAdmin=()=>S.me.role==='관리자';
+const canEdit=()=>S.me.role!=='열람';
+function logAct(what){S.log.push({t:today(),who:S.me.name,what});if(S.log.length>500)S.log.shift()}
+function csv(v){v=String(v??'');return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function copyOut(id,text){const ta=document.getElementById(id);ta.style.display='block';ta.value=text;ta.select();
+  try{navigator.clipboard.writeText(text).then(()=>toast('복사했습니다. 엑셀에 붙여 넣으세요'),()=>toast('아래 글을 길게 눌러 복사하세요'))}catch(e){toast('아래 글을 길게 눌러 복사하세요')}}
+
+
+/* ===== 탭 ===== */
+const I={search:'<circle cx="10" cy="10" r="6"/><path d="M15 15l5 5"/>',cabinet:'<rect x="4" y="3" width="16" height="18" rx="1"/><path d="M4 9h16M4 15h16M12 3v18"/>',add:'<rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="4"/><path d="M8 6l1.5-2.5h5L16 6"/>',
+exp:'<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/><path d="M7.5 15h9"/>',work:'<path d="M9 4h6v3H9z"/><rect x="5" y="5" width="14" height="16" rx="1"/><path d="M8.5 12l2 2 4-4"/>',admin:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/>'};
+I.more='<circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/>';
+I.basket='<path d="M4 9h16l-1.5 10a2 2 0 0 1-2 1.7h-9a2 2 0 0 1-2-1.7z"/><path d="M9 9l3-5 3 5"/>';
+I.waste='<path d="M5 7h14l-1 13H6z"/><path d="M9 4h6v3H9z"/>';
+const tabs=()=>canEdit()?[['search','찾기'],['cabinet','시약장'],['add','등록'],['more','더보기']]:[['search','찾기'],['cabinet','시약장'],['more','더보기']];
+const navOf=t=>['exp','work','admin','basket','theme','coffee','school','feedback'].includes(t)?'more':t;
+let tab='search',hl=null,sub='buy';
+function renderNav(){document.getElementById('nav').innerHTML=tabs().map(([k,t])=>'<button data-tab="'+k+'" '+(navOf(tab)===k?'aria-current="page"':'')+'><span class="em" aria-hidden="true">'+E(k)+'</span>'+t+'</button>').join('');
+  document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.tab))}
+function go(t,opts){tab=t;hl=opts&&opts.hl?opts.hl:(t==='cabinet'?hl:null);render();window.scrollTo(0,0)}
+function render(){document.getElementById('brand').innerHTML='<span class="em" aria-hidden="true">'+E('brand')+'</span>시약장';document.getElementById('schoolName').textContent=(S.school||'우리 학교')+' ▾';document.getElementById('who').textContent=S.me.name+' · '+S.me.role;renderNav();({search:vSearch,cabinet:vCabinet,add:vAdd,more:vMore,basket:vBasket,theme:vTheme,coffee:vCoffee,feedback:vFeedback,school:vSchool,exp:vExp,work:vWork,admin:vAdmin})[tab]()}
+const backBar=()=>'<button class="back" id="backMore">‹ 더보기</button>';
+function bindBack(){const b=document.getElementById('backMore');if(b)b.onclick=()=>go('more')}
+const V=()=>document.getElementById('view');
+
+/* ===== 찾기 + 대시보드 ===== */
+let lastQ='';
+function alerts(){const a=[];
+  S.bottles.forEach(b=>{const d=daysTo(b.expiry);
+    if(d!==null&&d<0)a.push(['bad','유효기간 지남',b]);else if(d!==null&&d<=30)a.push(['warn','유효기간 '+d+'일 남음',b]);
+    if(b.remain<=0.2)a.push(['bad','잔량 '+Math.round(b.remain*100)+'%',b]);
+    if(b.out)a.push(['info','사용 중 · '+b.out.who+' · '+b.out.where,b]);
+    if(b.opened&&daysTo(b.opened)<-365*5)a.push(['warn','개봉 5년 경과 — 처분 검토',b])});
+  if(S.audit)a.unshift(['info','재고 실사 진행 중',null]);return a}
+function vSearch(){
+  const groups={};S.bottles.forEach(b=>{const g=baseGroup(b.group);groups[g]=(groups[g]||0)+1});const total=S.bottles.length||1;
+  const al=alerts();const wasteL=S.waste.reduce((s,w)=>s+w.amount,0)/1000;
+  const bk=S.basket;V().innerHTML=(bk?'<div class="note info" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="grow">수업 준비 중: <b>'+esc(bk.title)+'</b> · 꺼냄 '+bk.items.filter(x=>x.got).length+'/'+bk.items.filter(x=>x.id).length+'</span><button class="btn sm" id="goBk">이어서</button></div>':'')+'<section class="panel"><label for="q" style="margin-top:0">찾을 시약</label><input id="q" class="search" placeholder="이름·초성·화학식·CAS·태그·칸 이름" value="'+esc(lastQ)+'" autocomplete="off">'+
+  '<div class="muted" style="margin-top:6px">예: 염산 · ㅇㅅ · NaOH · 7647-01-0 · 요오드 · 지시약 · A-2-좌</div><div id="results" aria-live="polite"></div></section>'+
+  '<section class="panel"><h2>우리 학교 시약 현황</h2><div class="stats"><div class="stat"><div class="n">'+S.bottles.length+'</div><div class="l">병</div></div><div class="stat"><div class="n">'+new Set(S.bottles.map(b=>b.name)).size+'</div><div class="l">종</div></div><div class="stat"><div class="n">'+S.cabinets.length+'</div><div class="l">시약장</div></div><div class="stat"><div class="n">'+wasteL.toFixed(1)+'</div><div class="l">L 폐액 보관 중</div></div></div>'+
+  '<div class="dist" aria-label="저장군별 분포">'+Object.keys(GROUPS).filter(g=>groups[g]).map(g=>'<span class="g'+g+'" style="width:'+(groups[g]/total*100)+'%" title="'+g+' '+GROUPS[g]+' '+groups[g]+'병"></span>').join('')+'</div>'+
+  '<div class="legend">'+Object.keys(GROUPS).filter(g=>groups[g]).map(g=>'<span class="g'+g+'"><i></i>'+g+' '+GROUPS[g]+' '+groups[g]+'</span>').join('')+'</div></section>'+
+  '<section class="panel"><h2>확인할 일 '+al.length+'건</h2>'+(al.length?al.map((x,i)=>'<div class="alert" data-al="'+i+'"><span class="k '+x[0]+'">'+esc(x[1])+'</span><span class="grow">'+(x[2]?'<b>'+esc(x[2].name)+'</b> <span class="path">'+pathOf(x[2])+'</span>':'업무 › 재고 실사에서 이어서 하세요')+'</span></div>').join(''):'<div class="note ok">지금 확인할 일이 없습니다.</div>')+'</section>';
+  const q=document.getElementById('q');q.oninput=()=>{lastQ=q.value;doSearch()};doSearch();if(document.getElementById('goBk'))document.getElementById('goBk').onclick=()=>go('basket');
+  document.querySelectorAll('[data-al]').forEach(el=>el.onclick=()=>{const x=al[+el.dataset.al];if(x[2])bottleModal(x[2].id);else{sub='audit';go('work')}});
+}
+function resRow(b){return '<div class="res" role="button" tabindex="0" data-b="'+b.id+'">'+tile(b)+'<div class="grow"><div class="nm">'+esc(b.name)+' <span class="muted">'+b.size+' '+b.unit+(b.made?' · 자체 제조':'')+(b.memo?' · '+esc(b.memo):'')+'</span></div><div class="path">'+pathOf(b)+(b.out?' · <span style="color:var(--warn)">사용 중</span>':'')+'</div>'+(b.tags.length?'<div>'+b.tags.map(t=>'<span class="tag">#'+esc(t)+'</span>').join('')+'</div>':'')+'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">'+meter(b.remain)+'<span class="muted" style="font-size:12px">'+remainLabel(b.remain)+'</span>'+(canEdit()&&b.remain>0?'<button class="btn sm use" data-use="'+b.id+'">'+E('use')+' 썼어요</button>':'')+'</div></div>'}
+function bindRes(root){(root||document).querySelectorAll('.res[data-b]').forEach(el=>{el.onclick=()=>bottleModal(el.dataset.b);el.onkeydown=e=>{if(e.key==='Enter')bottleModal(el.dataset.b)}});
+  (root||document).querySelectorAll('[data-use]').forEach(bt=>bt.onclick=e=>{e.stopPropagation();const b=useOnce(bt.dataset.use);if(!b)return;const row=bt.closest('.res');const tmp=document.createElement('div');tmp.innerHTML=resRow(b);row.replaceWith(tmp.firstChild);bindRes(root)})}
+const STEP=[1,.75,.5,.25,0];
+function remainLabel(v){return {1:'가득',0.75:'3/4',0.5:'1/2',0.25:'1/4',0:'빈 병'}[v]||Math.round(v*100)+'%'}
+function useOnce(id){const b=S.bottles.find(x=>x.id===id);if(!b)return null;const nr=STEP.find(s=>s<b.remain-0.001);if(nr===undefined){toast('이미 빈 병입니다');return null}
+  pushH(b,{t:today(),who:S.me.name,what:'썼어요 '+remainLabel(b.remain)+' → '+remainLabel(nr)});b.remain=nr;
+  if(nr<=0.25){addBuy(b.name,'잔량 '+remainLabel(nr));toast(b.name+' '+remainLabel(nr)+' — 구매 목록에 넣었습니다')}else toast(b.name+' 잔량 '+remainLabel(nr));save();return b}
+function doSearch(){
+  const box=document.getElementById('results');const q=lastQ.trim();if(!q){box.innerHTML='';return}
+  const hits=S.bottles.filter(b=>matchText(q,bottleFields(b)));
+  const slotHits=[];S.cabinets.forEach(cab=>Object.keys(cab.slots).forEach(k=>{const lab=slotLabel(cab,k);if(norm(lab).includes(norm(q)))slotHits.push({cab,k,lab})}));
+  let h='';
+  if(hits.length){const f=hits[0];h+='<div class="note info">📍 '+esc(f.name)+' → '+pathOf(f)+' <button class="btn sm" id="showOnCab">시약장에서 보기</button></div>'+hits.map(resRow).join('')}
+  if(slotHits.length)h+='<h3>칸</h3>'+slotHits.map(s=>'<div class="res" role="button" tabindex="0" data-slot="'+s.cab.id+'|'+s.k+'"><span class="tile gG"><span class="tf">'+esc(s.cab.code)+'</span><span class="tn">칸</span></span><div class="grow"><div class="nm">'+esc(s.lab)+'</div><div class="path">'+esc(s.cab.name)+' · '+bottlesIn(s.cab.id,s.k).length+'병</div></div></div>').join('');
+  if(!hits.length&&!slotHits.length){const m=M.find(x=>matchText(q,[x.name,x.eng,x.formula,x.cas,...x.alias]));
+    box.innerHTML='<div class="note warn">우리 학교에 없는 시약입니다'+(m?': '+esc(m.name)+' ('+esc(m.cas)+')':'')+'</div>'+(m?'<div class="row"><button class="btn pri" id="toBuy">구매 목록에 추가</button><button class="btn" id="toAdd">지금 등록</button></div>':'');
+    if(m){document.getElementById('toBuy').onclick=()=>{addBuy(m.name,'검색에서 추가');toast('구매 목록에 추가했습니다')};document.getElementById('toAdd').onclick=()=>{draft={master:m.name};go('add')}}return}
+  box.innerHTML=h;bindRes(box);
+  const sb=document.getElementById('showOnCab');if(sb)sb.onclick=()=>{const f=hits[0];go('cabinet',{hl:{cab:f.cabId,k:f.slot}})};
+  box.querySelectorAll('[data-slot]').forEach(el=>el.onclick=()=>{const [c,k]=el.dataset.slot.split('|');go('cabinet',{hl:{cab:c,k}})});
+}
+
+/* ===== 시약장 ===== */
+function cabHTML(cab){const room=roomOf(cab.roomId);let cells='';
+  for(let r=1;r<=cab.rows;r++)for(let c=1;c<=cab.cols;c++){const k=slotKey(r,c);const bs=bottlesIn(cab.id,k);const s=cab.slots[k];const on=hl&&hl.cab===cab.id&&hl.k===k;
+    const names=[...new Set(bs.map(b=>b.name))];const n0=names[0];const cnt0=bs.filter(b=>b.name===n0).length;
+    cells+='<button class="slot'+(on?' hl':'')+'" data-cab="'+cab.id+'" data-k="'+k+'" aria-label="'+esc(slotLabel(cab,k))+', '+bs.length+'병"><span class="sn">'+r+'단'+(cab.cols>1?' '+colName(cab,c):'')+(s.name?' · '+esc(s.name):'')+'</span>'+
+    '<span class="cnt">'+(bs.length?esc(n0)+(cnt0>1?' ×'+cnt0:'')+(names.length>1?' 외 '+(names.length-1)+'종':''):'<span class="muted">빈 칸</span>')+'</span>'+(bs.some(b=>b.out)?'<span class="out">사용 중</span>':'')+'<span class="grp">'+(s.allowed||[]).join('·')+'</span></button>'}
+  const mg=cabMainGroup(cab);
+  return '<div class="cab" style="--ccol:var(--c'+mg[0]+')"><div class="hd"><span class="code">'+esc(cab.code)+'</span>'+esc(cab.name)+'<span class="room">'+esc(room?room.name:'')+'</span></div><div class="grid" style="grid-template-columns:repeat('+cab.cols+',1fr)">'+cells+'</div></div>'}
+function vCabinet(){
+  V().innerHTML='<section class="panel"><div class="row"><h2 class="grow" style="margin:0">시약장 배치</h2>'+(isAdmin()?'<button class="btn" id="addCab">시약장 추가</button>':'')+'</div>'+
+  '<p class="muted">칸을 누르면 그 칸의 시약이 나옵니다. 칸 아래 작은 글씨는 넣을 수 있는 저장군입니다.</p>'+
+  S.rooms.map(room=>{const cs=S.cabinets.filter(c=>c.roomId===room.id);return cs.length?'<h3>'+esc(room.name)+'</h3><div class="cabs">'+cs.map(cabHTML).join('')+'</div>':''}).join('')+'</section>'+
+  '<section class="panel"><h2>저장군 기준</h2><div class="legend">'+Object.entries(GROUPS).map(([k,v])=>'<span class="g'+k+'"><i></i>'+k+' '+v+'</span>').join('')+'</div><p class="muted">같은 칸 금지: 산–염기, 질산–유기산·인화성, 산화제–인화성·유기산·금속, 금속–산</p></section>';
+  document.querySelectorAll('.slot').forEach(el=>el.onclick=()=>slotModal(el.dataset.cab,el.dataset.k));
+  const ac=document.getElementById('addCab');if(ac)ac.onclick=()=>cabEditModal(null);
+  const el=document.querySelector('.slot.hl');if(el)el.scrollIntoView({block:'center'});
+}
+function slotModal(cabId,k){const cab=cabOf(cabId);const s=cab.slots[k];const bs=bottlesIn(cabId,k);
+  modal('<h2>'+esc(slotLabel(cab,k))+'</h2><div class="path">'+esc(roomOf(cab.roomId)?.name||'')+' › '+esc(cab.name)+'</div>'+(bs.length?bs.map(resRow).join(''):'<div class="note info">빈 칸입니다. 아래 버튼으로 바로 등록하세요.</div>')+
+  (isAdmin()?'<h3>칸 설정</h3><label for="sName">칸 이름</label><input id="sName" value="'+esc(s.name)+'" placeholder="예: 학생 실험용, 염산 칸"><label>넣을 수 있는 저장군</label><div class="row">'+Object.keys(GROUPS).map(g=>'<label style="margin:0;display:flex;gap:4px;align-items:center;color:var(--ink)"><input type="checkbox" style="width:auto;min-height:0" value="'+g+'" '+((s.allowed||[]).includes(g)?'checked':'')+'>'+g+'</label>').join('')+'</div>':'')+
+  '<div class="row" style="margin-top:14px">'+(canEdit()?'<button class="btn pri grow" id="sAdd">이 칸에 등록</button>':'')+(isAdmin()?'<button class="btn" id="sSave">칸 설정 저장</button>':'')+'<button class="btn" id="sClose">닫기</button></div>');
+  bindRes(document.getElementById('modalRoot'));document.getElementById('sClose').onclick=closeModal;
+  const sa=document.getElementById('sAdd');if(sa)sa.onclick=()=>{closeModal();draft={cabId,slot:k};go('add')};
+  const sv=document.getElementById('sSave');if(sv)sv.onclick=()=>{s.name=document.getElementById('sName').value.trim();s.allowed=[...document.querySelectorAll('.modal input[type=checkbox]:checked')].map(i=>i.value);logAct('칸 설정 변경: '+slotLabel(cab,k));cfgBump();save();closeModal();render();toast('칸 설정을 저장했습니다')}}
+function cabEditModal(cabId){const cab=cabId?cabOf(cabId):null;
+  const T={'일반장 2문':[3,2,['G']],'산 전용장':[3,2,['A1','A2']],'인화성 전용장':[3,1,['F','A3']],'잠금 독성장':[3,1,['T']],'냉장고':[2,1,['G']],'빈 틀':[4,2,[]]};
+  modal('<h2>'+(cab?'시약장 편집':'시약장 추가')+'</h2>'+(!cab?'<label for="cT">템플릿</label><select id="cT">'+Object.keys(T).map(t=>'<option>'+t+'</option>').join('')+'</select>':'')+
+  '<label for="cRoom">실</label><select id="cRoom">'+S.rooms.map(r=>'<option value="'+r.id+'" '+(cab&&cab.roomId===r.id?'selected':'')+'>'+esc(r.name)+'</option>').join('')+'</select>'+
+  '<div class="row"><div style="width:90px"><label for="cCode">코드</label><input id="cCode" value="'+esc(cab?cab.code:'')+'" maxlength="3" placeholder="A"></div><div class="grow"><label for="cName">이름</label><input id="cName" value="'+esc(cab?cab.name:'')+'"></div></div>'+
+  '<div class="row"><div class="grow"><label for="cRows">단 수 (1~8)</label><input id="cRows" type="number" min="1" max="8" value="'+(cab?cab.rows:3)+'"></div><div class="grow"><label for="cCols">열 수 (1~4)</label><input id="cCols" type="number" min="1" max="4" value="'+(cab?cab.cols:2)+'"></div></div>'+
+  (cab?'<div class="note warn">단·열을 줄이면 없어지는 칸의 시약은 1단 첫 칸으로 옮겨집니다.</div>':'')+
+  '<div class="row" style="margin-top:14px"><button class="btn pri grow" id="cSave">저장</button>'+(cab?'<button class="btn bad" id="cDel">삭제</button>':'')+'<button class="btn" id="cX">취소</button></div>');
+  const $=id=>document.getElementById(id);
+  if(!cab){const sel=$('cT');const fill=()=>{const t=T[sel.value];$('cRows').value=t[0];$('cCols').value=t[1];$('cName').value=sel.value==='빈 틀'?'':sel.value};sel.onchange=fill;fill()}
+  $('cX').onclick=closeModal;
+  $('cSave').onclick=()=>{const code=$('cCode').value.trim().toUpperCase()||'X',name=$('cName').value.trim()||'시약장';
+    const rows=Math.min(8,Math.max(1,+$('cRows').value||1)),cols=Math.min(4,Math.max(1,+$('cCols').value||1)),roomId=$('cRoom').value;
+    if(!cab){S.cabinets.push(makeCab(roomId,code,name,rows,cols,T[$('cT').value][2]));logAct('시약장 추가: '+code+' '+name);cfgBump()}
+    else{cab.code=code;cab.name=name;cab.roomId=roomId;const ns={};for(let r=1;r<=rows;r++)for(let c=1;c<=cols;c++){const k=slotKey(r,c);ns[k]=cab.slots[k]||{name:'',allowed:[]}}
+      S.bottles.filter(b=>b.cabId===cab.id&&!ns[b.slot]).forEach(b=>{b.slot='1-1';pushH(b,{t:today(),who:S.me.name,what:'칸 축소로 1단 첫 칸으로 이동'})});cab.rows=rows;cab.cols=cols;cab.slots=ns;logAct('시약장 편집: '+code);cfgBump()}
+    save();closeModal();render();toast('저장했습니다')};
+  const del=$('cDel');if(del)del.onclick=()=>{const n=S.bottles.filter(b=>b.cabId===cab.id).length;if(n){toast('시약 '+n+'병을 먼저 옮겨 주세요');return}S.cabinets=S.cabinets.filter(c=>c.id!==cab.id);logAct('시약장 삭제: '+cab.code);cfgBump();save();closeModal();render()}}
+
+/* ===== 병 상세 ===== */
+function bottleModal(id){const b=S.bottles.find(x=>x.id===id);if(!b)return;const m=findMaster(b.name);const ed=canEdit();
+  modal('<div class="row" style="align-items:flex-start">'+tile(b)+'<div class="grow"><h2 style="margin:0">'+esc(b.name)+'</h2><div class="muted">'+esc(b.formula)+' · CAS '+esc(b.cas||'—')+' · '+chip(b.group)+' '+esc(GROUPS[baseGroup(b.group)]||'')+'</div><div class="muted">'+esc(b.maker||'')+' '+esc(b.grade||'')+' · '+b.size+' '+b.unit+(b.memo?' · '+esc(b.memo):'')+'</div></div></div>'+
+  '<div class="note info">📍 '+pathOf(b)+'</div>'+(b.out?'<div class="note warn">사용 중 — '+esc(b.out.who)+', '+esc(b.out.where)+' ('+esc(b.out.t)+')</div>':'')+
+  (ghsOf(b.name).length?'<div class="row" style="margin:6px 0">'+ghsHTML(b.name)+'<span class="muted">'+ghsOf(b.name).map(c=>GHSN[c]).join(', ')+'</span></div>':'')+
+  (m?'<div class="note '+(b.group.includes('T')?'bad':'warn')+'">'+esc(m.caution)+'</div>':'')+
+  (ed&&b.remain>0?'<button class="btn pri bigbtn" id="bUse">'+E('use')+' 썼어요 · 지금 '+remainLabel(b.remain)+' → '+remainLabel(STEP.find(s=>s<b.remain-0.001))+'</button>':'')+(ed?'<details style="margin-top:12px"><summary>자세히: 잔량 직접 조정 · 꺼내기 · 옮기기 · 태그</summary><label for="rr">남은 양 <b id="rv">'+Math.round(b.remain*100)+'%</b></label><input id="rr" type="range" min="0" max="100" step="5" value="'+Math.round(b.remain*100)+'" style="padding:0">'+
+  '<div class="row" style="margin-top:6px">'+[['0','비었음'],['25','1/4'],['50','1/2'],['75','3/4'],['100','가득']].map(([v,t])=>'<button class="btn sm" data-q="'+v+'">'+t+'</button>').join('')+'</div>'+
+  '<h3>꺼내기·옮기기</h3><div class="row">'+(b.out?'<button class="btn" id="bIn">제자리에 넣음</button>':'<input id="outWhere" class="grow" placeholder="어디서 쓰나요? (예: 3반 실험대)"><button class="btn" id="bOut">꺼내기</button>')+'</div>'+
+  '<div class="row" style="margin-top:8px"><select id="mvCab" class="grow" aria-label="옮길 시약장">'+S.cabinets.map(c=>'<option value="'+c.id+'" '+(c.id===b.cabId?'selected':'')+'>'+esc(c.code+' '+c.name)+'</option>').join('')+'</select><select id="mvSlot" class="grow" aria-label="옮길 칸"></select></div><div id="mvWarn"></div>'+
+  '<label for="bTags">태그 (쉼표로 구분)</label><input id="bTags" value="'+esc(b.tags.join(', '))+'" placeholder="중화 반응, 2학년, 지시약"></details>':'')+
+  '<h3>정보</h3><table><tr><th>개봉일</th><td>'+esc(b.opened||'—')+'</td></tr><tr><th>유효기간</th><td>'+esc(b.expiry||'—')+'</td></tr><tr><th>교육과정</th><td>'+esc(m?m.level:'—')+'</td></tr></table>'+
+  '<p><a href="https://msds.kosha.or.kr" target="_blank" rel="noopener">안전보건공단 MSDS 원문</a> <span class="muted">CAS '+esc(b.cas||'')+'로 검색하세요. 앱의 그림문자와 주의 문구는 참고용입니다.</span></p>'+
+  '<details><summary>변경 이력 '+b.hist.length+'건</summary><table>'+b.hist.slice().reverse().map(h=>'<tr><td>'+esc(h.t)+'</td><td>'+esc(h.who)+'</td><td>'+esc(h.what)+'</td></tr>').join('')+'</table></details>'+
+  '<div class="row" style="margin-top:14px">'+(ed?'<button class="btn pri grow" id="bSave">저장</button>':'')+'<button class="btn" id="bLabel">라벨</button>'+(ed?'<button class="btn" id="bBuy">구매 목록에</button><button class="btn bad" id="bDel">폐기</button>':'')+'<button class="btn" id="bX">닫기</button></div>');
+  const $=x=>document.getElementById(x);$('bX').onclick=closeModal;$('bLabel').onclick=()=>labelModal(b.id);
+  if(!ed)return;
+  if($('bUse'))$('bUse').onclick=()=>{useOnce(b.id);closeModal();render()};
+  const rr=$('rr'),rv=$('rv');rr.oninput=()=>rv.textContent=rr.value+'%';document.querySelectorAll('[data-q]').forEach(x=>x.onclick=()=>{rr.value=x.dataset.q;rv.textContent=x.dataset.q+'%'});
+  const fill=()=>{const c=cabOf($('mvCab').value);$('mvSlot').innerHTML=Object.keys(c.slots).map(k=>'<option value="'+k+'" '+(c.id===b.cabId&&k===b.slot?'selected':'')+'>'+esc(slotLabel(c,k))+'</option>').join('');chk()};
+  const chk=()=>{$('mvWarn').innerHTML=slotWarnings(cabOf($('mvCab').value),$('mvSlot').value,b.group,b.id).map(x=>'<div class="note bad">'+esc(x)+'</div>').join('')};
+  $('mvCab').onchange=fill;$('mvSlot').onchange=chk;fill();
+  if($('bOut'))$('bOut').onclick=()=>{b.out={who:S.me.name,where:$('outWhere').value.trim()||'실험대',t:today()};pushH(b,{t:today(),who:S.me.name,what:'꺼냄 → '+b.out.where});save();bottleModal(id);toast('꺼낸 것으로 기록했습니다')};
+  if($('bIn'))$('bIn').onclick=()=>{pushH(b,{t:today(),who:S.me.name,what:'제자리에 넣음'});b.out=null;save();bottleModal(id);toast('제자리에 넣었습니다')};
+  $('bBuy').onclick=()=>{addBuy(b.name,'잔량 '+Math.round(b.remain*100)+'%');toast('구매 목록에 추가했습니다')};
+  $('bDel').onclick=()=>{modal('<h2>'+esc(b.name)+' 폐기</h2><p>목록에서 지우고 폐기 기록을 남깁니다. 실제 처리는 폐시약 수거 절차를 따르세요.</p><div class="row"><button class="btn bad grow" id="yes">폐기</button><button class="btn" id="no">취소</button></div>');
+    $('no').onclick=()=>bottleModal(id);$('yes').onclick=()=>{tombAdd(id);S.bottles=S.bottles.filter(x=>x.id!==id);logAct('폐기: '+b.name+' '+b.size+b.unit);save();closeModal();render();toast('폐기했습니다')}};
+  $('bSave').onclick=()=>{const nr=rr.value/100,nc=$('mvCab').value,ns=$('mvSlot').value;
+    if(nr!==b.remain){pushH(b,{t:today(),who:S.me.name,what:'잔량 '+Math.round(b.remain*100)+'% → '+Math.round(nr*100)+'%'});b.remain=nr}
+    if(nc!==b.cabId||ns!==b.slot){const from=cabOf(b.cabId)?slotLabel(cabOf(b.cabId),b.slot):'';b.cabId=nc;b.slot=ns;pushH(b,{t:today(),who:S.me.name,what:'이동 '+from+' → '+slotLabel(cabOf(nc),ns)})}
+    b.tags=$('bTags').value.split(',').map(t=>t.trim().replace(/^#/,'')).filter(Boolean);save();closeModal();render();toast('저장했습니다')}}
+function labelModal(id){const b=S.bottles.find(x=>x.id===id);const m=findMaster(b.name);let qr='';
+  try{if(window.qrcode){const q=qrcode(0,'M');q.addData('SJJ:'+b.id+':'+b.name);q.make();qr=q.createSvgTag({cellSize:3,margin:0})}}catch(e){}
+  modal('<h2>병 라벨</h2><p class="muted">'+(b.made?'직접 만든 용액 라벨입니다.':'학교 관리용 라벨입니다.')+' 인쇄가 안 되면 화면을 캡처해 라벨 용지에 출력하세요.</p>'+
+  '<div class="label-card"><div><div class="ln">'+esc(b.name)+(b.memo?' <span style="font-size:15px">'+esc(b.memo)+'</span>':'')+'</div><div class="ls">'+esc(b.formula)+' · CAS '+esc(b.cas)+' · 저장군 '+esc(b.group)+'</div><div style="margin:6px 0">'+ghsHTML(b.name)+'</div><div class="ls">'+esc(m?m.caution:'')+'</div><div class="ls" style="margin-top:4px">'+(b.made?'제조 ':'개봉 ')+esc(b.opened||'')+' · '+esc(b.made?S.me.name:(b.maker||''))+' · '+esc(S.school)+'</div><div class="ls">위치 '+esc(cabOf(b.cabId)?slotLabel(cabOf(b.cabId),b.slot):'')+'</div></div><div>'+qr+'</div></div>'+
+  '<div class="row" style="margin-top:14px"><button class="btn pri grow" id="pr">인쇄</button><button class="btn" id="lx">닫기</button></div>');
+  document.getElementById('lx').onclick=()=>bottleModal(id);document.getElementById('pr').onclick=()=>{try{window.print()}catch(e){toast('이 화면에서는 인쇄가 막혀 있습니다. 내려받은 파일에서 인쇄하세요')}}}
+
+/* ===== 등록 ===== */
+let draft=null;
+function parseLabel(t){const out={};const cas=t.match(/\b(\d{2,7}-\d{2}-\d)\b/);if(cas)out.cas=cas[1];
+  const vol=t.match(/(\d+(?:\.\d+)?)\s*(mL|ml|ML|L|g|G|kg|KG)\b/);if(vol){const u=vol[2].toLowerCase();out.size=+vol[1];out.unit=u==='ml'?'mL':u==='l'?'L':u}
+  const gr=t.match(/\b(GR|EP|CP|ACS|AR|LR)\b|특급|1급|일급/);if(gr)out.grade=gr[0];
+  const mk=[['덕산','덕산'],['DUKSAN','덕산'],['삼전','삼전'],['SAMCHUN','삼전'],['대정','대정'],['DAEJUNG','대정'],['Sigma','Sigma-Aldrich'],['SIGMA','Sigma-Aldrich'],['Junsei','Junsei'],['JUNSEI','Junsei'],['Fisher','Fisher']].find(([k])=>t.includes(k));if(mk)out.maker=mk[1];
+  const ex=t.match(/(?:EXP|유효|사용기한)[^\d]{0,6}(\d{4})[.\-/](\d{1,2})(?:[.\-/](\d{1,2}))?/i);if(ex)out.expiry=ex[1]+'-'+ex[2].padStart(2,'0')+'-'+(ex[3]||'01').padStart(2,'0');
+  let m=out.cas?M.find(x=>x.cas===out.cas):null;
+  if(!m){const nt=norm(t);m=M.slice().sort((a,b)=>b.name.length-a.name.length).find(x=>[x.name,x.eng,...x.alias].some(a=>a&&norm(a).length>1&&nt.includes(norm(a))))}
+  if(m)out.master=m.name;return out}
+function shrink(file,cb){const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const s=240/Math.max(img.width,img.height);const c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.7))};img.src=r.result};r.readAsDataURL(file)}
+function vAdd(){
+  if(!canEdit()){V().innerHTML='<section class="panel"><h2>시약 등록</h2><div class="note info">열람 권한은 등록할 수 없습니다. 관리자에게 구성원 권한을 요청하세요.</div></section>';return}
+  const d=draft||{};draft=null;let photo='';
+  V().innerHTML='<section class="panel"><h2>라벨로 등록</h2><p class="muted">휴대폰 카메라의 텍스트 인식(아이폰 라이브 텍스트, 구글 렌즈)으로 라벨 글자를 복사해 붙여 넣으면 이름·CAS·용량·제조사·유효기간이 채워집니다.</p>'+
+  '<label for="lbl">라벨 글자</label><textarea id="lbl" placeholder="예: 덕산 염산 Hydrochloric acid 35.0~37.0% GR CAS 7647-01-0 500 mL EXP 2028.05"></textarea>'+
+  '<div class="row" style="margin-top:8px"><button class="btn" id="parse">라벨 읽기</button><label class="btn" style="margin:0;color:var(--btn-ink)">병 사진 첨부<input id="photo" type="file" accept="image/*" capture="environment" style="display:none"></label><span id="pv"></span></div></section>'+
+  '<section class="panel"><h2>시약 정보</h2><label for="mName">시약 이름</label><input id="mName" autocomplete="off" placeholder="염산, ㅇㅅ, HCl, 7647-01-0"><div id="sugg"></div><div id="mInfo"></div>'+
+  '<div class="row"><div class="grow"><label for="fFormula">화학식</label><input id="fFormula"></div><div class="grow"><label for="fCas">CAS</label><input id="fCas"></div><div style="width:120px"><label for="fGroup">저장군</label><select id="fGroup">'+['A1','A2','A3','B','B(T)','F','O','M','T','T(O)','G'].map(g=>'<option>'+g+'</option>').join('')+'</select></div></div>'+
+  '<div class="row"><div class="grow"><label for="fSize">용량</label><input id="fSize" type="number" value="500"></div><div style="width:100px"><label for="fUnit">단위</label><select id="fUnit"><option>mL</option><option>L</option><option>g</option><option>kg</option></select></div><div class="grow"><label for="fCount">병 수</label><input id="fCount" type="number" min="1" max="20" value="1"></div></div>'+
+  '<div class="row"><div class="grow"><label for="fMaker">제조사</label><input id="fMaker" placeholder="덕산, 삼전, 대정"></div><div class="grow"><label for="fGrade">등급</label><input id="fGrade" placeholder="GR, EP, CP"></div></div>'+
+  '<div class="row"><div class="grow"><label for="fOpen">개봉일(제조일)</label><input id="fOpen" type="date"></div><div class="grow"><label for="fExp">유효기간</label><input id="fExp" type="date"></div></div>'+
+  '<label style="display:flex;gap:6px;align-items:center;color:var(--ink)"><input id="fMade" type="checkbox" style="width:auto;min-height:0"> 직접 만든 용액</label>'+
+  '<div class="row"><div class="grow"><label for="fMemo">농도·메모</label><input id="fMemo" placeholder="0.1 M"></div><div class="grow"><label for="fTags">태그</label><input id="fTags" placeholder="중화 반응, 2학년"></div></div></section>'+
+  '<section class="panel"><h2>보관 위치</h2><div id="rec"></div><div class="row"><select id="pCab" class="grow" aria-label="시약장">'+S.cabinets.map(c=>'<option value="'+c.id+'">'+esc(c.code+' '+c.name)+'</option>').join('')+'</select><select id="pSlot" class="grow" aria-label="칸"></select></div><div id="pWarn"></div>'+
+  '<button class="btn pri" id="doAdd" style="width:100%;margin-top:14px">등록</button></section>';
+  const $=id=>document.getElementById(id);
+  const setMaster=name=>{const m=findMaster(name);if(!m)return;$('mName').value=m.name;$('fFormula').value=m.formula;$('fCas').value=m.cas;$('fGroup').value=m.group;
+    $('mInfo').innerHTML='<div class="note '+(m.group.includes('T')?'bad':'warn')+'">'+chip(m.group)+' '+esc(GROUPS[baseGroup(m.group)])+' '+ghsHTML(m.name)+'<br>'+esc(m.caution)+'</div>';$('sugg').innerHTML='';recommend()};
+  const recommend=()=>{const g=$('fGroup').value;const r=recommendSlots(g).slice(0,6);
+    $('rec').innerHTML=r.length?'<div class="muted">'+esc(g)+'에 맞는 칸</div><div class="row" style="margin:4px 0 8px">'+r.map(x=>'<button class="btn sm" data-rc="'+x.cab.id+'|'+x.k+'">'+esc(slotLabel(x.cab,x.k))+'</button>').join('')+'</div>':'<div class="note warn">'+esc(g)+'을(를) 넣을 수 있는 칸이 없습니다. 시약장 탭에서 칸 설정을 바꾸세요.</div>';
+    document.querySelectorAll('[data-rc]').forEach(x=>x.onclick=()=>{const [c,k]=x.dataset.rc.split('|');$('pCab').value=c;fillSlots(k)})};
+  const fillSlots=sel=>{const c=cabOf($('pCab').value);if(!c)return;$('pSlot').innerHTML=Object.keys(c.slots).map(k=>'<option value="'+k+'" '+(k===sel?'selected':'')+'>'+esc(slotLabel(c,k))+' · '+bottlesIn(c.id,k).length+'병</option>').join('');chk()};
+  const chk=()=>{const c=cabOf($('pCab').value);if(!c)return;$('pWarn').innerHTML=slotWarnings(c,$('pSlot').value,$('fGroup').value).map(x=>'<div class="note bad">'+esc(x)+'</div>').join('')};
+  $('pCab').onchange=()=>fillSlots();$('pSlot').onchange=chk;$('fGroup').onchange=()=>{recommend();chk()};
+  $('mName').oninput=()=>{const q=$('mName').value.trim();if(!q){$('sugg').innerHTML='';return}const list=M.filter(m=>matchText(q,[m.name,m.eng,m.formula,m.cas,...m.alias])).slice(0,8);
+    $('sugg').innerHTML=list.length?'<div class="sugg">'+list.map(m=>'<button data-m="'+esc(m.name)+'">'+chip(m.group)+' <b>'+esc(m.name)+'</b> <span class="muted">'+esc(m.formula)+' · '+esc(m.cas)+'</span></button>').join('')+'</div>':'<div class="muted">목록에 없는 시약입니다. 화학식·CAS·저장군을 직접 입력하세요.</div>';
+    document.querySelectorAll('[data-m]').forEach(x=>x.onclick=()=>setMaster(x.dataset.m))};
+  $('photo').onchange=e=>{const f=e.target.files[0];if(!f)return;shrink(f,u=>{photo=u;$('pv').innerHTML='<img class="thumb" src="'+u+'" alt="첨부한 병 사진">'})};
+  $('parse').onclick=()=>{const p=parseLabel($('lbl').value);if(p.master)setMaster(p.master);if(p.cas)$('fCas').value=p.cas;if(p.size){$('fSize').value=p.size;$('fUnit').value=p.unit}if(p.maker)$('fMaker').value=p.maker;if(p.grade)$('fGrade').value=p.grade;if(p.expiry)$('fExp').value=p.expiry;
+    toast(p.master?'읽음: '+p.master:'시약 이름을 찾지 못했습니다. 이름 칸에서 검색해 고르세요')};
+  $('fOpen').value=today();fillSlots();recommend();if(d.master)setMaster(d.master);if(d.cabId){$('pCab').value=d.cabId;fillSlots(d.slot)}
+  $('doAdd').onclick=()=>{const name=$('mName').value.trim();if(!name){toast('시약 이름을 입력하세요');$('mName').focus();return}
+    const cab=cabOf($('pCab').value),k=$('pSlot').value,g=$('fGroup').value;const w=slotWarnings(cab,k,g);
+    const doIt=()=>{const n=Math.max(1,Math.min(20,+$('fCount').value||1));const tags=$('fTags').value.split(',').map(t=>t.trim().replace(/^#/,'')).filter(Boolean);
+      for(let i=0;i<n;i++)S.bottles.push({id:uid(),name,formula:$('fFormula').value,cas:$('fCas').value.trim(),group:g,size:+$('fSize').value||0,unit:$('fUnit').value,remain:1,cabId:cab.id,slot:k,maker:$('fMade').checked?'자체 제조':$('fMaker').value,grade:$('fGrade').value,opened:$('fOpen').value,expiry:$('fExp').value,memo:$('fMemo').value,made:$('fMade').checked,tags,photo,out:null,hist:[{t:today(),who:S.me.name,what:'등록 → '+slotLabel(cab,k)}],mt:Date.now()});
+      S.buy=S.buy.filter(x=>x.name!==name);logAct('등록: '+name+' '+n+'병');save();closeModal();lastQ=name;go('search');toast(name+' '+n+'병 등록')};
+    if(w.length){modal('<h2>보관 규칙 경고</h2>'+w.map(x=>'<div class="note bad">'+esc(x)+'</div>').join('')+'<p class="muted">다른 칸을 고르는 것을 권장합니다.</p><div class="row"><button class="btn pri grow" id="back">칸 다시 고르기</button><button class="btn bad" id="force">그래도 등록</button></div>');
+      $('back').onclick=closeModal;$('force').onclick=doIt}else doIt()}}
+
+/* ===== 실험 ===== */
+let expFilter='전체';
+const have=name=>S.bottles.filter(b=>b.name===name);
+function vExp(){const levels=['전체',...new Set(EXP.map(e=>e.level))];const list=EXP.filter(e=>expFilter==='전체'||e.level===expFilter);
+  V().innerHTML=backBar()+'<section class="panel"><h2>2022 개정 교육과정 실험 준비</h2><p class="muted">실험을 고르면 필요한 시약과 우리 학교 재고·위치가 나옵니다. 시약을 누르면 위치를 봅니다.</p><div class="seg" role="group" aria-label="학교급">'+levels.map(l=>'<button aria-pressed="'+(l===expFilter)+'" data-lv="'+esc(l)+'">'+esc(l)+'</button>').join('')+'</div></section>'+
+  list.map(e=>{const miss=e.reagents.filter(r=>!have(r).length);return '<section class="panel"><div class="row"><div class="grow"><div class="muted">'+esc(e.level)+' · '+esc(e.topic)+'</div><b>'+esc(e.title)+'</b></div>'+(miss.length?'<span class="tag no">부족 '+miss.length+'종</span>':'<span class="tag have">준비 완료</span>')+'</div><div style="margin-top:8px">'+
+  e.reagents.map(r=>{const h=have(r);return '<button class="tag '+(h.length?'have':'no')+'" data-r="'+esc(r)+'">'+esc(r)+(h.length?' '+h.length+'병':' 없음')+'</button>'}).join('')+'</div>'+'<div class="row" style="margin-top:10px">'+(canEdit()?'<button class="btn pri sm" data-prep="'+EXP.indexOf(e)+'">이 실험 준비</button>':'')+(miss.length&&canEdit()?'<button class="btn sm" data-miss="'+EXP.indexOf(e)+'">없는 시약 '+miss.length+'종 구매 목록에</button>':'')+'</div></section>'}).join('');
+  bindBack();document.querySelectorAll('[data-prep]').forEach(b=>b.onclick=()=>startBasket(EXP[+b.dataset.prep]));
+  document.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{expFilter=b.dataset.lv;vExp()});
+  document.querySelectorAll('[data-r]').forEach(t=>t.onclick=()=>{const h=have(t.dataset.r);if(h.length)bottleModal(h[0].id);else{lastQ=t.dataset.r;go('search')}});
+  document.querySelectorAll('[data-miss]').forEach(bn=>bn.onclick=()=>{const e=EXP[+bn.dataset.miss];e.reagents.filter(r=>!have(r).length).forEach(r=>addBuy(r,e.topic+' 실험'));toast('구매 목록에 추가했습니다')})}
+
+/* ===== 업무: 구매 · 폐액 · 재고 실사 ===== */
+function addBuy(name,why){if(!S.buy.some(x=>x.name===name)){S.buy.push({name,why,qty:1,at:today()});save()}}
+function vWork(){
+  V().innerHTML=backBar()+'<div class="seg" role="group" aria-label="업무">'+[['buy','구매 목록'],['waste','폐액'],['audit','재고 실사']].map(([k,t])=>'<button aria-pressed="'+(sub===k)+'" data-sub="'+k+'">'+t+'</button>').join('')+'</div><div id="subv"></div>';
+  bindBack();document.querySelectorAll('[data-sub]').forEach(b=>b.onclick=()=>{sub=b.dataset.sub;vWork()});({buy:vBuy,waste:vWaste,audit:vAudit})[sub]()}
+const SV=()=>document.getElementById('subv');
+function vBuy(){const low=S.bottles.filter(b=>b.remain<=0.2&&!S.buy.some(x=>x.name===b.name));
+  SV().innerHTML='<section class="panel"><h2>구매 목록</h2>'+(S.buy.length?'<table><tr><th>품목</th><th>CAS</th><th>수량</th><th>사유</th><th></th></tr>'+S.buy.map((x,i)=>{const m=findMaster(x.name);return '<tr><td><b>'+esc(x.name)+'</b><div class="muted">'+esc(m?m.eng:'')+'</div></td><td>'+esc(m?m.cas:'')+'</td><td><input type="number" min="1" value="'+x.qty+'" data-qi="'+i+'" aria-label="수량" style="width:72px;min-height:36px;padding:4px 8px"></td><td class="muted">'+esc(x.why)+'</td><td><button class="btn sm" data-di="'+i+'">빼기</button></td></tr>'}).join('')+'</table>':'<div class="note info">비어 있습니다. 실험 탭이나 잔량 부족 목록에서 추가하세요.</div>')+
+  '<div class="row" style="margin-top:12px"><button class="btn pri" id="copyBuy">S2B 양식(CSV) 복사</button></div><textarea id="buyOut" style="display:none;margin-top:8px" readonly aria-label="복사할 내용"></textarea></section>'+
+  (low.length?'<section class="panel"><h2>잔량 20% 이하</h2>'+low.map(b=>'<div class="row" style="margin:6px 0"><span class="grow">'+esc(b.name)+' <span class="muted">'+Math.round(b.remain*100)+'%</span></span><button class="btn sm" data-lb="'+esc(b.name)+'">추가</button></div>').join('')+'</section>':'');
+  document.querySelectorAll('[data-qi]').forEach(x=>x.onchange=()=>{S.buy[+x.dataset.qi].qty=+x.value||1;save()});
+  document.querySelectorAll('[data-di]').forEach(x=>x.onclick=()=>{S.buy.splice(+x.dataset.di,1);save();vBuy()});
+  document.querySelectorAll('[data-lb]').forEach(x=>x.onclick=()=>{addBuy(x.dataset.lb,'잔량 부족');vBuy()});
+  document.getElementById('copyBuy').onclick=()=>{const rows=[['품명','영문명','CAS','규격','수량','사유']].concat(S.buy.map(x=>{const m=findMaster(x.name);const b=S.bottles.find(y=>y.name===x.name);return [x.name,m?m.eng:'',m?m.cas:'',b?b.size+b.unit:'',x.qty,x.why]}));copyOut('buyOut',rows.map(r=>r.map(csv).join(',')).join('\n'))}}
+function vWaste(){const CAP=20000;const tot={};WASTE.forEach(w=>tot[w]=0);S.waste.forEach(w=>tot[w.type]=(tot[w.type]||0)+w.amount);
+  SV().innerHTML='<section class="panel"><h2>폐액통</h2><p class="muted">통 하나를 20 L로 보고 얼마나 찼는지 보여 줍니다. 종류를 섞지 마세요.</p>'+
+  WASTE.map(w=>'<div style="margin:12px 0"><div class="row"><b class="grow">'+w+'</b><span>'+(tot[w]/1000).toFixed(1)+' L</span></div><div class="prog" aria-label="'+w+' '+Math.round(tot[w]/CAP*100)+'%"><i style="width:'+Math.min(100,tot[w]/CAP*100)+'%'+(tot[w]>CAP*.8?';background:var(--bad)':'')+'"></i></div>'+(tot[w]>CAP*.8?'<div class="note bad">80% 넘음 — 수거를 신청하세요</div>':'')+'</div>').join('')+
+  (canEdit()?'<h3>폐액 넣기</h3><div class="row"><select id="wType" class="grow" aria-label="폐액 종류">'+WASTE.map(w=>'<option>'+w+'</option>').join('')+'</select><input id="wAmt" type="number" placeholder="mL" style="width:110px" aria-label="양(mL)"><input id="wMemo" class="grow" placeholder="내용 (예: 황산 구리 용액)" aria-label="내용"><button class="btn pri" id="wAdd">기록</button></div>':'')+
+  '<div class="row" style="margin-top:12px"><button class="btn" id="wCopy">수거 신청 목록 복사</button>'+(isAdmin()?'<button class="btn" id="wDone">수거 완료(비우기)</button>':'')+'</div><textarea id="wOut" style="display:none;margin-top:8px" readonly aria-label="복사할 내용"></textarea></section>'+
+  '<section class="panel"><h2>폐액 기록</h2><table><tr><th>날짜</th><th>종류</th><th>양</th><th>내용</th><th>기록</th></tr>'+S.waste.slice().reverse().map(w=>'<tr><td>'+esc(w.t)+'</td><td>'+esc(w.type)+'</td><td>'+w.amount+' mL</td><td>'+esc(w.memo)+'</td><td>'+esc(w.who)+'</td></tr>').join('')+'</table></section>';
+  const $=id=>document.getElementById(id);
+  if($('wAdd'))$('wAdd').onclick=()=>{const a=+$('wAmt').value;if(!a){toast('양(mL)을 입력하세요');return}S.waste.push({id:uid(),type:$('wType').value,amount:a,t:today(),who:S.me.name,memo:$('wMemo').value});logAct('폐액 기록: '+$('wType').value+' '+a+' mL');save();vWaste();toast('기록했습니다')};
+  $('wCopy').onclick=()=>copyOut('wOut',[['학교','폐액 종류','양(L)']].concat(WASTE.filter(w=>tot[w]).map(w=>[S.school,w,(tot[w]/1000).toFixed(1)])).map(r=>r.map(csv).join(',')).join('\n'));
+  if($('wDone'))$('wDone').onclick=()=>{logAct('폐액 수거 완료: '+(S.waste.reduce((s,w)=>s+w.amount,0)/1000).toFixed(1)+' L');S.waste=[];save();vWaste();toast('수거 완료로 비웠습니다')}}
+function vAudit(){const A=S.audit;
+  if(!A){SV().innerHTML='<section class="panel"><h2>재고 실사</h2><p>칸을 하나씩 열어 보면서 병이 있는지 확인합니다. 학기 초와 학기 말에 한 번씩 하면 대장과 실제가 맞습니다.</p>'+(canEdit()?'<button class="btn pri" id="aStart">실사 시작</button>':'<div class="note info">열람 권한은 실사를 할 수 없습니다.</div>')+'</section>';
+    const s=document.getElementById('aStart');if(s)s.onclick=()=>{S.audit={start:today(),who:S.me.name,check:{}};logAct('재고 실사 시작');save();vAudit()};return}
+  const done=Object.keys(A.check).length,total=S.bottles.length;
+  SV().innerHTML='<section class="panel"><h2>재고 실사 진행 중</h2><div class="row"><span class="grow">'+done+' / '+total+'병 확인 · '+esc(A.start)+' 시작</span><button class="btn pri" id="aEnd">실사 마치기</button></div><div class="prog" style="margin-top:8px"><i style="width:'+(total?done/total*100:0)+'%"></i></div></section>'+
+  S.cabinets.map(cab=>'<section class="panel"><h2>'+esc(cab.code+' '+cab.name)+'</h2>'+Object.keys(cab.slots).map(k=>{const bs=bottlesIn(cab.id,k);if(!bs.length)return '';return '<h3>'+esc(slotLabel(cab,k))+'</h3>'+bs.map(b=>{const st=A.check[b.id];return '<div class="row" style="margin:6px 0"><span class="grow">'+esc(b.name)+' <span class="muted">'+b.size+b.unit+'</span></span>'+
+    '<button class="btn sm" data-ck="'+b.id+'|ok" aria-pressed="'+(st==='ok')+'" style="'+(st==='ok'?'background:var(--ok-bg);color:var(--ok)':'')+'">있음</button><button class="btn sm" data-ck="'+b.id+'|miss" aria-pressed="'+(st==='miss')+'" style="'+(st==='miss'?'background:var(--bad-bg);color:var(--bad)':'')+'">없음</button></div>'}).join('')}).join('')+'</section>').join('');
+  document.querySelectorAll('[data-ck]').forEach(b=>b.onclick=()=>{const [id,v]=b.dataset.ck.split('|');A.check[id]=v;save();const y=window.scrollY;vAudit();window.scrollTo(0,y)});
+  document.getElementById('aEnd').onclick=()=>{const miss=S.bottles.filter(b=>A.check[b.id]==='miss'),unk=S.bottles.filter(b=>!A.check[b.id]);
+    modal('<h2>실사 결과</h2><div class="stats"><div class="stat"><div class="n">'+(total-miss.length-unk.length)+'</div><div class="l">있음</div></div><div class="stat"><div class="n">'+miss.length+'</div><div class="l">없음</div></div><div class="stat"><div class="n">'+unk.length+'</div><div class="l">확인 안 함</div></div></div>'+
+    (miss.length?'<h3>없는 병</h3>'+miss.map(b=>'<div>'+esc(b.name)+' <span class="muted">'+esc(cabOf(b.cabId)?slotLabel(cabOf(b.cabId),b.slot):'')+'</span></div>').join('')+'<label style="display:flex;gap:6px;align-items:center;color:var(--ink)"><input id="rmMiss" type="checkbox" style="width:auto;min-height:0" checked> 없는 병을 대장에서 지우기</label>':'')+
+    '<div class="row" style="margin-top:14px"><button class="btn pri grow" id="fin">마치기</button><button class="btn" id="cont">계속하기</button></div>');
+    document.getElementById('cont').onclick=closeModal;document.getElementById('fin').onclick=()=>{const rm=document.getElementById('rmMiss');if(rm&&rm.checked){S.bottles.filter(b=>A.check[b.id]==='miss').forEach(b=>tombAdd(b.id));S.bottles=S.bottles.filter(b=>A.check[b.id]!=='miss')}
+      logAct('재고 실사 완료: 없음 '+miss.length+'병, 미확인 '+unk.length+'병');S.audit=null;save();closeModal();vWork();toast('실사를 마쳤습니다')}}}
+
+/* ===== 관리 ===== */
+function vAdmin(){
+  V().innerHTML=backBar()+'<section class="panel"><h2>학교 그룹</h2><label for="aSchool">학교 이름</label><input id="aSchool" value="'+esc(S.school)+'" '+(isAdmin()?'':'disabled')+'>'+
+  '<div class="row"><div class="grow"><label for="aMe">내 이름</label><input id="aMe" value="'+esc(S.me.name)+'"></div>'+(S.demo?'<div class="grow"><label for="aRole">내 역할 (예시에서만 전환)</label><select id="aRole">'+['관리자','구성원','열람'].map(r=>'<option '+(S.me.role===r?'selected':'')+'>'+r+'</option>').join('')+'</select></div>':'<div class="grow"><label>내 역할</label><div style="padding:12px 0"><b>'+esc(S.me.role)+'</b> <span class="muted">관리자가 정합니다</span></div></div>')+'</div>'+
+  '<h3>이 학교에서 앱을 쓰는 교사</h3><p class="muted">관리자가 초대한 교사만 학교 데이터를 받을 수 있습니다.</p><table><tr><th>이름</th><th>역할</th><th>상태</th><th></th></tr>'+S.members.map((m,i)=>'<tr'+(m.active===false?' style="opacity:.5"':'')+'><td>'+esc(m.name)+(m.id===S.me.id?' (나)':'')+'</td><td>'+(isAdmin()&&m.id!==S.me.id&&m.active!==false?'<select data-role="'+i+'" aria-label="'+esc(m.name)+' 역할" style="min-height:36px;padding:4px 8px">'+['관리자','구성원','열람'].map(r=>'<option '+(m.role===r?'selected':'')+'>'+r+'</option>').join('')+'</select>':esc(m.role))+'</td><td>'+(m.active===false?'해제됨':m.code?'초대 중':'사용 중')+'</td><td>'+(isAdmin()&&m.id!==S.me.id&&m.active!==false?(m.code?'<button class="btn sm" data-code="'+i+'">초대 코드</button> ':'')+'<button class="btn sm" data-out="'+i+'">해제</button>':'')+'</td></tr>').join('')+'</table>'+
+  (isAdmin()?'<div class="row" style="margin-top:8px"><input id="nm" class="grow" placeholder="새 구성원 이름" aria-label="새 구성원 이름"><select id="nr" style="width:120px" aria-label="역할"><option>구성원</option><option>관리자</option><option>열람</option></select><button class="btn" id="addM">초대 코드 만들기</button></div>':'')+
+  '<div class="note info">같은 학교 교사끼리만 쓰는 그룹입니다. 데이터는 이 기기에만 저장되고, 다른 교사에게는 <b>더보기 › 학교·비밀번호</b>에서 비밀번호로 잠근 묶음으로 보냅니다.</div><button class="btn pri" id="saveA">저장</button></section>'+
+  '<section class="panel"><h2>실과 시약장</h2>'+S.rooms.map(r=>'<h3>'+esc(r.name)+'</h3>'+S.cabinets.filter(c=>c.roomId===r.id).map(c=>'<div class="row" style="margin:6px 0"><span class="chip gG">'+esc(c.code)+'</span><span class="grow">'+esc(c.name)+' <span class="muted">'+c.rows+'단 × '+c.cols+'열</span></span>'+(isAdmin()?'<button class="btn sm" data-ec="'+c.id+'">편집</button>':'')+'</div>').join('')).join('')+
+  (isAdmin()?'<div class="row" style="margin-top:10px"><button class="btn" id="addCab2">시약장 추가</button><input id="roomName" class="grow" placeholder="새 실 이름 (예: 생명과학실)" aria-label="새 실 이름"><button class="btn" id="addRoom">실 추가</button></div>':'')+'</section>'+
+  '<section class="panel"><h2>가져오기·내보내기</h2><p class="muted">기존 엑셀 대장을 CSV로 붙여 넣으면 한 번에 등록됩니다. 첫 줄: 시약,용량,단위,시약장코드,단,열</p><textarea id="csvIn" placeholder="시약,용량,단위,시약장코드,단,열&#10;염산,500,mL,A,2,1&#10;에탄올,1000,mL,F,1,1"></textarea><button class="btn" id="csvGo" style="margin-top:8px">CSV 가져오기</button>'+
+  '<div class="row" style="margin-top:14px"><button class="btn" id="bk">백업(JSON) 복사</button><button class="btn" id="csvAll">시약 대장(CSV) 복사</button><label class="btn" style="margin:0;color:var(--btn-ink)">백업 파일 불러오기<input id="imp" type="file" accept=".json,application/json,text/plain" style="display:none"></label></div><textarea id="out" style="display:none;margin-top:8px" readonly aria-label="복사할 내용"></textarea>'+
+  '<details style="margin-top:10px"><summary>백업 글 붙여넣어 복원</summary><textarea id="pasteIn" aria-label="백업 글"></textarea><button class="btn" id="pasteGo">복원</button></details></section>'+
+  '<section class="panel"><h2>활동 기록</h2><table>'+S.log.slice(-20).reverse().map(l=>'<tr><td class="muted">'+esc(l.t)+'</td><td>'+esc(l.who)+'</td><td>'+esc(l.what)+'</td></tr>').join('')+'</table></section>'+
+  '<section class="panel"><h2>처음부터</h2><div class="row"><button class="btn bad" id="reset">예시 데이터로 되돌리기</button><button class="btn bad" id="wipe">모두 지우고 처음 설정 다시 하기</button></div><p class="muted">GHS 그림문자·주의 문구·제조법은 참고용입니다. 안전보건공단 MSDS 원문과 교육청 지침이 우선합니다.</p></section>';
+  const $=id=>document.getElementById(id);
+  bindBack();$('saveA').onclick=()=>{if(isAdmin())S.school=$('aSchool').value.trim()||S.school;S.me.name=$('aMe').value.trim()||'나';if($('aRole'))S.me.role=$('aRole').value;const mm=S.members.find(m=>m.id===S.me.id);if(mm){mm.name=S.me.name;mm.role=S.me.role}if(isAdmin())cfgBump();save();render();toast('저장했습니다')};
+  document.querySelectorAll('[data-out]').forEach(b=>b.onclick=()=>{const m=S.members[+b.dataset.out];modal('<h2>'+esc(m.name)+' 해제</h2><p>해제하면 이 교사는 앞으로 보내는 학교 데이터를 받을 수 없습니다. 이미 받은 데이터까지 막으려면 <b>학교 비밀번호를 바꾸고</b> 남은 교사에게 새 묶음을 보내세요.</p><div class="row"><button class="btn bad grow" id="yes">해제하고 비밀번호 바꾸러 가기</button><button class="btn" id="no">취소</button></div>');
+    document.getElementById('no').onclick=closeModal;document.getElementById('yes').onclick=()=>{m.active=false;delete m.code;logAct('교사 해제(전출): '+m.name);cfgBump();save();closeModal();go('school');toast(m.name+' 해제 — 비밀번호를 바꿔 주세요')}});
+  document.querySelectorAll('[data-role]').forEach(x=>x.onchange=()=>{const m=S.members[+x.dataset.role];m.role=x.value;logAct('역할 변경: '+m.name+' → '+m.role);cfgBump();save();toast(m.name+' 역할: '+m.role)});
+  document.querySelectorAll('[data-code]').forEach(b=>b.onclick=()=>showInvite(S.members[+b.dataset.code]));
+  if($('addM'))$('addM').onclick=async()=>{const n=$('nm').value.trim();if(!n){toast('초대할 교사 이름을 넣어 주세요');return}const m={id:uid(),name:n,role:$('nr').value,active:true};await newInvite(m);S.members.push(m);logAct('교사 초대: '+n);cfgBump();save();vAdmin();showInvite(m)};
+  document.querySelectorAll('[data-ec]').forEach(b=>b.onclick=()=>cabEditModal(b.dataset.ec));
+  if($('addCab2'))$('addCab2').onclick=()=>cabEditModal(null);
+  if($('addRoom'))$('addRoom').onclick=()=>{const n=$('roomName').value.trim();if(!n)return;S.rooms.push({id:uid(),name:n});logAct('실 추가: '+n);cfgBump();save();vAdmin()};
+  $('csvGo').onclick=()=>{const r=importCSV($('csvIn').value);save();toast(r.ok+'병 가져옴'+(r.bad?', 위치를 못 찾은 '+r.bad+'줄은 건너뜀':''))};
+  $('bk').onclick=()=>copyOut('out',JSON.stringify(S));
+  $('csvAll').onclick=()=>{const rows=[['시약','화학식','CAS','저장군','용량','단위','잔량(%)','실','시약장','칸','제조사','등급','개봉일','유효기간','자체제조','메모','태그']].concat(S.bottles.map(b=>{const c=cabOf(b.cabId);return [b.name,b.formula,b.cas,b.group,b.size,b.unit,Math.round(b.remain*100),roomOf(c?.roomId)?.name||'',c?c.code+' '+c.name:'',c?slotLabel(c,b.slot):'',b.maker,b.grade,b.opened,b.expiry,b.made?'예':'',b.memo,b.tags.join(' ')]}));copyOut('out',rows.map(r=>r.map(csv).join(',')).join('\n'))};
+  const restore=t=>{try{const o=JSON.parse(t);if(!o.cabinets||!o.bottles)throw 0;S=migrate(o);save();render();toast('복원했습니다')}catch(e){toast('백업 형식이 아닙니다')}};
+  $('imp').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>restore(r.result);r.readAsText(f)};
+  $('pasteGo').onclick=()=>restore($('pasteIn').value);
+  $('reset').onclick=()=>{S=demo();save();render();toast('예시 데이터로 되돌렸습니다')};
+  $('wipe').onclick=()=>{modal('<h2>모두 지우고 새로 시작</h2><p>시약·시약장·기록이 모두 지워지고 처음 설정 3단계를 다시 합니다. 먼저 백업을 복사해 두세요.</p><div class="row"><button class="btn bad grow" id="yes">지우고 시작</button><button class="btn" id="no">취소</button></div>');document.getElementById('no').onclick=closeModal;document.getElementById('yes').onclick=()=>{const n=S.me.name;S=blank();S.me.name=n;S.members[0].name=n;save();closeModal();tab='search';render();wizard()}}}
+
+/* ===== CSV 가져오기 ===== */
+function importCSV(text){const lines=text.trim().split(/\r?\n/).filter(Boolean);if(lines.length&&/시약/.test(lines[0]))lines.shift();let ok=0,bad=0;
+  lines.forEach(l=>{const [n,sz,u,code,r,c]=l.split(',').map(x=>(x||'').trim());if(!n)return;const m=M.find(x=>[x.name,...x.alias,x.eng].some(f=>norm(f)===norm(n)))||M.find(x=>matchText(n,[x.name,...x.alias,x.eng]))||null;const cab=S.cabinets.find(x=>x.code===(code||'').toUpperCase());const key=slotKey(+r||1,+c||1);
+    if(!cab||!cab.slots[key]){bad++;return}S.bottles.push({id:uid(),name:m?m.name:n,formula:m?m.formula:'',cas:m?m.cas:'',group:m?m.group:'G',size:+sz||0,unit:u||'g',remain:1,cabId:cab.id,slot:key,maker:'',grade:'',opened:'',expiry:'',memo:'',made:false,tags:[],photo:'',out:null,hist:[{t:today(),who:S.me.name,what:'엑셀 가져오기'}],mt:Date.now()});ok++});
+  logAct('엑셀 가져오기 '+ok+'병');return {ok,bad}}
+
+/* ===== 더보기 ===== */
+function vMore(){const bk=S.basket;const ad=isAdmin(),ed=canEdit();
+  const card=(id,ic,t,d)=>'<button data-go="'+id+'"><span class="em" style="font-size:28px" aria-hidden="true">'+E(ic)+'</span><b>'+t+'</b><span>'+d+'</span></button>';
+  V().innerHTML='<h2 style="margin:4px 0 14px">더보기</h2><div class="more">'+
+  (ed?card('basket','basket','수업 준비',bk?'진행 중: '+esc(bk.title):'실험을 고르면 꺼낼 시약이 순서대로'):'')+
+  card('exp','exp','실험별 시약','2022 교육과정 실험 25개')+
+  (ed?card('work:buy','buy','구매 목록',S.buy.length+'개 품목'):'')+
+  (ed?card('work:waste','waste','폐액',(S.waste.reduce((a,w)=>a+w.amount,0)/1000).toFixed(1)+' L 보관 중'):'')+
+  (ed?card('work:audit','audit','재고 실사',S.audit?'진행 중':'학기마다 한 번'):'')+
+  card('school','lock','학교·비밀번호',S.lock?'잠금 켜짐 · 데이터 보내기/받기':'비밀번호를 정하세요')+card('admin','admin',ad?'관리':'내 정보',ad?'구성원·시약장·백업':'이름·역할')+card('theme','theme','디자인 바꾸기',TH.name+' 사용 중')+card('feedback','feedback','의견 보내기','질문·문제점·개선 제안')+card('coffee','coffee','커피 한잔 사주기','개발자 응원하기')+'</div>';
+  document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const [t,sb]=b.dataset.go.split(':');if(sb)sub=sb;go(t)})}
+
+/* ===== 수업 준비 바구니 ===== */
+function startBasket(e){const make=()=>{const items=e.reagents.map(r=>{const hs=have(r).filter(b=>b.remain>0).sort((a,b)=>(a.out?1:0)-(b.out?1:0)||b.remain-a.remain);return {name:r,id:hs[0]?hs[0].id:null,got:false}});
+    const pos=it=>{const b=S.bottles.find(x=>x.id===it.id);if(!b)return 'zz';const c=cabOf(b.cabId);return (c?c.code:'z')+'-'+b.slot};items.sort((a,b)=>pos(a).localeCompare(pos(b)));
+    S.basket={title:e.topic+' · '+e.title,start:today(),items};logAct('수업 준비 시작: '+e.topic);save();go('basket')};
+  if(S.basket&&S.basket.items.some(x=>x.got)){modal('<h2>진행 중인 수업 준비가 있습니다</h2><p>'+esc(S.basket.title)+'에서 꺼낸 병을 먼저 제자리에 넣어 주세요.</p><div class="row"><button class="btn pri grow" id="y">이어서 보기</button><button class="btn" id="n">닫기</button></div>');
+    document.getElementById('y').onclick=()=>{closeModal();go('basket')};document.getElementById('n').onclick=closeModal;return}
+  make()}
+function vBasket(){const bk=S.basket;
+  if(!bk){V().innerHTML=backBar()+'<section class="panel"><h2>수업 준비</h2><p>실험을 고르면 꺼낼 시약이 시약장 순서대로 나옵니다. 꺼낼 때 체크하고, 수업이 끝나면 한 번에 제자리로 돌립니다.</p><button class="btn pri" id="toExp">실험 고르기</button></section>';bindBack();document.getElementById('toExp').onclick=()=>go('exp');return}
+  const avail=bk.items.filter(x=>x.id),got=avail.filter(x=>x.got).length,miss=bk.items.filter(x=>!x.id);
+  V().innerHTML=backBar()+'<section class="panel"><h2>'+esc(bk.title)+'</h2><div class="row"><span class="grow muted">꺼냄 '+got+' / '+avail.length+' · '+esc(bk.start)+'</span></div><div class="prog" style="margin:8px 0 6px"><i style="width:'+(avail.length?got/avail.length*100:0)+'%"></i></div>'+
+  avail.map(it=>{const b=S.bottles.find(x=>x.id===it.id);if(!b)return '';return '<div class="basket-item'+(it.got?' got':'')+'"><button class="check" data-ck="'+it.id+'" aria-pressed="'+it.got+'" aria-label="'+esc(b.name)+' 꺼냄">'+(it.got?'✓':'')+'</button>'+tile(b)+'<div class="grow"><b>'+esc(b.name)+'</b> <span class="muted">'+remainLabel(b.remain)+'</span><div class="path">'+pathOf(b)+(b.out&&!it.got?' · <span style="color:var(--warn)">'+esc(b.out.who)+' 사용 중</span>':'')+'</div></div></div>'}).join('')+
+  (miss.length?'<h3>우리 학교에 없음</h3>'+miss.map(it=>'<div class="row" style="margin:6px 0"><span class="grow">'+esc(it.name)+'</span><button class="btn sm" data-buy="'+esc(it.name)+'">구매 목록에</button></div>').join(''):'')+
+  '<button class="btn pri bigbtn" id="allBack" style="margin-top:16px">수업 끝 · 모두 제자리</button><div class="row" style="margin-top:8px"><button class="btn" id="cancelBk">준비 취소</button></div></section>';
+  bindBack();
+  document.querySelectorAll('[data-ck]').forEach(c=>c.onclick=()=>{const it=bk.items.find(x=>x.id===c.dataset.ck);const b=S.bottles.find(x=>x.id===it.id);it.got=!it.got;
+    if(it.got){b.out={who:S.me.name,where:'수업 준비: '+bk.title,t:today()};pushH(b,{t:today(),who:S.me.name,what:'꺼냄(수업 준비)'})}else{b.out=null}save();vBasket()});
+  document.querySelectorAll('[data-buy]').forEach(c=>c.onclick=()=>{addBuy(c.dataset.buy,bk.title);toast('구매 목록에 추가했습니다')});
+  const finish=msg=>{bk.items.forEach(it=>{const b=S.bottles.find(x=>x.id===it.id);if(b&&it.got){b.out=null;pushH(b,{t:today(),who:S.me.name,what:'제자리에 넣음'})}});logAct(msg+': '+bk.title);S.basket=null;save()};
+  document.getElementById('allBack').onclick=()=>{const n=bk.items.filter(x=>x.got).length;finish('수업 준비 끝');go('search');toast(n+'병을 제자리로 돌렸습니다. 쓴 병은 "썼어요"로 잔량을 기록하세요')};
+  document.getElementById('cancelBk').onclick=()=>{finish('수업 준비 취소');go('more')}}
+
+/* ===== 처음 설정 ===== */
+function welcome(){modal('<h2>시약장에 오신 것을 환영합니다</h2><p>우리 학교 시약장을 3단계로 만들거나, 예시 학교로 먼저 둘러볼 수 있습니다.</p><button class="btn pri bigbtn" id="wStart">우리 학교로 시작 (3단계)</button><button class="btn" id="wRecv" style="width:100%;margin-top:8px">전입 교사: 학교 데이터 받기</button><button class="btn" id="wDemo" style="width:100%;margin-top:8px">예시로 둘러보기</button>');
+  document.getElementById('wRecv').onclick=()=>receiveModal(true);
+  document.getElementById('wDemo').onclick=()=>{save();closeModal();themeModal()};
+  document.getElementById('wStart').onclick=()=>{S=blank();save();render();wizard()}}
+const WT=[['A','산 전용장',3,2,['A1','A2'],1],['F','인화성 전용장',3,1,['F','A3'],1],['G','일반 시약장',3,2,['G','B','O','M'],2],['T','잠금 독성장',3,1,['T'],1],['R','시약 냉장고',2,1,['G'],0]];
+function wizard(){const W={step:1,school:S.school,room:S.rooms[0]?S.rooms[0].name:'화학실',count:WT.map(t=>t[5]),cabs:[],csv:''};
+  const draw=()=>{const bar='<div class="steps">'+[1,2,3].map(n=>'<i class="'+(n<=W.step?'on':'')+'"></i>').join('')+'</div>';let h='';
+    if(W.step===1)h='<h2>1. 학교와 시약장 종류</h2><label for="wSchool">학교 이름</label><input id="wSchool" value="'+esc(W.school)+'" placeholder="○○고등학교"><label for="wRoom">시약장이 있는 실</label><input id="wRoom" value="'+esc(W.room)+'"><h3>시약장이 몇 개 있나요?</h3>'+
+      WT.map((t,i)=>'<div class="row" style="margin:8px 0"><span class="chip g'+t[4][0]+'">'+t[0]+'</span><span class="grow">'+t[1]+'</span><span class="stepper"><button data-dn="'+i+'" aria-label="'+t[1]+' 줄이기">−</button><b>'+W.count[i]+'</b><button data-up="'+i+'" aria-label="'+t[1]+' 늘리기">+</button></span></div>').join('')+
+      '<div class="row" style="margin-top:14px"><button class="btn pri grow" id="wNext">다음</button></div>';
+    if(W.step===2)h='<h2>2. 단과 열</h2><p class="muted">시약장 문을 열고 선반이 몇 단, 몇 칸인지 세어 넣으세요. 나중에 바꿀 수 있습니다.</p><table><tr><th>시약장</th><th>단</th><th>열</th></tr>'+W.cabs.map((c,i)=>'<tr><td><b>'+esc(c.code)+'</b> '+esc(c.name)+'</td><td><input type="number" min="1" max="8" value="'+c.rows+'" data-r="'+i+'" style="width:70px;min-height:38px" aria-label="'+esc(c.code)+' 단 수"></td><td><input type="number" min="1" max="4" value="'+c.cols+'" data-c="'+i+'" style="width:70px;min-height:38px" aria-label="'+esc(c.code)+' 열 수"></td></tr>').join('')+'</table>'+
+      '<div class="row" style="margin-top:14px"><button class="btn" id="wPrev">이전</button><button class="btn pri grow" id="wNext">다음</button></div>';
+    if(W.step===3)h='<h2>3. 기존 시약 대장 (선택)</h2><p class="muted">엑셀 대장에서 아래 순서대로 열을 맞춰 복사해 붙여 넣으세요. 없으면 건너뛰고 등록 탭에서 하나씩 넣어도 됩니다.</p><div class="note info">시약, 용량, 단위, 시약장 코드('+W.cabs.map(c=>esc(c.code)).join(', ')+'), 단, 열</div><textarea id="wCsv" placeholder="염산,500,mL,A,2,1&#10;에탄올,1000,mL,F,1,1">'+esc(W.csv)+'</textarea>'+
+      '<div class="row" style="margin-top:14px"><button class="btn" id="wPrev">이전</button><button class="btn pri grow" id="wDone">완료</button></div>';
+    modal(bar+h);const $=id=>document.getElementById(id);
+    if(W.step===1){document.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{W.school=$('wSchool').value;W.room=$('wRoom').value;W.count[+b.dataset.up]=Math.min(6,W.count[+b.dataset.up]+1);draw()});
+      document.querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>{W.school=$('wSchool').value;W.room=$('wRoom').value;W.count[+b.dataset.dn]=Math.max(0,W.count[+b.dataset.dn]-1);draw()});
+      $('wNext').onclick=()=>{W.school=$('wSchool').value.trim();W.room=$('wRoom').value.trim()||'화학실';if(!W.count.some(n=>n)){toast('시약장을 1개 이상 고르세요');return}
+        W.cabs=[];WT.forEach((t,i)=>{for(let k=1;k<=W.count[i];k++)W.cabs.push({code:t[0]+(W.count[i]>1?k:''),name:t[1]+(W.count[i]>1?' '+k:''),rows:t[2],cols:t[3],allowed:t[4]})});W.step=2;draw()}}
+    if(W.step===2){const keep=()=>{document.querySelectorAll('[data-r]').forEach(x=>W.cabs[+x.dataset.r].rows=Math.min(8,Math.max(1,+x.value||1)));document.querySelectorAll('[data-c]').forEach(x=>W.cabs[+x.dataset.c].cols=Math.min(4,Math.max(1,+x.value||1)))};
+      $('wPrev').onclick=()=>{keep();W.step=1;draw()};$('wNext').onclick=()=>{keep();W.step=3;draw()}}
+    if(W.step===3){$('wPrev').onclick=()=>{W.csv=$('wCsv').value;W.step=2;draw()};
+      $('wDone').onclick=()=>{S.school=W.school;S.rooms=[{id:uid(),name:W.room}];const rid=S.rooms[0].id;
+        S.cabinets=W.cabs.map(c=>{const cab=makeCab(rid,c.code,c.name,c.rows,c.cols,c.allowed);
+          if(c.code[0]==='G'){Object.keys(cab.slots).forEach(k=>{const r=+k.split('-')[0];cab.slots[k].allowed=r===c.rows?['B']:['G','O','M']})}return cab});
+        const r=$('wCsv').value.trim()?importCSV($('wCsv').value):{ok:0,bad:0};S.setupDone=true;S.demo=false;cfgBump();logAct('처음 설정 완료');save();closeModal();tab='cabinet';render();if(!lsGet('sijakjang-design-chosen'))setTimeout(()=>themeModal(),400);
+        toast('설정 완료'+(r.ok?' · '+r.ok+'병 가져옴':'')+(r.bad?' · '+r.bad+'줄 건너뜀':''))}}};
+  draw()}
+
+/* ===== 학교 비밀번호 · 데이터 전달 ===== */
+const ITER=150000;
+const enc=new TextEncoder(),dec=new TextDecoder();
+const b64=u=>btoa(String.fromCharCode(...new Uint8Array(u)));
+const ub64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+function b64big(u){u=new Uint8Array(u);let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s)}
+async function pbkdf(pw,salt,iter){const k=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveBits','deriveKey']);return k}
+async function pwHash(pw,salt,iter){const k=await pbkdf(pw);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:iter,hash:'SHA-256'},k,256);return b64(bits)}
+async function aesKey(pw,salt,iter){const k=await pbkdf(pw);return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:iter,hash:'SHA-256'},k,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
+async function setPassword(pw){const salt=crypto.getRandomValues(new Uint8Array(16));S.lock={salt:b64(salt),iter:ITER,hash:await pwHash(pw,salt,ITER),set:today(),by:S.me.name};cfgBump();save()}
+async function checkPassword(pw,lock){lock=lock||S.lock;if(!lock)return true;return (await pwHash(pw,ub64(lock.salt),lock.iter))===lock.hash}
+function needUnlock(){if(!S.lock)return false;const t=+lsGet(UK(IX.active))||0;return t<Date.now()}
+function remember(days){lsSet(UK(IX.active),String(Date.now()+days*864e5))}
+function showLock(){const d=document.createElement('div');d.className='lock-screen';d.id='lock';
+  d.innerHTML='<form class="lock-box" id="lockForm"><div class="big" aria-hidden="true">'+E('lock')+'</div><h2 style="text-align:center">'+esc(S.school||'우리 학교')+'</h2><p class="muted" style="text-align:center">학교 비밀번호를 넣어 주세요.</p><label for="lkPw">비밀번호</label><input id="lkPw" type="password" autocomplete="current-password" required><label style="display:flex;gap:6px;align-items:center;color:var(--ink)"><input id="lkRem" type="checkbox" checked style="width:auto;min-height:0"> 이 기기에서 30일 동안 기억</label><div id="lkMsg"></div><button class="btn pri bigbtn" style="margin-top:12px">열기</button>'+(IX.list.length>1?'<button type="button" class="btn" id="lkOther" style="width:100%;margin-top:8px">다른 학교 고르기</button>':'')+'</form>';
+  document.body.appendChild(d);const f=document.getElementById('lkPw');f.focus();
+  document.getElementById('lockForm').onsubmit=async e=>{e.preventDefault();if(await checkPassword(f.value)){remember(document.getElementById('lkRem').checked?30:0.02);d.remove();render()}else{document.getElementById('lkMsg').innerHTML='<div class="note bad">비밀번호가 맞지 않습니다. 학교 관리자에게 확인하세요.</div>';f.select()}};
+  const o=document.getElementById('lkOther');if(o)o.onclick=()=>{d.remove();schoolPicker(true)}}
+const ICH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function genCode(){const r=crypto.getRandomValues(new Uint8Array(8));let c='';r.forEach((v,i)=>{c+=ICH[v%ICH.length];if(i===3)c+='-'});return c}
+async function codeHash(sid,code){const h=await crypto.subtle.digest('SHA-256',enc.encode(sid+':'+code.toUpperCase().replace(/[^A-Z0-9]/g,'')));return b64(h)}
+async function newInvite(m){const c=genCode();m.code=await codeHash(S.sid,c);m.plain=c;return c}
+function showInvite(m){modal('<h2>'+E('lock')+' '+esc(m.name)+' 초대</h2>'+(m.plain?'<div style="font-size:32px;font-weight:800;text-align:center;letter-spacing:3px;margin:12px 0" aria-label="초대 코드">'+esc(m.plain)+'</div>':'<div class="note warn">초대 코드를 잃어버렸다면 새로 만드세요.</div>')+
+  '<p>이 교사에게 세 가지를 보내세요.</p><p>1. 학교 데이터 묶음 (더보기 › 학교·비밀번호 › 보내기)<br>2. 학교 비밀번호<br>3. 이 초대 코드 (한 사람 한 번만 쓸 수 있음)</p><div class="row"><button class="btn" id="reCode">새 코드 만들기</button><button class="btn pri grow" id="okC">확인</button></div>');
+  document.getElementById('okC').onclick=closeModal;document.getElementById('reCode').onclick=async()=>{await newInvite(m);cfgBump();save();showInvite(m)}}
+function mergeIn(d){const L=S;let nb=0,cb=0;const tomb=new Set([...(L.tomb||[]),...(d.tomb||[])].map(x=>x.id));
+  const byId=new Map(L.bottles.map(b=>[b.id,b]));
+  d.bottles.forEach(b=>{if(tomb.has(b.id))return;const o=byId.get(b.id);if(!o){byId.set(b.id,b);nb++}else if((b.mt||0)>(o.mt||0)){byId.set(b.id,b);cb++}});
+  L.bottles=[...byId.values()].filter(b=>!tomb.has(b.id));
+  const tm=new Map();[...(L.tomb||[]),...(d.tomb||[])].forEach(x=>tm.set(x.id,x));L.tomb=[...tm.values()];
+  const wm=new Map();[...L.waste,...(d.waste||[])].forEach(w=>wm.set(w.id,w));L.waste=[...wm.values()];
+  const lk=new Set(L.log.map(x=>x.t+x.who+x.what));(d.log||[]).forEach(x=>{if(!lk.has(x.t+x.who+x.what))L.log.push(x)});
+  (d.buy||[]).forEach(x=>{if(!L.buy.some(y=>y.name===x.name))L.buy.push(x)});
+  (d.members||[]).forEach(dm=>{const lm=L.members.find(x=>x.id===dm.id);if(lm&&lm.code&&!dm.code){delete lm.code;delete lm.plain}});
+  let cfg=false;if((d.cfgMt||0)>(L.cfgMt||0)){['school','rooms','cabinets','members','lock','cfgMt'].forEach(k=>L[k]=d[k]);cfg=true}
+  const me=L.members.find(m=>m.id===L.me.id);if(me){L.me.role=me.role;L.me.name=me.name}
+  return {nb,cb,cfg,removed:me&&me.active===false}}
+async function makePackage(pw){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));const key=await aesKey(pw,salt,ITER);
+  const data=Object.assign({},S,{me:null,audit:null,basket:null,demo:false,members:S.members.map(m=>{const c=Object.assign({},m);delete c.plain;return c})});
+  const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,enc.encode(JSON.stringify(data)));
+  return 'SJJ1.'+btoa(unescape(encodeURIComponent(JSON.stringify({v:1,school:S.school,made:today(),by:S.me.name,salt:b64(salt),iv:b64(iv),iter:ITER,ct:b64big(ct)}))))}
+async function openPackage(text,pw){const t=text.trim();if(!t.startsWith('SJJ1.'))throw new Error('form');const p=JSON.parse(decodeURIComponent(escape(atob(t.slice(5)))));
+  const key=await aesKey(pw,ub64(p.salt),p.iter);let pt;try{pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:ub64(p.iv)},key,ub64(p.ct))}catch(e){throw new Error('pw')}return {meta:p,data:JSON.parse(dec.decode(pt))}}
+function download(name,text){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}catch(e){}}
+function switchSchool(id){const t=lsGet(DK(id));if(!t)return;IX.active=id;saveIX();S=migrate(JSON.parse(t));tab='search';lastQ='';render();if(needUnlock())showLock()}
+function newSchool(){IX.active=null;const n=S.me.name;S=blank();S.me.name=n;S.members[0].name=n;save();tab='search';render();wizard()}
+function schoolPicker(force){modal('<h2>'+E('brand')+' 이 기기의 학교</h2>'+IX.list.map(x=>'<div class="row" style="margin:8px 0"><span class="grow"><b>'+esc(x.school||'이름 없는 학교')+'</b>'+(x.id===IX.active?' <span class="tag have">지금 학교</span>':'')+'</span>'+(x.id!==IX.active||force?'<button class="btn sm" data-sw="'+x.id+'">열기</button>':'')+'</div>').join('')+
+  '<div class="row" style="margin-top:14px"><button class="btn" id="spRecv">학교 데이터 받기</button><button class="btn" id="spNew">새 학교 시작</button>'+(force?'':'<button class="btn" id="spX">닫기</button>')+'</div>');
+  document.querySelectorAll('[data-sw]').forEach(b=>b.onclick=()=>{closeModal();switchSchool(b.dataset.sw)});
+  document.getElementById('spRecv').onclick=()=>receiveModal(false);document.getElementById('spNew').onclick=()=>{closeModal();newSchool()};
+  const x=document.getElementById('spX');if(x)x.onclick=closeModal}
+function receiveModal(fromWelcome){modal('<h2>'+E('lock')+' 학교 데이터 받기</h2><p class="muted">관리자가 보낸 <b>학교 데이터 묶음</b>(SJJ1.로 시작하는 글 또는 파일), 학교 비밀번호, 처음 받을 때는 <b>초대 코드</b>가 필요합니다. 이미 있는 학교의 묶음을 받으면 바뀐 내용만 합쳐집니다.</p>'+
+  '<label for="rvTxt">학교 데이터 묶음</label><textarea id="rvTxt" placeholder="SJJ1.…"></textarea><label class="btn sm" style="margin:6px 0 0;display:inline-flex;color:var(--btn-ink)">파일에서 열기<input id="rvFile" type="file" accept=".sjj,.txt,text/plain" style="display:none"></label>'+
+  '<label for="rvPw">학교 비밀번호</label><input id="rvPw" type="password" autocomplete="off"><label for="rvCode">초대 코드 (처음 받을 때만)</label><input id="rvCode" autocomplete="off" placeholder="ABCD-2345" style="text-transform:uppercase">'+
+  '<div id="rvMsg"></div><div class="row" style="margin-top:14px"><button class="btn pri grow" id="rvGo">받기</button><button class="btn" id="rvX">취소</button></div>');
+  const $=id=>document.getElementById(id);
+  $('rvX').onclick=()=>{fromWelcome?welcome():closeModal()};
+  $('rvFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>$('rvTxt').value=r.result;r.readAsText(f)};
+  $('rvGo').onclick=async()=>{const msg=(t,k)=>$('rvMsg').innerHTML='<div class="note '+(k||'bad')+'">'+t+'</div>';msg('여는 중…','info');
+    let pk;try{pk=await openPackage($('rvTxt').value,$('rvPw').value)}catch(e){msg(e.message==='pw'?'비밀번호가 맞지 않습니다.':'학교 데이터 묶음이 아닙니다. SJJ1.로 시작하는 글 전체를 붙여 넣으세요.');return}
+    const d=migrate(pk.data);const here=IX.list.find(x=>x.sid===d.sid);
+    if(here){if(here.id!==IX.active){const t=lsGet(DK(here.id));if(t){IX.active=here.id;S=migrate(JSON.parse(t))}}
+      const r=mergeIn(d);
+      if(r.removed){const id=IX.active;lsDel(DK(id));lsDel(UK(id));IX.list=IX.list.filter(x=>x.id!==id);IX.active=IX.list[0]?IX.list[0].id:null;saveIX();
+        modal('<h2>접근이 해제되었습니다</h2><p>학교 관리자가 이 기기의 접근을 해제해서 '+esc(d.school)+' 데이터를 이 기기에서 지웠습니다.</p><button class="btn pri bigbtn" id="okR">확인</button>');document.getElementById('okR').onclick=()=>location.reload();return}
+      logAct('학교 데이터 합침: 새 병 '+r.nb+', 바뀐 병 '+r.cb);save();remember(30);closeModal();tab='search';render();toast('합쳤습니다 · 새 병 '+r.nb+' · 바뀐 병 '+r.cb+(r.cfg?' · 설정 갱신':''));return}
+    const code=$('rvCode').value.trim();if(!code){msg('처음 받는 학교입니다. 관리자에게 받은 초대 코드를 넣어 주세요.','warn');$('rvCode').focus();return}
+    const h=await codeHash(d.sid,code);const m=d.members.find(x=>x.code===h&&x.active!==false);
+    if(!m){msg('초대 코드가 맞지 않거나 이미 쓴 코드입니다. 관리자에게 새 코드를 받으세요.');return}
+    delete m.code;d.me={id:m.id,name:m.name,role:m.role};d.log.push({t:today(),who:m.name,what:'학교 데이터 받음(초대 수락)'});
+    IX.active=null;S=d;save();remember(30);closeModal();tab='search';render();toast(m.name+' 선생님, '+d.school+' 시약장에 들어왔습니다');if(!lsGet('sijakjang-design-chosen'))setTimeout(()=>themeModal(),600)}}
+function vSchool(){const L=S.lock;const ad=isAdmin();
+  V().innerHTML=backBar()+'<section class="panel"><h2>'+E('lock')+' 학교 비밀번호</h2>'+
+  (L?'<div class="note ok">잠금 켜짐 · '+esc(L.set)+' '+esc(L.by||'')+' 설정</div><p class="muted">앱을 열 때와 학교 데이터를 주고받을 때 이 비밀번호를 씁니다. 전출 교사가 생기면 바꿔 주세요.</p>':'<div class="note warn">아직 학교 비밀번호가 없습니다. 관리자가 정해야 데이터를 다른 교사에게 안전하게 보낼 수 있습니다.</div>')+
+  (ad?'<form id="pwForm">'+(L?'<label for="pwOld">지금 비밀번호</label><input id="pwOld" type="password" autocomplete="current-password">':'')+'<label for="pwNew">'+(L?'새 비밀번호':'비밀번호')+' (6자 이상)</label><input id="pwNew" type="password" autocomplete="new-password" minlength="6"><label for="pwNew2">한 번 더</label><input id="pwNew2" type="password" autocomplete="new-password"><div id="pwMsg"></div><button class="btn pri" style="margin-top:12px">'+(L?'비밀번호 바꾸기':'비밀번호 정하기')+'</button></form>':'<p class="muted">비밀번호는 관리자만 바꿀 수 있습니다.</p>')+'</section>'+
+  '<section class="panel"><h2>학교 데이터 보내기</h2><p class="muted">초대한 교사에게 학교 시약장을 보내거나, 바뀐 내용을 다른 교사와 맞출 때 씁니다. 받는 쪽에서는 바뀐 것만 합쳐집니다. 학교 비밀번호로 잠긴 묶음이 만들어지니 메신저나 메일로 보내도 비밀번호 없이는 열 수 없습니다.</p>'+
+  (L?'<label for="exPw">학교 비밀번호</label><input id="exPw" type="password" autocomplete="off"><div id="exMsg"></div><button class="btn pri" id="exGo" style="margin-top:10px">묶음 만들기</button><textarea id="exOut" style="display:none;margin-top:8px" readonly aria-label="학교 데이터 묶음"></textarea>':'<div class="note info">먼저 학교 비밀번호를 정하세요.</div>')+'</section>'+
+  '<section class="panel"><h2>받기 · 학교 바꾸기 · 전출</h2><div class="row"><button class="btn" id="scRecv">학교 데이터 받기</button><button class="btn" id="scPick">이 기기의 학교 목록</button><button class="btn bad" id="scLeave">이 기기에서 이 학교 지우기(전출)</button></div><p class="muted">전출할 때 지우면 이 기기에는 이 학교 데이터가 남지 않습니다. 학교의 데이터는 다른 교사 기기와 관리자 백업에 그대로 있습니다.</p></section>';
+  bindBack();const $=id=>document.getElementById(id);
+  if($('pwForm'))$('pwForm').onsubmit=async e=>{e.preventDefault();const n=$('pwNew').value,n2=$('pwNew2').value;
+    if(L&&!(await checkPassword($('pwOld').value))){$('pwMsg').innerHTML='<div class="note bad">지금 비밀번호가 맞지 않습니다.</div>';return}
+    if(n.length<6){$('pwMsg').innerHTML='<div class="note bad">6자 이상으로 정하세요.</div>';return}if(n!==n2){$('pwMsg').innerHTML='<div class="note bad">두 번 넣은 비밀번호가 다릅니다.</div>';return}
+    await setPassword(n);remember(30);logAct(L?'학교 비밀번호 변경':'학교 비밀번호 설정');save();vSchool();toast(L?'비밀번호를 바꿨습니다. 다른 교사에게 새 비밀번호와 묶음을 다시 보내세요':'비밀번호를 정했습니다')};
+  if($('exGo'))$('exGo').onclick=async()=>{if(!(await checkPassword($('exPw').value))){$('exMsg').innerHTML='<div class="note bad">비밀번호가 맞지 않습니다.</div>';return}
+    const pkg=await makePackage($('exPw').value);logAct('학교 데이터 묶음 만듦');save();copyOut('exOut',pkg);download((S.school||'학교')+'_시약장_'+today()+'.sjj',pkg);
+    $('exMsg').innerHTML='<div class="note ok">묶음을 복사했습니다. 메신저에 붙여 넣어 보내고, 비밀번호는 따로 알려 주세요.</div>'};
+  $('scRecv').onclick=()=>receiveModal(false);$('scPick').onclick=()=>schoolPicker(false);
+  $('scLeave').onclick=()=>{modal('<h2>이 기기에서 지우기</h2><p>'+esc(S.school||'이 학교')+'의 시약장 데이터를 이 기기에서 지웁니다. 되돌릴 수 없습니다.</p><div class="row"><button class="btn bad grow" id="yes">지우기</button><button class="btn" id="no">취소</button></div>');
+    document.getElementById('no').onclick=closeModal;document.getElementById('yes').onclick=()=>{const id=IX.active;lsDel(DK(id));lsDel(UK(id));IX.list=IX.list.filter(x=>x.id!==id);IX.active=IX.list[0]?IX.list[0].id:null;saveIX();closeModal();
+      if(IX.active)switchSchool(IX.active);else{S=demo();IX={active:null,list:[]};render();welcome()}}}}
+
+/* ===== 디자인 고르기 ===== */
+function themeCards(){return '<div class="th-grid">'+THEMES.map(t=>{const v=t.v;return '<button class="th-card" data-th="'+t.id+'" aria-pressed="'+(t.id===TH.id)+'" style="background:'+v['--bg']+';color:'+v['--ink']+';border-color:'+(v['--line']||'#ddd')+'"><span style="font-size:24px">'+t.emo.brand+' '+t.emo.search+' '+t.emo.cabinet+' '+t.emo.add+'</span><span class="nm">'+t.name+'</span><span style="font-size:12px;opacity:.8">'+t.desc+'</span><span class="sw">'+['--pri','--cA','--cB','--cF','--cG'].map(k=>'<i style="background:'+v[k]+'"></i>').join('')+'</span></button>'}).join('')+'</div>'}
+function themeModal(after){const draw=()=>{modal('<h2>'+E('theme')+' 디자인 고르기</h2><p class="muted">누르면 바로 바뀝니다. 나중에 더보기 › 디자인 바꾸기에서 언제든 바꿀 수 있고, 이 기기에만 적용됩니다.</p>'+themeCards()+'<button class="btn pri bigbtn" id="thDone" style="margin-top:14px">'+TH.name+'(으)로 쓰기</button>');
+    document.querySelectorAll('.modal [data-th]').forEach(b=>b.onclick=()=>{applyTheme(b.dataset.th);render();draw()});
+    document.getElementById('thDone').onclick=()=>{closeModal();lsSet('sijakjang-design-chosen','1');if(after)after()}};draw()}
+function vTheme(){V().innerHTML=backBar()+'<section class="panel"><h2>'+E('theme')+' 디자인 바꾸기</h2><p class="muted">선생님마다 마음에 드는 디자인을 고를 수 있습니다. 이 기기에서만 바뀌고 학교 데이터는 그대로입니다.</p>'+themeCards()+'</section>';
+  bindBack();document.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{applyTheme(b.dataset.th);render();toast(TH.name+' 디자인')})}
+
+/* ===== 커피 한잔 사주기 =====
+   iOS 앱: App Store 인앱결제(소모성) — 네이티브 쪽 window.SJJNative.tip(id), prices(ids)
+   웹앱: 아래 SUPPORT.web 에 단계별 결제 링크를 넣으세요(토스페이먼츠 결제 링크 등). 비어 있으면 '준비 중' 표시 */
+const SUPPORT={
+  web:{'tip.coffee1':'','tip.coffee2':'','tip.meal':''},
+  tips:[{id:'tip.coffee1',emo:'☕',name:'커피 한잔',desc:'오늘도 수고했어요',price:'₩3,300'},
+        {id:'tip.coffee2',emo:'☕☕',name:'커피 두잔',desc:'옆자리 선생님 것까지',price:'₩6,600'},
+        {id:'tip.meal',emo:'🍚',name:'든든한 한끼',desc:'국밥 한 그릇의 응원',price:'₩11,000'}]};
+function vCoffee(){const nat=window.SJJNative&&typeof window.SJJNative.tip==='function';const anyWeb=Object.values(SUPPORT.web).some(Boolean);
+  V().innerHTML=backBar()+'<section class="panel" style="text-align:center"><div style="font-size:56px" aria-hidden="true">'+E('coffee')+'</div><h2>개발자에게 커피 한잔</h2><p>시약장은 광고 없이 모두 무료입니다.<br>도움이 되었다면 만든 고등학교 화학 교사를 응원해 주세요.</p><p class="muted">응원해도 바뀌는 기능은 없습니다. 모든 기능은 계속 무료입니다.</p></section>'+
+  '<section class="panel">'+SUPPORT.tips.map(t=>{const url=SUPPORT.web[t.id];const inner='<span style="font-size:26px;width:56px;text-align:left" aria-hidden="true">'+t.emo+'</span><span class="grow" style="text-align:left"><b>'+t.name+'</b><br><span class="muted">'+t.desc+'</span></span><b data-price="'+t.id+'">'+(nat?'…':t.price)+'</b>';
+    const st='width:100%;margin:6px 0;display:flex;align-items:center;gap:8px;min-height:72px;text-decoration:none';
+    if(nat)return '<button class="btn" data-tip="'+t.id+'" style="'+st+'">'+inner+'</button>';
+    return url?'<a class="btn" href="'+esc(url)+'" target="_blank" rel="noopener" style="'+st+'">'+inner+'</a>':'<div class="btn" aria-disabled="true" style="'+st+';opacity:.55;cursor:default">'+inner+'</div>'}).join('')+
+  (!nat&&!anyWeb?'<div class="note info">웹 결제를 준비하고 있습니다. 아이폰·아이패드 앱에서는 바로 응원할 수 있습니다.</div>':'')+
+  '<p class="muted" style="margin-top:12px">문의·제안은 <a href="#" id="toFb">의견 보내기</a>로 남겨 주세요.</p></section>';
+  bindBack();document.getElementById('toFb').onclick=e=>{e.preventDefault();go('feedback')};
+  if(nat){if(window.SJJNative.prices)window.SJJNative.prices(SUPPORT.tips.map(t=>t.id)).then(p=>{Object.entries(p||{}).forEach(([k,v])=>{const el=document.querySelector('[data-price="'+k+'"]');if(el)el.textContent=v})}).catch(()=>{});
+    document.querySelectorAll('[data-tip]').forEach(b=>b.onclick=()=>window.SJJNative.tip(b.dataset.tip).then(ok=>{if(ok){logAct('개발자 응원: '+SUPPORT.tips.find(t=>t.id===b.dataset.tip).name);save();modal('<div style="text-align:center;font-size:56px">'+E('coffee')+'</div><h2 style="text-align:center">고맙습니다!</h2><p style="text-align:center">보내 주신 응원으로 더 좋은 시약장을 만들겠습니다.</p><button class="btn pri bigbtn" id="ty">닫기</button>');document.getElementById('ty').onclick=closeModal}}).catch(()=>toast('결제가 취소되었습니다')))}}
+
+/* ===== 의견 보내기 (설문) =====
+   FEEDBACK.endpoint 에 Google Apps Script 웹 앱 주소를 넣으면 응답이 구글 시트에 쌓입니다.
+   비어 있거나 전송이 막히면 내용을 복사해 메일로 보내도록 안내합니다. */
+const FEEDBACK={endpoint:''};
+const OUTBOX='sijakjang-fb-outbox';
+function outbox(){try{return JSON.parse(lsGet(OUTBOX)||'[]')}catch(e){return []}}
+async function postFb(p){if(!FEEDBACK.endpoint||!navigator.onLine)return false;try{await fetch(FEEDBACK.endpoint,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)});return true}catch(e){return false}}
+async function flushOutbox(){const q=outbox();if(!q.length)return 0;const left=[];let n=0;for(const p of q){if(await postFb(p))n++;else left.push(p)}lsSet(OUTBOX,JSON.stringify(left));return n}
+const FB_TYPES=[['question','❓','질문'],['bug','🐞','문제점·오류'],['idea','💡','개선 제안'],['praise','👍','좋았던 점']];
+const FB_SCREENS=['찾기','시약장','등록','썼어요·잔량','수업 준비','실험별 시약','구매·폐액·실사','학교·비밀번호·데이터 받기','디자인','커피 한잔','처음 설정','기타'];
+function vFeedback(){let type='bug',rating=0;
+  const sent=(()=>{try{return JSON.parse(lsGet('sijakjang-fb')||'[]')}catch(e){return []}})();
+  const draw=()=>{V().innerHTML=backBar()+'<section class="panel"><h2>'+E('feedback')+' 의견 보내기</h2><p class="muted">질문, 문제점, 개선할 점을 알려 주세요. 학교 시약 데이터는 보내지 않습니다.</p>'+
+    '<form id="fbForm"><label>무엇을 보내나요?</label><div class="seg" role="group" aria-label="종류">'+FB_TYPES.map(([k,e,t])=>'<button type="button" data-ft="'+k+'" aria-pressed="'+(type===k)+'">'+e+' '+t+'</button>').join('')+'</div>'+
+    '<label for="fbScreen">어느 화면인가요?</label><select id="fbScreen">'+FB_SCREENS.map(x=>'<option>'+x+'</option>').join('')+'</select>'+
+    '<label>앱이 얼마나 쓸 만한가요?</label><div class="row" role="group" aria-label="만족도">'+[1,2,3,4,5].map(n=>'<button type="button" class="btn sm" data-rt="'+n+'" aria-pressed="'+(rating===n)+'" style="'+(n<=rating?'background:var(--pri);color:var(--pri-ink)':'')+'">'+'★'.repeat(1)+' '+n+'</button>').join('')+'</div>'+
+    '<label for="fbText">'+(type==='bug'?'무엇을 했을 때 어떤 문제가 생겼나요?':type==='question'?'궁금한 점을 적어 주세요':type==='idea'?'어떻게 바뀌면 좋을까요?':'좋았던 점을 적어 주세요')+'</label><textarea id="fbText" required minlength="5" maxlength="2000" placeholder="'+(type==='bug'?'예: 등록 화면에서 라벨 읽기를 누르면 이름이 비어 있어요':'자유롭게 적어 주세요')+'"></textarea>'+
+    '<label for="fbMail">답을 받을 이메일 (선택)</label><input id="fbMail" type="email" autocomplete="email" placeholder="답장이 필요할 때만">'+
+    '<label style="display:flex;gap:6px;align-items:center;color:var(--ink)"><input id="fbDev" type="checkbox" checked style="width:auto;min-height:0"> 문제 해결을 위해 앱 버전·기기 종류·화면 크기를 함께 보냅니다</label>'+
+    '<input id="fbHp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">'+
+    '<p class="muted" style="font-size:12px">이메일을 적으면 답장 목적으로만 쓰고 답장 후 지웁니다.'+(outbox().length?' · 보내지 못한 의견 '+outbox().length+'건은 연결되면 자동으로 보냅니다.':'')+'</p><div id="fbMsg"></div><button class="btn pri bigbtn" style="margin-top:6px">보내기</button></form><textarea id="fbOut" style="display:none;margin-top:8px" readonly aria-label="보낼 내용"></textarea></section>'+
+    (sent.length?'<section class="panel"><h2>내가 보낸 의견</h2>'+sent.slice(-5).reverse().map(x=>'<div class="alert"><span class="k info">'+esc(x.t)+'</span><span class="grow">'+esc(x.label)+' · '+esc(x.text.slice(0,40))+'</span></div>').join('')+'</section>':'');
+    bindBack();const $=id=>document.getElementById(id);
+    document.querySelectorAll('[data-ft]').forEach(b=>b.onclick=()=>{const keep=$('fbText').value;type=b.dataset.ft;draw();$('fbText').value=keep});
+    document.querySelectorAll('[data-rt]').forEach(b=>b.onclick=()=>{const keep=$('fbText').value,sc=$('fbScreen').value;rating=+b.dataset.rt;draw();$('fbText').value=keep;$('fbScreen').value=sc});
+    $('fbForm').onsubmit=async e=>{e.preventDefault();if($('fbHp').value)return;const text=$('fbText').value.trim();if(text.length<5){$('fbMsg').innerHTML='<div class="note bad">5자 이상 적어 주세요.</div>';return}
+      const label=FB_TYPES.find(x=>x[0]===type)[2];
+      const p={type:label,screen:$('fbScreen').value,rating:rating||'',text,email:$('fbMail').value.trim(),version:APP_VERSION,platform:window.SJJ_PLATFORM||'web',
+        device:$('fbDev').checked?(navigator.userAgent.slice(0,160)+' | '+screen.width+'x'+screen.height):'',design:$('fbDev').checked?TH.name:'',role:S.me.role};
+      const done=()=>{sent.push({t:today(),label,text});lsSet('sijakjang-fb',JSON.stringify(sent.slice(-20)))};
+      const ok=await postFb(p);
+      if(ok){done();modal('<div style="text-align:center;font-size:48px">'+E('feedback')+'</div><h2 style="text-align:center">보냈습니다. 고맙습니다!</h2><p style="text-align:center">'+(p.email?'답장은 적어 주신 이메일로 보내 드립니다.':'보내 주신 의견은 다음 업데이트에 반영하겠습니다.')+'</p><button class="btn pri bigbtn" id="fbOk">닫기</button>');document.getElementById('fbOk').onclick=()=>{closeModal();go('more')};return}
+      const q=outbox();q.push(Object.assign({queued:today()},p));lsSet(OUTBOX,JSON.stringify(q.slice(-20)));done();
+      modal('<div style="text-align:center;font-size:48px">📮</div><h2 style="text-align:center">보관해 두었습니다</h2><p style="text-align:center">지금은 보낼 수 없어 이 기기에 담아 두었습니다. 인터넷이 연결된 상태로 앱을 다시 열면 자동으로 보냅니다.</p><button class="btn pri bigbtn" id="fbOk">확인</button>');document.getElementById('fbOk').onclick=()=>{closeModal();go('more')}}};
+  draw()}
+
+document.getElementById('schoolName').onclick=()=>schoolPicker(false);
+const br=document.getElementById('brand');br.style.cursor='pointer';br.title='디자인 고르기';br.onclick=()=>themeModal();
+try{if('serviceWorker' in navigator&&location.protocol==='https:'&&!window.SJJNative)navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
+render();if(FIRST)welcome();else if(needUnlock())showLock();
+setTimeout(()=>flushOutbox().then(n=>{if(n)toast('보관해 둔 의견 '+n+'건을 보냈습니다')}),2500);window.addEventListener('online',()=>flushOutbox());
+</script>
+</body>
+</html>
