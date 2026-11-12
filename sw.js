@@ -1,6 +1,6 @@
 // 앱 파일은 저장해 두고 오프라인에서도 연다. 자료(content.json)는 온라인이면 새 자료를 먼저 받는다.
 // 받은 자료는 검사를 통과하고 저장된 자료보다 새 판일 때만 저장한다. 앱 파일을 바꾸면 CACHE 이름을 올린다.
-const CACHE = 'adeul-v13';
+const CACHE = 'adeul-v14';
 const SCHEMA = 1;
 
 // logic.js의 contentProblem과 같은 검사. 서비스워커는 모듈을 못 쓰는 브라우저가 있어 그대로 옮겨 둔다.
@@ -19,6 +19,8 @@ function usable(c) {
   const names = new Set(c.stores.map((s) => s && s.name));
   if ((c.closures || []).some((x) => !names.has(x.name))) return false;
   if (!Array.isArray(c.tips) || !c.tips.length) return false;
+  if (c.qna !== undefined && (!Array.isArray(c.qna) || c.qna.some((x) => !x || ['id', 'q', 'a', 'on'].some((k) => typeof x[k] !== 'string')))) return false;
+  if (c.questionForm !== undefined && typeof c.questionForm !== 'string') return false;
   return c.stores.every((s) => s && typeof s.name === 'string' && Array.isArray(s.specials) && Array.isArray(s.entryRules));
 }
 // 지금 저장된 자료에 있는 훈련소·공식 사이트 묶음이 새 자료에서 통째로 빠지면 받지 않는다.

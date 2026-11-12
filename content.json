@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "revision": 2026110808,
+ "revision": 2026111202,
  "baseDate": "2026-11-01",
  "closuresCheckedOn": "2026-11-07",
  "closures": [
@@ -166,6 +166,8 @@
  ],
  "goodsNote": "파는 물건은 해마다 입찰로 바뀌고 매장마다 조금씩 달라요. 가격과 재고는 공개된 공식 자료가 없어서 넣지 않았어요.",
  "stockNote": "공개된 자료가 없어요. 가시기 전에 마트에 전화로 물어보세요.",
+ "questionForm": "https://docs.google.com/forms/d/e/1FAIpQLSc6tYNtPUkFzAeZKpKzWIbQOXNo2hFXKLG80fvkj9JiVPCCKQ/viewform?usp=pp_url&entry.915738187=PREFILL",
+ "qna": [],
  "stores": [
   {
    "id": "m001",

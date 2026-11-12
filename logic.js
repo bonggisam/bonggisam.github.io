@@ -243,6 +243,9 @@ export function contentProblem(c) {
   // 앱(Decodable)은 이런 마트를 통째로 거절한다. 웹도 그려 보기 전에 막는다.
   const broken = c.stores.find((s) => !s || typeof s.name !== 'string' || !Array.isArray(s.specials) || !Array.isArray(s.entryRules));
   if (broken) return `broken store ${broken?.name ?? '?'}`;
+  // 묻고 답하기는 예전 자료에 없을 수 있다. 있으면 모양이 맞아야 한다(앱도 같은 이유로 거절한다).
+  if (c.qna !== undefined && (!Array.isArray(c.qna) || c.qna.some((x) => !x || ['id', 'q', 'a', 'on'].some((k) => typeof x[k] !== 'string')))) return 'broken qna';
+  if (c.questionForm !== undefined && typeof c.questionForm !== 'string') return 'broken questionForm';
   return null;
 }
 

@@ -70,7 +70,7 @@ async function loadVisits() {
 const view = document.getElementById('view');
 let content = null;
 const shop = { region: '서울', city: '', query: '' };
-const report = { issue: ISSUES[0], text: '', day: '', state: 'idle' };
+const report = { issue: ISSUES[0], text: '', day: '', state: 'idle', mode: 'fix' };
 let relation = null;
 let eraseAsked = false;
 const tipsView = { stage: null, query: '' };
@@ -310,10 +310,52 @@ function renderStore(id) {
 }
 
 function reportText(store) {
+  if (report.mode === 'ask') return ['[아들아사랑해 질문]', report.text.trim()].join('\n');
   return ['[아들아사랑해 정보 제보]', `대상: ${store ? store.name : '앱 전체'}`, `항목: ${report.issue}`, `내용: ${report.text.trim()}`, report.day ? `직접 확인한 날: ${report.day}` : ''].filter(Boolean).join('\n');
 }
 
+/** 질문은 구글 설문지로 받는다(content.questionForm). 'PREFILL' 자리에 적은 글을 채워 연다. */
+function formUrl(text) {
+  const form = safeUrl(content.questionForm) ? content.questionForm : '';
+  return form && form.replace('PREFILL', encodeURIComponent(text));
+}
+
+function formNotice() {
+  if (report.state !== 'opened') return '';
+  return `<p class="notice caution">설문지가 새 창으로 열렸어요. 거기서 <b>제출</b>을 눌러야 보내져요.${content.questionForm.includes('PREFILL') ? '' : ' 적으신 내용은 복사해 두었으니 붙여 넣어 주세요.'}</p>`;
+}
+
+function renderAsk() {
+  report.mode = 'ask';
+  return `${backLink('#/qna')}
+  <h1>질문 남기기</h1>
+  <div class="card form">
+    <p>군에 간 아이 일로 궁금한 걸 남겨 주세요. 다른 부모님께도 도움이 될 만한 질문을 골라 공식 자료를 찾아보고 <b>묻고 답하기</b>에 답을 올려요.</p>
+    <label for="report-text">궁금한 것</label>
+    <textarea id="report-text" rows="6" maxlength="300" placeholder="예: 수료식 날 아이 먹을 걸 싸 가도 되나요?">${esc(report.text)}</textarea>
+    <small>이름, 전화번호, 아이 부대명처럼 누군지 알 수 있는 내용은 적지 말아 주세요. 따로 답장은 못 드리고, 모든 질문에 답하지는 못해요. 급한 일은 국방헬프콜 1303으로 전화해 주세요.</small>
+    ${formNotice()}
+    ${report.state === 'none' ? '<p class="notice caution">아직 질문 받는 곳을 준비하고 있어요. 아래 버튼으로 적으신 내용을 복사해 둘 수 있어요.</p>' : ''}
+    ${report.state === 'copied' ? '<p class="notice caution">복사했어요. 아직 만든 사람에게 보내진 건 아니에요.</p>' : ''}
+    ${report.state === 'none' || report.state === 'copied'
+    ? '<button type="button" class="btn outline" data-copy-report="">내용 복사하기</button>'
+    : `<button type="button" class="btn" data-send-report="">${em('📮')}${formUrl('') ? '설문지로 보내기' : '보내기'}</button>`}
+  </div>`;
+}
+
+function renderQna() {
+  const list = [...(content.qna || [])].sort((a, b) => (a.on < b.on ? 1 : a.on > b.on ? -1 : 0));
+  return `${backLink('#/todo')}
+  <h1>묻고 답하기</h1>
+  <p class="on-olive">부모님들이 남겨 주신 질문에 만든 사람이 공식 자료를 찾아 답했어요.</p>
+  <a class="btn accent" href="#/ask">${em('✍️')}질문 남기기</a>
+  ${list.length ? list.map((x) => `<details class="tip"><summary>${esc(x.q)}</summary><p>${esc(x.a)}</p><small>${esc(x.on.replaceAll('-', '. '))}. 답함</small></details>`).join('')
+    : '<div class="card"><p>아직 올라온 답이 없어요. 첫 질문을 남겨 주세요.</p></div>'}
+  <small>답은 그날 확인한 공식 안내를 바탕으로 했어요. 부대마다 다를 수 있으니 중요한 일은 부대나 병무청에 한 번 더 확인해 주세요.</small>`;
+}
+
 function renderReport(id) {
+  report.mode = 'fix';
   const store = id ? storeById(id) : null;
   const backTo = store ? `#/store/${store.id}` : '#/todo';
   if (report.state === 'sent') return `${backLink(backTo)}<h1>잘 받았어요</h1><div class="card"><p>확인하고 바로 고쳐 둘게요. 연락처를 받지 않아서 따로 답장은 못 드려요. 알려 주셔서 고마워요.</p></div>`;
@@ -329,6 +371,7 @@ function renderReport(id) {
     <label for="report-day">직접 확인한 날(선택)</label>
     <input type="date" id="report-day" value="${esc(report.day)}">
     <small>이름과 연락처는 묻지 않아요. 물건 들어오는 날은 직접 보신 것만 적어 주세요.</small>
+    ${formNotice()}
     ${report.state === 'failed' ? '<p class="notice">보내지 못했어요. 인터넷 연결을 확인하고 다시 눌러 주세요.</p>' : ''}
     ${report.state === 'none' ? '<p class="notice caution">아직 제보 받는 곳을 준비하고 있어요. 아래 버튼으로 적으신 내용을 복사해 둘 수 있어요.</p>' : ''}
     ${report.state === 'copied' ? '<p class="notice caution">복사했어요. 아직 관리자에게 보내진 건 아니에요.</p>' : ''}
@@ -430,6 +473,7 @@ function renderTodo() {
   <h2 class="section">${em('📢')}소식</h2>${content.news.map(card).join('')}
   <button type="button" class="btn accent" data-share="1">${em('📣')}다른 부모님께 알려 주기</button>
   <p class="notice caution" id="share-done" hidden>안내 문구를 복사했어요.</p>
+  <a class="btn outline" href="#/qna">${em('💬')}묻고 답하기${content.qna?.length ? ` <small>${content.qna.length}개</small>` : ''}</a>
   <a class="btn outline" href="#/rules">${em('🙋')}누가, 어떻게 이용하나요</a>
   <a class="btn outline" href="#/report">${em('✏️')}틀린 내용 알려 주기</a>`;
 }
@@ -481,6 +525,8 @@ function route() {
   const known = { camps: renderCamps, links: renderLinks, welcome: renderWelcome, home: renderHome, dday: renderDday, check: renderCheck, papers: renderPapers, rules: renderRules, goods: renderGoods, shop: renderShop, todo: renderTodo, about: renderAbout };
   if (name === 'store') return { tab: 'shop', html: renderStore(arg) };
   if (name === 'camp') return { tab: 'camps', html: renderCamp(arg) };
+  if (name === 'qna') return { tab: 'todo', html: renderQna() };
+  if (name === 'ask') return { tab: 'todo', html: renderAsk() };
   if (name === 'report') return { tab: arg ? 'shop' : 'todo', html: renderReport(arg) };
   const tab = ['shop', 'goods'].includes(name) ? 'shop' : name === 'camps' ? 'camps' : name === 'about' ? 'about' : ['todo', 'links'].includes(name) ? 'todo' : 'home';
   return { tab, html: (known[name] || renderHome)() };
@@ -513,6 +559,14 @@ async function sendReport(id) {
     const box = document.getElementById('report-text');
     box.setAttribute('aria-invalid', 'true');
     box.focus();
+    return;
+  }
+  const url = formUrl(reportText(store));
+  if (url) {
+    window.open(url, '_blank', 'noopener');
+    if (!content.questionForm.includes('PREFILL')) await copyText(reportText(store));
+    report.state = 'opened';
+    draw();
     return;
   }
   if (!REPORT_ENDPOINT) {
@@ -625,7 +679,7 @@ document.addEventListener('change', (event) => {
 
 window.addEventListener('hashchange', () => {
   if (location.hash && !location.hash.startsWith('#/')) return;
-  if (location.hash.startsWith('#/report')) { report.text = ''; report.day = ''; report.issue = ISSUES[0]; report.state = 'idle'; }
+  if (location.hash.startsWith('#/report') || location.hash.startsWith('#/ask')) { report.text = ''; report.day = ''; report.issue = ISSUES[0]; report.state = 'idle'; }
   eraseAsked = false;
   draw({ moveFocus: true });
 });
