@@ -30,7 +30,7 @@ const ICONS = {
 
 /** 앱에 바라는 점. 2026-11-12부터 메일 대신 질문과 같은 구글 설문지로 받는다(메일 주소를 드러내지 않으려고). */
 /** "다른 부모님께 알려 주기"로 보내는 글. 앱의 ShareInvite.message와 같다. 웹앱 주소는 따로 붙인다. */
-const SHARE_TEXT = "아이를 군에 보낸 부모님께 도움이 되는 무료 앱이에요. 전역일 계산, 훈련소별 수료식 안내, 영외마트 여는 시간까지 가입 없이 볼 수 있어요. '아들아사랑해'";
+const SHARE_TEXT = "아이를 군에 보낸 부모님께 도움이 되는 무료 앱이에요. 전역일 계산, 훈련소별 수료식 안내, 영외마트 여는 시간까지 가입 없이 볼 수 있어요. 'Love You, Son'";
 const wishView = { text: '', state: 'idle' };
 
 /** 방문자 수. 서버(functions/api/visits.js)가 없거나 오프라인이면 null로 두고 화면에서 숨긴다.
@@ -308,8 +308,8 @@ function renderStore(id) {
 }
 
 function reportText(store) {
-  if (report.mode === 'ask') return ['[아들아사랑해 질문]', report.text.trim()].join('\n');
-  return ['[아들아사랑해 정보 제보]', `대상: ${store ? store.name : '앱 전체'}`, `항목: ${report.issue}`, `내용: ${report.text.trim()}`, report.day ? `직접 확인한 날: ${report.day}` : ''].filter(Boolean).join('\n');
+  if (report.mode === 'ask') return ['[Love You, Son 질문]', report.text.trim()].join('\n');
+  return ['[Love You, Son 정보 제보]', `대상: ${store ? store.name : '앱 전체'}`, `항목: ${report.issue}`, `내용: ${report.text.trim()}`, report.day ? `직접 확인한 날: ${report.day}` : ''].filter(Boolean).join('\n');
 }
 
 /** 질문은 구글 설문지로 받는다(content.questionForm). 'PREFILL' 자리에 적은 글을 채워 연다. */
@@ -621,7 +621,7 @@ document.addEventListener('click', async (event) => {
     const text = wishView.text.trim();
     const box = document.getElementById('wish-text');
     if (!text) { box?.setAttribute('aria-invalid', 'true'); box?.focus(); return; }
-    const body = `[아들아사랑해 바라는 점]\n${text}`;
+    const body = `[Love You, Son 바라는 점]\n${text}`;
     const url = formUrl(body);
     if (url) {
       window.open(url, '_blank', 'noopener');
@@ -636,7 +636,7 @@ document.addEventListener('click', async (event) => {
   } else if (d.share) {
     const text = SHARE_TEXT;
     if (navigator.share) {
-      try { await navigator.share({ title: '아들아사랑해', text, url: location.origin + location.pathname }); } catch { /* 공유 취소 */ }
+      try { await navigator.share({ title: 'Love You, Son', text, url: location.origin + location.pathname }); } catch { /* 공유 취소 */ }
     } else if (await copyText(`${text} ${location.origin}${location.pathname}`)) {
       document.getElementById('share-done').hidden = false;
     }
