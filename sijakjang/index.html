@@ -285,8 +285,8 @@ function applyTheme(id){TH=THEMES.find(t=>t.id===id)||THEMES[0];const b=document
   Object.entries(Object.assign({},BASEV,TH.v)).forEach(([k,v])=>b.style.setProperty(k,v));
   const l=document.getElementById('themeFont');if(l&&l.href!==TH.font)l.href=TH.font;
   const m=document.querySelector('meta[name=theme-color]');if(m)m.content=TH.v['--pri'];
-  try{localStorage.setItem(TKEY2,TH.id)}catch(e){}}
-(()=>{let t=null;try{t=localStorage.getItem(TKEY2)}catch(e){}const h=location.hash.slice(1);if(THEMES.some(x=>x.id===h))t=h;applyTheme(t||'table')})();
+  try{if(window.SJJStore)SJJStore.set(TKEY2,TH.id);else localStorage.setItem(TKEY2,TH.id)}catch(e){}}
+(()=>{let t=null;try{t=window.SJJStore?SJJStore.get(TKEY2):localStorage.getItem(TKEY2)}catch(e){}const h=location.hash.slice(1);if(THEMES.some(x=>x.id===h))t=h;applyTheme(t||'table')})();
 /* ===== 교육과정 시약 마스터 (기획서 표 기준) ===== */
 const MASTER=[
 ['염산','Hydrochloric acid','HCl','7647-01-0','A1','진한 원액은 환기장치에서 희석. 물에 산을 조금씩','초·중·고',['염화수소산','hydrochloric']],
@@ -409,9 +409,9 @@ function cfgBump(){S.cfgMt=Date.now()}
 const APP_VERSION='1.0.0';
 const IDX='sijakjang-schools',DK=id=>'sijakjang-data-'+id,UK=id=>'sijakjang-unlock-'+id;
 let IX={active:null,list:[]};
-function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
-function lsSet(k,v){try{localStorage.setItem(k,v);return true}catch(e){return false}}
-function lsDel(k){try{localStorage.removeItem(k)}catch(e){}}
+function lsGet(k){if(window.SJJStore)return SJJStore.get(k);try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){if(window.SJJStore){SJJStore.set(k,v);return true}try{localStorage.setItem(k,v);return true}catch(e){return false}}
+function lsDel(k){if(window.SJJStore){SJJStore.del(k);return}try{localStorage.removeItem(k)}catch(e){}}
 function saveIX(){lsSet(IDX,JSON.stringify(IX))}
 function save(){if(!IX.active){IX.active=uid();IX.list.push({id:IX.active,school:''})}
   const it=IX.list.find(x=>x.id===IX.active);if(it){it.school=S.school;it.sid=S.sid}saveIX();
@@ -759,7 +759,7 @@ function vAdmin(){
   if($('addRoom'))$('addRoom').onclick=()=>{const n=$('roomName').value.trim();if(!n)return;S.rooms.push({id:uid(),name:n});logAct('실 추가: '+n);cfgBump();save();vAdmin()};
   $('csvGo').onclick=()=>{const r=importCSV($('csvIn').value);save();toast(r.ok+'병 가져옴'+(r.bad?', 위치를 못 찾은 '+r.bad+'줄은 건너뜀':''))};
   $('bk').onclick=()=>copyOut('out',JSON.stringify(S));
-  $('csvAll').onclick=()=>{const rows=[['시약','화학식','CAS','저장군','용량','단위','잔량(%)','실','시약장','칸','제조사','등급','개봉일','유효기간','자체제조','메모','태그']].concat(S.bottles.map(b=>{const c=cabOf(b.cabId);return [b.name,b.formula,b.cas,b.group,b.size,b.unit,Math.round(b.remain*100),roomOf(c?.roomId)?.name||'',c?c.code+' '+c.name:'',c?slotLabel(c,b.slot):'',b.maker,b.grade,b.opened,b.expiry,b.made?'예':'',b.memo,b.tags.join(' ')]}));copyOut('out',rows.map(r=>r.map(csv).join(',')).join('\n'))};
+  $('csvAll').onclick=()=>{const rows=[['시약','화학식','CAS','저장군','용량','단위','잔량(%)','실','시약장','칸','제조사','등급','개봉일','유효기간','자체제조','메모','태그']].concat(S.bottles.map(b=>{const c=cabOf(b.cabId);return [b.name,b.formula,b.cas,b.group,b.size,b.unit,Math.round(b.remain*100),roomOf(c?.roomId)?.name||'',c?c.code+' '+c.name:'',c?slotLabel(c,b.slot):'',b.maker,b.grade,b.opened,b.expiry,b.made?'예':'',b.memo,b.tags.join(' ')]}));const t=rows.map(r=>r.map(csv).join(',')).join('\n');copyOut('out',t);download('시약장_대장_'+today()+'.csv','\ufeff'+t)};
   const restore=t=>{try{const o=JSON.parse(t);if(!o.cabinets||!o.bottles)throw 0;S=migrate(o);save();render();toast('복원했습니다')}catch(e){toast('백업 형식이 아닙니다')}};
   $('imp').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>restore(r.result);r.readAsText(f)};
   $('pasteGo').onclick=()=>restore($('pasteIn').value);
@@ -879,7 +879,7 @@ async function makePackage(pw){const salt=crypto.getRandomValues(new Uint8Array(
   return 'SJJ1.'+btoa(unescape(encodeURIComponent(JSON.stringify({v:1,school:S.school,made:today(),by:S.me.name,salt:b64(salt),iv:b64(iv),iter:ITER,ct:b64big(ct)}))))}
 async function openPackage(text,pw){const t=text.trim();if(!t.startsWith('SJJ1.'))throw new Error('form');const p=JSON.parse(decodeURIComponent(escape(atob(t.slice(5)))));
   const key=await aesKey(pw,ub64(p.salt),p.iter);let pt;try{pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:ub64(p.iv)},key,ub64(p.ct))}catch(e){throw new Error('pw')}return {meta:p,data:JSON.parse(dec.decode(pt))}}
-function download(name,text){try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}catch(e){}}
+function download(name,text){if(window.SJJNative&&SJJNative.share){SJJNative.share(name,text).catch(()=>{});return}try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}catch(e){}}
 function switchSchool(id){const t=lsGet(DK(id));if(!t)return;IX.active=id;saveIX();S=migrate(JSON.parse(t));tab='search';lastQ='';render();if(needUnlock())showLock()}
 function newSchool(){IX.active=null;const n=S.me.name;S=blank();S.me.name=n;S.members[0].name=n;save();tab='search';render();wizard()}
 function schoolPicker(force){modal('<h2>'+E('brand')+' 이 기기의 학교</h2>'+IX.list.map(x=>'<div class="row" style="margin:8px 0"><span class="grow"><b>'+esc(x.school||'이름 없는 학교')+'</b>'+(x.id===IX.active?' <span class="tag have">지금 학교</span>':'')+'</span>'+(x.id!==IX.active||force?'<button class="btn sm" data-sw="'+x.id+'">열기</button>':'')+'</div>').join('')+
