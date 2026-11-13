@@ -123,7 +123,7 @@ th{color:var(--quiet);font-weight:600}
 @media(min-width:720px){.modal-bg{align-items:center}.modal{border-radius:var(--r)}}
 .toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%);background:var(--ink);color:var(--card);padding:10px 16px;border-radius:var(--r-s);z-index:30;font-size:14px}
 th{white-space:nowrap}
-table.sf th{vertical-align:top}table.sf td{vertical-align:top}
+table.sf th{vertical-align:top;white-space:normal;max-width:112px}table.sf td{vertical-align:top}
 details summary{cursor:pointer;color:var(--link);font-size:14px}
 a{color:var(--link)}
 /* 라벨 미리보기 */
@@ -135,6 +135,22 @@ a{color:var(--link)}
 
 .use{min-width:76px}
 .bigbtn{width:100%;min-height:64px;font-size:19px;border-radius:14px}
+.bigbtn{white-space:normal;line-height:1.25;padding-top:8px;padding-bottom:8px}
+html:not([lang=ko]) body{word-break:normal;overflow-wrap:break-word}
+html:not([lang=ko]) nav.tabs button{font-size:11.5px;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+html:not([lang=ko]) .bigbtn{font-size:17px}
+/* 과학실 배치도 */
+.planwrap{margin:0 0 16px;max-width:720px}
+.plan{position:relative;aspect-ratio:3/2;background-color:var(--field);border:var(--cab-border);border-radius:var(--r-s);overflow:hidden;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:calc(100%/12) calc(100%/8)}
+.pblk{position:absolute;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border-radius:6px;font-size:10px;line-height:1.1;overflow:hidden;text-align:center;padding:1px;user-select:none;-webkit-user-select:none}
+.pblk small{font-size:10px;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pblk.cb{background:var(--card);border:2px solid var(--gc);color:var(--ink);cursor:pointer;z-index:1}
+.pblk.cb b{font-family:var(--display);font-size:17px;line-height:1}
+.pblk.fx{border:1px dashed var(--quiet);color:var(--quiet);background:transparent}
+.plan.ed .pblk{touch-action:none;cursor:grab}
+.pblk.sel{outline:3px solid var(--hl);outline-offset:1px;z-index:3}
+.pblk.hl{background:var(--hl-bg);outline:3px solid var(--hl);outline-offset:-1px}
+.flash .cab{outline:3px solid var(--hl);outline-offset:2px}
 /* 저장군 주기율표 줄 · 워드마크 · 더보기 목록 */
 .ptable{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:8px;max-width:640px}
 @media(min-width:600px){.ptable{grid-template-columns:repeat(auto-fill,minmax(72px,1fr))}}
@@ -315,7 +331,7 @@ const THEMES=[
 ];
 const TKEY2='sijakjang-design';
 let TH=THEMES[0];
-const DEFEMO={feedback:'💬',cheer:'💐',safety:'🦺',help:'📖'};
+const DEFEMO={feedback:'💬',cheer:'🙌',safety:'🦺',help:'📖'};
 const E=k=>TH.emo[k]||DEFEMO[k]||'';
 function applyTheme(id){TH=THEMES.find(t=>t.id===id)||THEMES[0];const b=document.body;
   b.className='nav-'+TH.nav+' tile-'+TH.tile;b.removeAttribute('style');
@@ -372,7 +388,7 @@ const MASTER=[
 ['산화 구리(II)','Copper(II) oxide','CuO','1317-38-0','G','삼키면 유해','고',['산화구리','copper oxide']],
 ['활성탄','Activated carbon','C','7440-44-0','G','가루 흡입 주의','중·고',['탄소 가루','숯','carbon']],
 ['에탄올','Ethanol','C₂H₅OH','64-17-5','F','인화성, 램프 리필은 불 끈 뒤','초·중·고',['에틸알코올','알코올','ethanol']],
-['아세톤','Acetone','CH₃COCH₃','67-64-1','F','인화성, 화기 금지','고',['acetone']],
+['아세톤','Acetone','CH₃COCH₃','67-64-1','F','인화성, 화기 금지','중·고',['acetone']],
 ['헥세인','n-Hexane','C₆H₁₄','110-54-3','F','인화성·신경독성, 헵테인으로 대체 검토','고',['헥산','hexane']],
 ['페놀프탈레인','Phenolphthalein','C₂₀H₁₄O₄','77-09-8','G','발암성 의심, 용액은 인화성(F)','초·중·고',['phenolphthalein']],
 ['BTB','Bromothymol blue','C₂₇H₂₈Br₂O₅S','76-59-5','G','저위험','초·중·고',['브로모티몰 블루','브로모티몰블루','bromothymol']],
@@ -383,46 +399,155 @@ const MASTER=[
 ['포도당','D-Glucose','C₆H₁₂O₆','50-99-7','G','저위험','중·고',['글루코스','glucose']],
 ['설탕','Sucrose','C₁₂H₂₂O₁₁','57-50-1','G','저위험','초·고',['수크로스','sucrose']],
 ['스테아르산','Stearic acid','C₁₈H₃₆O₂','57-11-4','G','저위험','중',['stearic']],
-['질산 납(II)','Lead(II) nitrate','Pb(NO₃)₂','10099-74-8','T(O)','학교 사용 지양 → 염화 칼슘 + 탄산 나트륨으로 대체','—',['질산납','lead nitrate']]
+['질산 납(II)','Lead(II) nitrate','Pb(NO₃)₂','10099-74-8','T(O)','학교 사용 지양 → 염화 칼슘 + 탄산 나트륨으로 대체','—',['질산납','lead nitrate']],
+['수산화 칼륨','Potassium hydroxide','KOH','1310-58-3','B','눈·피부 화상(보안경 필수). 흡습성 → 밀봉','고',['가성칼리','potassium hydroxide']],
+['산화 칼슘','Calcium oxide','CaO','1305-78-8','B','물과 만나면 심하게 발열. 눈 손상 위험','중·고',['생석회','calcium oxide','quicklime']],
+['인산','Phosphoric acid 85%','H₃PO₄','7664-38-2','A1','부식성. 황산 대신 쓰는 촉매','고',['phosphoric']],
+['질산 암모늄','Ammonium nitrate','NH₄NO₃','6484-52-2','O','산화제. 가열·충격 금지, 가연물과 분리','중·고',['ammonium nitrate']],
+['질산 나트륨','Sodium nitrate','NaNO₃','7631-99-4','O','산화제, 유기물과 분리','중',['칠레초석','sodium nitrate']],
+['질산 스트론튬','Strontium nitrate','Sr(NO₃)₂','10042-76-9','O','산화제, 눈 손상 위험','중',['strontium nitrate']],
+['질산 구리(II)','Copper(II) nitrate trihydrate','Cu(NO₃)₂·3H₂O','10031-43-3','O','산화제·눈 손상, 중금속 폐액','중',['질산구리','copper nitrate']],
+['붕산','Boric acid','H₃BO₃','10043-35-3','T','생식 독성(1B). 질산 칼륨 등으로 대체 권장','중',['boric']],
+['아이오딘산 칼륨','Potassium iodate','KIO₃','7758-05-6','O','산화제, 눈 손상 위험','고',['요오드산칼륨','potassium iodate']],
+['아황산수소 나트륨','Sodium bisulfite','NaHSO₃','7631-90-5','G','산과 만나면 이산화 황 발생 → 환기','고',['중아황산나트륨','sodium bisulfite','sodium hydrogen sulfite']],
+['황산 철(II)','Iron(II) sulfate heptahydrate','FeSO₄·7H₂O','7782-63-0','G','삼키면 유해, 공기 중 산화 → 밀봉','고',['황산제일철','iron sulfate','ferrous sulfate']],
+['살리실산','Salicylic acid','C₇H₆O₃','69-72-7','A3','눈 손상 위험, 삼키면 유해','고',['salicylic']],
+['아세트산 무수물','Acetic anhydride','(CH₃CO)₂O','108-24-7','A3','인화성·부식성·흡입 독성. 환기장치에서 교사가 분주','고',['무수 아세트산','무수초산','acetic anhydride']],
+['아이소아밀 알코올','Isoamyl alcohol','C₅H₁₁OH','123-51-3','F','인화성, 증기 자극 → 환기','고',['아이소펜틸 알코올','3-메틸-1-뷰탄올','isoamyl','isopentyl','3-methyl-1-butanol']],
+['헥사메틸렌다이아민','Hexamethylenediamine','H₂N(CH₂)₆NH₂','124-09-4','B','부식성(피부 화상). 장갑·보안경','고',['1,6-다이아미노헥세인','hexamethylenediamine','1,6-hexanediamine']],
+['염화 아디프산','Adipoyl chloride','ClCO(CH₂)₄COCl','111-50-2','A3','부식성. 물과 반응해 염화 수소 발생','고',['염화 아디포일','아디프산 다이클로라이드','adipoyl chloride']],
+['다이클로로메테인','Dichloromethane','CH₂Cl₂','75-09-2','T','발암성 의심·마취성 증기. 환기장치에서만','고',['염화 메틸렌','디클로로메탄','methylene chloride','dichloromethane']],
+['다이사이아노은산 칼륨','Potassium dicyanoargentate','K[Ag(CN)₂]','506-61-6','T','사이안화물(맹독). 학교 사용 지양 → 구리 도금으로 대체','—',['사이안화 은 칼륨','시안화은칼륨','potassium silver cyanide','dicyanoargentate']],
+['루미놀','Luminol','C₈H₇N₃O₂','521-31-3','G','눈·피부 자극','고',['luminol']],
+['베네딕트 용액','Benedict\'s solution','CuSO₄ + Na₃C₆H₅O₇ + Na₂CO₃','','G','구리 화합물 → 중금속 폐액. 가열 시 튐 주의','중·고',['베네딕트','benedict']],
+['아세트올세인 용액','Aceto-orcein solution','C₂₈H₂₄N₂O₇ + CH₃COOH','1400-62-0','A3','아세트산 함유(자극·부식). 착색','중·고',['아세트산 올세인','아세토올세인','aceto-orcein','orcein']],
+['아세트산카민 용액','Acetocarmine solution','C₂₂H₂₀O₁₃ + CH₃COOH','1390-65-4','A3','아세트산 함유(자극·부식). 착색','중·고',['아세트산 카민','아세토카민','acetocarmine','carmine']],
+['석유 에터','Petroleum ether','C₅~C₆ 탄화수소','8032-32-4','F','고인화성·증기 흡입 주의. 화기 엄금','고',['석유 에테르','petroleum ether']],
+['글리세롤','Glycerol','C₃H₈O₃','56-81-5','G','저위험. 과망가니즈산 칼륨과 만나면 발화','중·고',['글리세린','glycerin','glycerol']],
+['알루미늄','Aluminium','Al','7429-90-5','M','가루는 가연성. 산·염기와 반응해 수소 발생','중·고',['알루미늄박','알루미늄 포일','알루미늄판','aluminium','aluminum']],
+['은','Silver','Ag','7440-22-4','G','저위험. 귀금속 → 회수','고',['은판','은선','silver']],
+['한천','Agar','(C₁₂H₁₈O₉)n','9002-18-0','G','저위험','중·고',['우무','우뭇가사리','agar']],
+['알부민','Albumin (egg)','단백질','9006-59-1','G','저위험. 달걀 알레르기 주의','고',['달걀 알부민','난백 알부민','albumin']],
+['아밀레이스','α-Amylase','효소(단백질)','9000-90-2','G','가루 흡입 시 알레르기·천식 유발 가능','고',['아밀라아제','아밀라제','amylase','diastase']],
+['펩신','Pepsin','효소(단백질)','9001-75-6','G','가루 흡입 시 알레르기·천식 유발 가능, 눈·피부 자극','고',['pepsin']],
+['리놀레산','Linoleic acid','C₁₈H₃₂O₂','60-33-3','G','저위험. 공기 중 산화 → 냉장','중',['linoleic']]
 ];
 const M=MASTER.map(r=>({name:r[0],eng:r[1],formula:r[2],cas:r[3],group:r[4],caution:r[5],level:r[6],alias:r[7]}));
 const findMaster=n=>M.find(m=>m.name===n);
 
-/* ===== 교육과정 실험 (기획서 표 기준) ===== */
+/* ===== 2022 개정 교육과정 실험 (교과서 준비물 기준) ===== */
 const EXP=[
 ['초등','용해와 용액','녹는 양 비교, 용액 진하기',['염화 나트륨','설탕','백반']],
 ['초등','혼합물의 분리','자석·거름·증발로 분리',['철 가루','염화 나트륨']],
 ['초등','산과 염기','지시약 색 변화',['페놀프탈레인','BTB','염산','수산화 나트륨','수산화 칼슘']],
 ['초등','여러 가지 기체','산소·이산화 탄소 발생',['과산화 수소','이산화 망가니즈','탄산 칼슘','염산','탄산수소 나트륨','수산화 칼슘']],
 ['초등','연소와 소화','연소 후 생기는 물질',['에탄올','수산화 칼슘','염화 코발트(II)']],
-['중학교','물질의 구성','불꽃 반응',['염화 리튬','염화 나트륨','염화 칼륨','염화 칼슘','염화 스트론튬','염화 구리(II)']],
-['중학교','전해질과 이온','이온의 이동, 앙금 생성',['과망가니즈산 칼륨','황산 구리(II)','질산 칼륨','질산 은','염화 바륨','아이오딘화 칼륨','탄산 나트륨','염화 칼슘']],
-['중학교','물질의 특성','끓는점·녹는점',['에탄올','스테아르산','염화 나트륨']],
+['중학교','물질의 상태 변화','확산, 상태 변화와 부피·질량',['아세톤','에탄올','암모니아수','페놀프탈레인','BTB','아세트산']],
+['중학교','기체의 성질','온도에 따른 기체의 부피(색소 글리세롤)',['글리세롤']],
+['중학교','물질의 특성','끓는점·녹는점·밀도',['에탄올','스테아르산','염화 나트륨','글리세롤']],
+['중학교','물질의 특성','온도에 따른 용해도, 재결정',['질산 칼륨','황산 구리(II)','염화 나트륨','질산 나트륨','붕산']],
+['중학교','물질의 특성','혼합물 분리 설계(증류·밀도·거름)',['에탄올','리놀레산','염화 나트륨','철 가루','질산 칼륨','구리']],
+['중학교','물질의 구성','불꽃 반응',['염화 리튬','염화 나트륨','염화 칼륨','염화 칼슘','염화 스트론튬','염화 구리(II)','질산 나트륨','질산 칼륨','질산 스트론튬','질산 구리(II)']],
+['중학교','물질의 구성','물의 전기 분해',['황산 나트륨','수산화 나트륨']],
+['중학교','전해질과 이온','이온의 이동, 앙금 생성',['과망가니즈산 칼륨','황산 구리(II)','질산 구리(II)','질산 칼륨','질산 은','염화 바륨','아이오딘화 칼륨','탄산 나트륨','염화 칼슘','염화 나트륨','설탕']],
 ['중학교','화학 반응의 규칙','질량 보존, 일정 성분비',['탄산 칼슘','염산','염화 칼슘','탄산 나트륨','구리','마그네슘']],
-['중학교','화학 반응과 에너지','발열·흡열 반응',['철 가루','염화 나트륨','활성탄','염화 칼슘','염화 암모늄','수산화 바륨']],
-['중학교','소화','영양소 검출',['아이오딘','아이오딘화 칼륨','황산 구리(II)','수산화 나트륨','수단 III','녹말','포도당']],
-['중학교','광합성·호흡','엽록소 탈색 후 녹말 확인',['에탄올','아이오딘','아이오딘화 칼륨','BTB','탄산수소 나트륨']],
-['중학교','세포 관찰','세포 염색',['메틸렌 블루','아세트산']],
+['중학교','화학 반응과 에너지','발열·흡열 반응(손난로·냉찜질 팩)',['철 가루','염화 나트륨','활성탄','산화 칼슘','수산화 바륨','질산 암모늄','염화 암모늄','탄산수소 나트륨','아세트산']],
+['중학교','광물과 암석','묽은 염산으로 방해석·대리암 확인',['염산']],
+['중학교','소화','영양소 검출',['아이오딘','아이오딘화 칼륨','베네딕트 용액','황산 구리(II)','수산화 나트륨','수단 III','녹말','포도당']],
+['중학교','소화','침의 소화 작용',['녹말','아이오딘','아이오딘화 칼륨','베네딕트 용액']],
+['중학교','광합성·호흡','엽록소 탈색 후 녹말 확인, 기체 교환',['에탄올','아이오딘','아이오딘화 칼륨','BTB','탄산수소 나트륨']],
+['중학교','세포 관찰','세포 염색',['메틸렌 블루','아세트올세인 용액','아세트산']],
+['중학교','생식과 유전','세포가 분열하는 까닭(우무 조각)',['한천','페놀프탈레인','수산화 나트륨']],
+['중학교','생식과 유전','체세포 분열 관찰(양파 뿌리)',['에탄올','아세트산','염산','아세트올세인 용액']],
+['고 통합과학','물질과 규칙성','이온 결합·공유 결합 물질의 전기 전도성',['염화 나트륨','설탕','포도당','염화 칼슘','황산 구리(II)']],
+['고 통합과학','생명 시스템','효소(카탈레이스)와 과산화 수소',['과산화 수소','한천','에탄올']],
+['고 통합과학','생명 시스템','세포막을 통한 물질 이동(삼투)',['설탕','염화 나트륨']],
+['고 통합과학','산과 염기','산과 염기의 공통 성질',['염산','아세트산','수산화 나트륨','수산화 칼륨','암모니아수','탄산 칼슘','마그네슘','페놀프탈레인','BTB']],
 ['고 통합과학','산·염기와 중화','중화 반응, 중화열',['염산','수산화 나트륨','BTB','페놀프탈레인']],
-['고 통합과학','산화와 환원','금속 반응성, 산화 구리 환원',['구리','질산 은','아연','황산 구리(II)','마그네슘','산화 구리(II)','활성탄']],
-['고 화학','화학의 언어','몰 농도 용액, 기체 부피로 몰',['황산 구리(II)','마그네슘','염산']],
+['고 통합과학','산화와 환원','금속과 금속 이온의 반응, 산화 구리 환원',['구리','질산 은','알루미늄','염화 구리(II)','아연','염산','마그네슘','황산 구리(II)','산화 구리(II)','활성탄','수산화 칼슘']],
+['고 통합과학','에너지의 흡수와 방출','산화 칼슘 발열, 질산 암모늄 냉찜질',['산화 칼슘','질산 암모늄','철 가루','염화 나트륨','활성탄']],
+['고 과학탐구실험','역사 속의 과학 탐구','라부아지에 실험 재연(탄산수소 나트륨 분해)',['탄산수소 나트륨','수산화 칼슘']],
+['고 과학탐구실험','과학 마술','지시약 색 변화, 천연 지시약',['시트르산','수산화 나트륨','염산','페놀프탈레인','BTB','메틸 오렌지']],
+['고 과학탐구실험','과학 마술','루미놀 발광 반응',['루미놀','황산 구리(II)','과산화 수소','수산화 나트륨']],
+['고 과학탐구실험','생활 속의 과학 탐구','식물 추출물의 항균 작용, 교통 카드 속 구조',['에탄올','아세톤']],
+['고 화학','화학의 언어','몰과 질량, 반응의 양적 관계',['탄산 칼슘','염산','마그네슘','염화 나트륨','설탕','포도당','에탄올','활성탄']],
+['고 화학','화학의 언어','물의 전기 분해, 수화물의 가역 반응',['황산 나트륨','황산 구리(II)','설탕']],
 ['고 화학','물질의 구조와 성질','전기 전도성, 극성·무극성',['염화 나트륨','설탕','아이오딘','헥세인']],
-['고 화학','화학 평형','평형 이동',['크로뮴산 칼륨','다이크로뮴산 칼륨','염화 코발트(II)','염산','염화 철(III)','싸이오사이안산 칼륨']],
-['고 화학','역동적인 화학 반응','중화 적정, 산화 환원',['수산화 나트륨','페놀프탈레인','옥살산','과망가니즈산 칼륨','황산']],
-['고 물질과 에너지','용액·반응열','어는점 내림, 헤스 법칙',['설탕','염화 나트륨','수산화 나트륨','염산']],
-['고 화학 반응의 세계','반응 속도·촉매','농도·온도·촉매 효과',['싸이오황산 나트륨','염산','과산화 수소','아이오딘화 칼륨','이산화 망가니즈','마그네슘']],
-['고 화학 반응의 세계','산·염기 평형','완충 용액',['아세트산','아세트산 나트륨']],
-['고 화학 반응의 세계','전기 화학','화학 전지, 전기 분해',['아연','구리','황산 아연','황산 구리(II)','질산 칼륨','염화 구리(II)','황산 나트륨','BTB']],
-['고 생명과학 계열','효소·호흡·DNA','카탈레이스, 효모 발효, DNA 추출',['과산화 수소','포도당','BTB','염화 나트륨','에탄올']],
-['고 지구과학 계열','암석 판별','석회암 거품 반응',['염산']]
+['고 화학','화학 평형','농도·온도에 따른 평형 이동',['다이크로뮴산 칼륨','크로뮴산 칼륨','염산','수산화 나트륨','염화 코발트(II)','염화 칼슘','황산 구리(II)','염화 철(III)','싸이오사이안산 칼륨']],
+['고 화학','역동적인 화학 반응','표준 용액, pH 측정, 지시약',['염산','수산화 나트륨','염화 나트륨','포도당','BTB','메틸 오렌지','탄산 나트륨']],
+['고 화학','역동적인 화학 반응','중화 적정(식초 속 아세트산)',['수산화 나트륨','페놀프탈레인','아세트산','옥살산']],
+['고 물질과 에너지','물질의 세 가지 상태','결정성 고체의 분류, 표면 장력',['황산 구리(II)','구리','설탕','염화 나트륨','에탄올']],
+['고 물질과 에너지','용액의 성질','끓는점 오름·어는점 내림, 삼투',['설탕','염화 나트륨','포도당']],
+['고 물질과 에너지','화학 변화의 자발성','헤스 법칙(반응 엔탈피)',['수산화 나트륨','염산']],
+['고 물질과 에너지','반응 속도','반응 속도 측정(마그네슘·탄산 칼슘과 염산)',['마그네슘','탄산 칼슘','염산']],
+['고 물질과 에너지','반응 속도','농도와 반응 속도(아이오딘 시계 반응)',['아이오딘산 칼륨','아황산수소 나트륨','녹말']],
+['고 물질과 에너지','반응 속도','온도·촉매와 반응 속도',['싸이오황산 나트륨','염산','과산화 수소','아이오딘화 칼륨','이산화 망가니즈','염화 칼슘','탄산수소 나트륨']],
+['고 화학 반응의 세계','산 염기 평형','산의 세기, 중화 적정 곡선',['염산','아세트산','수산화 나트륨','암모니아수','BTB']],
+['고 화학 반응의 세계','산 염기 평형','염의 가수 분해, 완충 용액',['아세트산','아세트산 나트륨','염화 암모늄','염화 나트륨','염산','수산화 나트륨']],
+['고 화학 반응의 세계','산화·환원 반응','금속의 반응성, 화학 전지',['아연','구리','마그네슘','은','황산 아연','황산 구리(II)','황산 철(II)','질산 은','황산','염산','염화 칼륨','질산 칼륨']],
+['고 화학 반응의 세계','산화·환원 반응','전기 분해와 도금',['황산 나트륨','BTB','황산 구리(II)','구리','염화 구리(II)','다이사이아노은산 칼륨']],
+['고 화학 반응의 세계','산화·환원 반응','바이타민 C의 산화, 음주 측정 원리',['아이오딘','아이오딘화 칼륨','다이크로뮴산 칼륨','황산','에탄올']],
+['고 화학 반응의 세계','탄소 화합물과 반응','은거울 반응',['질산 은','암모니아수','포도당','수산화 나트륨','수산화 칼륨']],
+['고 화학 반응의 세계','탄소 화합물과 반응','에스터 합성(바나나 향)',['아세트산','아이소아밀 알코올','황산','인산','탄산수소 나트륨','탄산 나트륨']],
+['고 화학 반응의 세계','탄소 화합물과 반응','아스피린 합성',['살리실산','아세트산 무수물','인산','황산']],
+['고 화학 반응의 세계','탄소 화합물과 반응','나일론 합성',['헥사메틸렌다이아민','염화 아디프산','수산화 나트륨','다이클로로메테인']],
+['고 생명과학 계열','세포','세포 속 물질 관찰, 원형질 분리',['아이오딘','아이오딘화 칼륨','수단 III','아세트산카민 용액','염화 나트륨']],
+['고 생명과학 계열','효소','효소 활성에 영향을 주는 요인',['과산화 수소','녹말','아이오딘','아이오딘화 칼륨','베네딕트 용액','아밀레이스']],
+['고 생명과학 계열','세포호흡과 발효','효모의 알코올 발효, 콩의 호흡',['포도당','녹말','수산화 칼륨']],
+['고 생명과학 계열','광합성','광합성 색소 분리(크로마토그래피)',['아세톤','석유 에터','에탄올']],
+['고 생명과학 계열','소화와 영양','소화제의 작용',['녹말','알부민','아이오딘','아이오딘화 칼륨','수산화 나트륨','황산 구리(II)','아밀레이스','펩신']],
+['고 생명과학 계열','생물의 유전','DNA 추출',['염화 나트륨','에탄올']],
+['고 지구과학 계열','암석 판별','석회암 거품 반응',['염산']],
+['고 지구과학 계열','해수의 순환','심층 순환 모형(소금물)',['염화 나트륨']],
+['고 지구과학 계열','기후 변화','해양 산성화 모의 실험',['아세트산','탄산 칼슘']]
 ].map(r=>({level:r[0],topic:r[1],title:r[2],reagents:r[3]}));
 
+/* ===== 다국어 =====
+   화면 문구는 한국어로 쓰고, 화면에 나온 글자를 사전(i18n/<언어>.js)으로 바꿔 보여 준다.
+   · 저장되는 데이터(시약 이름 등)는 언어와 상관없이 한국어 그대로라서 학교 안에서 언어가 달라도 묶음을 주고받을 수 있다.
+   · 사전에 없는 문구는 영어 사전 → 한국어 순으로 보인다. 숫자는 #으로 바꿔 찾는다("확인할 일 4건" → "확인할 일 #건").
+   · 문구를 고치거나 더하면 tools/i18n_harvest.py로 빠진 문구를 뽑아 사전에 더한다. */
+const LANGS={ko:'한국어',en:'English',ja:'日本語',zh:'简体中文',es:'Español',fr:'Français',de:'Deutsch',pt:'Português',vi:'Tiếng Việt',id:'Bahasa Indonesia'};
+const LANG=(()=>{let l=lsGet('sijakjang-lang')||'';if(!LANGS[l]){const n=(navigator.language||'ko').toLowerCase().slice(0,2);l=LANGS[n]?n:'en'}return l})();
+let I18N=null,I18N_EN=null;const HANGUL=/[가-힣]/,I18N_SEPS=[' · ',' → ',' › ',': ',' ×',' / ',' — '];
+/* 이름이 끼어드는 문구: {} 자리에 시약·시약장·저장군 이름이 온다 (숫자는 #) */
+const I18N_PATS=['{} 없음','{} #병','{} 외 #종','{} 꺼냄','{} #병 보기','{} 늘리기','{} 줄이기','{}에 맞는 칸','{} 사용 중','{}(으)로 쓰기','{} 배치도','{} 역할','{} 초대','{} #%','{}, #병','{} #.#','{} 폐액'].map(k=>[new RegExp('^'+k.replace(/[.*+?^$()|[\]\\]/g,'\\$&').replace('\\{\\}','(.+?)').replace(/\{\}/,'(.+?)')+'$'),k]);
+const I18N_REC=c=>{if(window.__I18N_MISS)window.__I18N_MISS.add(c)};
+let I18N_USE=[];   // 지금 찾아볼 사전들: 먼저 고른 언어만, 안 되면 영어까지
+function i18nLook(c){for(const D of I18N_USE)if(D&&Object.prototype.hasOwnProperty.call(D,c))return D[c];return null}
+const i18nPiece=p=>{if(!HANGUL.test(p))return p;const m=p.match(/^(\s*)([\s\S]*?)(\s*)$/);const x=i18nCore(m[2]);return x==null?null:m[1]+x+m[3]};
+function i18nCore(c){let t=i18nLook(c);if(t!=null)return t;const H=!!window.__I18N_MISS;
+  for(const sep of I18N_SEPS){if(c.includes(sep)){let hit=false;const out=c.split(sep).map(p=>{const x=i18nPiece(p);if(x==null)return p;if(x!==p)hit=true;return x});return hit?out.join(sep):null}}
+  let m=c.match(/^([^가-힣A-Za-z0-9#"(]+)([\s\S]+)$/)||c.match(/^([A-Z][A-Z0-9#]{0,2}(?:-#-| ))([\s\S]+)$/);          // 앞에 붙은 기호·시약장 코드
+  if(m&&HANGUL.test(m[2])){const x=i18nCore(m[2]);return x==null?null:m[1]+x}
+  m=c.match(/^([\s\S]+?)( ▾|\)|:)$/);if(m){const x=i18nCore(m[1]);return x==null?null:x+m[2]}
+  m=c.match(/^(.+?) \((.+)\)$/);if(m){const a=i18nPiece(m[1]),b=i18nPiece(m[2]);return a==null&&b==null?null:(a==null?m[1]:a)+' ('+(b==null?m[2]:b)+')'}
+  for(const [re,k] of I18N_PATS){m=c.match(re);if(m){const tpl=i18nLook(k);if(tpl==null&&!H)continue;if(H)I18N_REC(k);const x=i18nPiece(m[1]);return (tpl||k).replace('{}',x==null?m[1]:x)}}
+  for(const sep of [', ','·']){if(c.includes(sep)){const ps=c.split(sep);if(H){if(ps.every(p=>p.length<=14&&!/[.다요]$/.test(p))){ps.forEach(p=>{if(HANGUL.test(p))i18nCore(p)});return null}}
+      else{const out=ps.map(p=>HANGUL.test(p)?i18nLook(p):p);if(out.every(x=>x!=null))return out.join(sep==='·'?' · ':sep)}}}
+  I18N_REC(c);return null}
+function i18nT(s){if(!s||!HANGUL.test(s)||!(I18N||window.__I18N_MISS))return s;const m=s.match(/^(\s*)([\s\S]*?)(\s*)$/);
+  const nums=[];const k=m[2].replace(/\d+(?:[.,]\d+)?/g,n=>{nums.push(n);return '#'});I18N_USE=[I18N];let t=I18N?i18nCore(k):null;if(t==null||HANGUL.test(t)){I18N_USE=[I18N,I18N_EN];const t2=i18nCore(k);if(t2!=null)t=t2}if(t==null)return s;let i=0;t=t.replace(/#/g,()=>i<nums.length?nums[i++]:'#');return m[1]+t+m[3]}
+const I18N_ATTRS=['placeholder','aria-label','title','alt'];
+function i18nNode(n){if(n.nodeType===3){const p=n.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA)$/.test(p.nodeName))return;const t=i18nT(n.nodeValue);if(t!==n.nodeValue)n.nodeValue=t;return}
+  if(n.nodeType!==1||/^(SCRIPT|STYLE|TEXTAREA)$/.test(n.nodeName))return;
+  I18N_ATTRS.forEach(a=>{const v=n.getAttribute&&n.getAttribute(a);if(v&&HANGUL.test(v)){const t=i18nT(v);if(t!==v)n.setAttribute(a,t)}});
+  for(let c=n.firstChild;c;c=c.nextSibling)i18nNode(c)}
+function i18nStart(){if(LANG==='ko'&&!window.__I18N_MISS)return;document.documentElement.lang=LANG;
+  const go=()=>{M.forEach(m=>{if(I18N_EN&&!(m.name in I18N_EN))I18N_EN[m.name]=m.eng});document.title=i18nT(document.title);i18nNode(document.body);
+    new MutationObserver(ms=>ms.forEach(m=>{if(m.type==='characterData')i18nNode(m.target);else if(m.type==='attributes')i18nNode(m.target);else m.addedNodes.forEach(i18nNode)})).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:I18N_ATTRS})};
+  if(window.__I18N_MISS){go();return}
+  const load=(l,cb)=>{const s=document.createElement('script');s.src='i18n/'+l+'.js';s.onload=()=>cb(window.I18N_DATA||{});s.onerror=()=>cb({});document.head.appendChild(s)};
+  load('en',en=>{I18N_EN=en;if(LANG==='en'){I18N=en;go()}else load(LANG,d=>{I18N=d;go()})})}
+function langModal(){modal('<h2>언어 · Language</h2><div class="themes" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">'+Object.keys(LANGS).map(l=>'<button class="btn'+(l===LANG?' pri':'')+'" data-lang="'+l+'" lang="'+l+'" style="width:100%">'+LANGS[l]+'</button>').join('')+'</div><p class="muted">시약 이름 같은 데이터는 언어를 바꿔도 그대로 유지됩니다. 안전 정보와 사용 방법처럼 긴 글은 한국어와 영어로 제공됩니다.</p><button class="btn bigbtn" id="lgX">닫기</button>');
+  document.getElementById('lgX').onclick=closeModal;
+  document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{lsSet('sijakjang-lang',b.dataset.lang);location.reload()})}
 /* ===== 안전 정보 =====
    · HTXT/SAFE: 시약별 GHS 분류 요약(신호어·유해위험문구)과 취급·보관·폐기 주의사항. 원액·고체 기준, 참고용.
      법적으로 유효한 MSDS는 납품업체가 준 자료이며, 최신 분류는 안전보건공단 MSDS(msds.kosha.or.kr)에서 CAS 번호로 확인.
    · GUIDE: 교육부·한국과학창의재단 「과학실험 안전 매뉴얼」(초·중·고, 2021)의 화학약품 관련 내용을 풀어 쓴 요약. */
 const HTXT={H225:'고인화성 액체 및 증기',H226:'인화성 액체 및 증기',H228:'인화성 고체',H261:'물과 접촉하면 인화성 가스를 발생',H272:'화재를 강렬하게 함(산화제)',H290:'금속을 부식시킬 수 있음',
-H301:'삼키면 유독함',H302:'삼키면 유해함',H304:'삼켜서 기도로 들어가면 치명적일 수 있음',H312:'피부와 접촉하면 유해함',H314:'피부에 심한 화상과 눈 손상을 일으킴',H315:'피부에 자극을 일으킴',
+H300:'삼키면 치명적임',H301:'삼키면 유독함',H310:'피부와 접촉하면 치명적임',H302:'삼키면 유해함',H304:'삼켜서 기도로 들어가면 치명적일 수 있음',H312:'피부와 접촉하면 유해함',H314:'피부에 심한 화상과 눈 손상을 일으킴',H315:'피부에 자극을 일으킴',
 H317:'알레르기성 피부 반응을 일으킬 수 있음',H318:'눈에 심한 손상을 일으킴',H319:'눈에 심한 자극을 일으킴',H330:'흡입하면 치명적임',H331:'흡입하면 유독함',H332:'흡입하면 유해함',
 H334:'흡입하면 알레르기·천식·호흡 곤란을 일으킬 수 있음',H335:'호흡기 자극을 일으킬 수 있음',H336:'졸음 또는 현기증을 일으킬 수 있음',H340:'유전적 결함을 일으킬 수 있음',H341:'유전적 결함을 일으킬 것으로 의심됨',
 H350:'암을 일으킬 수 있음',H351:'암을 일으킬 것으로 의심됨',H360:'태아 또는 생식 능력에 손상을 일으킬 수 있음',H361:'태아 또는 생식 능력에 손상을 일으킬 것으로 의심됨',
@@ -430,6 +555,37 @@ H372:'장기간·반복 노출되면 장기에 손상을 일으킴',H373:'장기
 const WASTEDOC={acid:'산 폐수',base:'알칼리계 폐수',org:'유기계 폐수',inorg:'무기계 폐수',metal:'무기계 폐수(중금속 — 다른 폐수와 섞지 말고 따로)',solid:'고체는 폐시약으로 용기째 배출'};
 /* 이름: [신호어, 유해위험문구, 취급 주의, 보관·함께 두면 안 되는 것, 폐기] */
 const SAFE={
+'수산화 칼륨':['위험','H290 H302 H314','수산화 나트륨과 같은 강염기입니다. 물에 녹을 때 열이 많이 나므로 찬물에 조금씩 넣습니다. 발효관 실험의 40 % 용액은 교사가 만들어 넣어 줍니다.','염기 칸, 밀봉(공기 중 수분·이산화 탄소 흡수). 산·알루미늄·아연과 분리합니다.','base'],
+'산화 칼슘':['위험','H315 H318 H335','물을 부으면 끓을 만큼 뜨거워집니다. 소량(약숟가락 1~2)만 쓰고 얼굴을 가까이 대지 않습니다. 가루가 눈에 들어가면 바로 오래 씻습니다.','염기 칸, 완전 밀봉(습기를 빨아들여 굳고 용기가 터질 수 있음). 산·물과 분리합니다.','base'],
+'인산':['위험','H290 H314','끈끈한 부식성 액체입니다. 에스터·아스피린 합성에서 진한 황산 대신 촉매로 몇 방울만 씁니다. 스포이트로 덜고 피부에 닿으면 물로 씻습니다.','무기산 칸. 염기·금속과 분리합니다.','acid'],
+'질산 암모늄':['경고','H272 H319','물에 녹을 때 차가워지는 흡열 반응(냉찜질 팩)에 씁니다. 가열하거나 갈지 않습니다. 필요한 양만 덜어 줍니다.','산화제 칸. 인화성 물질·금속 가루·유기물·산과 분리하고 소량만 둡니다.','inorg'],
+'질산 나트륨':['경고','H272 H319','불꽃 반응과 용해도 실험에 씁니다. 가연물과 섞어 가열하지 않습니다.','산화제 칸. 인화성 물질·금속 가루·유기물과 분리합니다.','inorg'],
+'질산 스트론튬':['위험','H272 H318','불꽃 반응(빨간색)에 씁니다. 용액은 교사가 만들어 나누어 줍니다. 눈에 들어가지 않게 합니다.','산화제 칸. 인화성 물질·금속 가루·유기물과 분리합니다.','inorg'],
+'질산 구리(II)':['위험','H272 H302 H315 H318 H410','불꽃 반응(청록색)과 이온의 이동 실험에 씁니다. 흡습성이 커서 쓴 뒤 바로 밀봉합니다. 폐액은 중금속 통에 모읍니다.','산화제 칸, 밀봉. 인화성 물질·금속 가루·유기물과 분리합니다.','metal'],
+'붕산':['위험','H360','용해도 실험에 나오지만 생식 독성 물질입니다. 가능하면 질산 칼륨·황산 구리(II)로 바꾸고, 쓸 때는 장갑을 끼고 가루를 날리지 않습니다. 임신 중인 사람은 다루지 않습니다.','독성 물질 칸에 따로 둡니다.','inorg'],
+'아이오딘산 칼륨':['위험','H272 H302 H318','아이오딘 시계 반응에 0.05~0.1 M 용액으로 씁니다. 용액은 교사가 만들어 줍니다.','산화제 칸. 환원제(아황산수소 나트륨)·인화성 물질·금속 가루와 분리합니다.','inorg'],
+'아황산수소 나트륨':['경고','H302','아이오딘 시계 반응에 씁니다. 산과 섞이면 자극성 이산화 황이 나오므로 환기합니다. 용액은 오래 두면 산화되니 실험 직전에 만듭니다. 천식이 있는 학생은 주의합니다.','밀봉. 산·산화제(아이오딘산 칼륨)와 분리합니다.','inorg'],
+'황산 철(II)':['경고','H302 H315 H319','화학 전지(반쪽 전지) 용액에 씁니다. 용액은 공기 중에서 누렇게 산화되므로 쓰기 직전에 만듭니다.','밀봉해 습기를 피합니다.','inorg'],
+'살리실산':['위험','H302 H318 H361','아스피린 합성에 씁니다. 가루가 눈에 들어가지 않게 보안경을 쓰고, 가루를 날리지 않습니다.','유기산 칸. 산화제·염기와 분리합니다.','org'],
+'아세트산 무수물':['위험','H226 H302 H314 H330','증기가 눈과 목을 강하게 자극합니다. 반드시 환기장치(흄후드) 안에서 교사가 덜어 주고, 물이 들어가지 않게 합니다(물과 반응해 열을 냅니다).','유기산 칸, 밀봉. 물·알코올·염기·산화제·질산과 분리합니다.','org'],
+'아이소아밀 알코올':['경고','H226 H315 H332 H335','에스터(바나나 향) 합성에 씁니다. 냄새가 강하므로 환기하고, 불꽃 대신 물중탕으로 가열합니다.','인화성 칸. 산화제·질산과 분리하고 화기를 멀리합니다.','org'],
+'헥사메틸렌다이아민':['위험','H302 H312 H314 H335','나일론 합성에 씁니다. 피부에 닿으면 화상을 입으므로 장갑을 끼고, 용액은 교사가 만들어 줍니다.','염기 칸, 밀봉. 산·산화제와 분리합니다.','org'],
+'염화 아디프산':['위험','H314','나일론 합성에 씁니다. 공기 중 수분과도 반응해 자극성 기체가 나오므로 환기장치에서 교사가 덜고 바로 마개를 닫습니다.','유기산 칸, 완전 밀봉. 물·알코올·염기와 분리합니다.','org'],
+'다이클로로메테인':['경고','H315 H319 H336 H351','나일론 합성에서 염화 아디프산을 녹이는 용매입니다. 끓는점이 낮아 증기가 잘 생기므로 환기장치에서 다루고, 가능하면 헥세인 등으로 바꿉니다.','독성 물질 칸, 서늘한 곳. 폐액은 할로젠계 유기 폐액으로 따로 모읍니다.','org'],
+'다이사이아노은산 칼륨':['위험','H300 H310 H330 H410','은 도금 실험에 나오지만 맹독성 사이안화물입니다. 산과 만나면 사이안화 수소가 나옵니다. 학교에서는 황산 구리(II) 수용액을 쓰는 구리 도금으로 바꾸는 것이 안전합니다.','잠금장치가 있는 독성 물질 칸. 산과 절대 함께 두지 않습니다. 폐액은 사이안 폐액으로 따로 처리합니다.','metal'],
+'루미놀':['경고','H315 H319 H335','염기성 용액에 녹여 과산화 수소와 섞으면 푸른빛을 냅니다. 용액은 교사가 만들고, 어두운 곳에서 실험할 때 쏟지 않게 주의합니다.','빛을 피해 밀봉합니다.','org'],
+'베네딕트 용액':['경고','H319 H411','포도당·엿당 검출에 쓰며 물중탕으로 가열합니다. 시험관 입구를 사람 쪽으로 향하지 않습니다. 쓴 용액은 중금속 통에 모읍니다.','밀봉해 서늘한 곳에 둡니다.','metal'],
+'아세트올세인 용액':['위험','H314','핵과 염색체를 붉게 염색합니다. 진한 아세트산이 들어 있어 냄새가 자극적이고 피부·옷에 물이 듭니다. 스포이트로 한두 방울만 씁니다.','유기산 칸, 갈색병에 밀봉합니다.','org'],
+'아세트산카민 용액':['위험','H314','핵을 붉게 염색합니다. 진한 아세트산이 들어 있어 냄새가 자극적이고 피부·옷에 물이 듭니다. 스포이트로 한두 방울만 씁니다.','유기산 칸, 갈색병에 밀봉합니다.','org'],
+'석유 에터':['위험','H225 H304 H315 H336 H411','광합성 색소 분리(크로마토그래피) 전개액에 씁니다. 증기에 쉽게 불이 붙으므로 교실의 불을 모두 끄고 환기하며, 전개 용기는 뚜껑을 닫습니다.','인화성 칸, 서늘한 곳. 산화제와 분리합니다.','org'],
+'글리세롤':['','','색소를 섞어 기체의 부피 변화를 보거나 밀도 차로 플라스틱을 분리할 때 씁니다. 바닥에 흘리면 미끄럽습니다.','일반 칸. 과망가니즈산 칼륨 같은 산화제와 분리합니다.','org'],
+'알루미늄':['','','판·포일은 위험이 낮습니다. 염화 구리(II) 수용액이나 산·염기와 반응하면 열과 수소가 나오므로 소량으로 실험합니다.','금속 칸. 산·염기·산화제와 분리합니다.','solid'],
+'은':['','','금속의 반응성 비교와 도금 실험에 씁니다. 쓴 뒤 닦아서 다시 씁니다.','일반 칸. 잃어버리지 않게 개수를 적어 둡니다.','solid'],
+'한천':['','','페놀프탈레인을 넣은 우무 조각(세포 크기와 물질 이동)이나 배지에 씁니다. 끓일 때 넘치지 않게 합니다.','밀봉해 습기를 피합니다.','solid'],
+'알부민':['','','단백질 검출(뷰렛 반응)과 소화 효소 실험에 씁니다. 가루가 날리지 않게 답니다.','밀봉해 냉장 보관합니다.','solid'],
+'아밀레이스':['위험','H334','녹말 분해 실험에 씁니다. 효소 가루를 들이마시면 알레르기를 일으킬 수 있으므로 마스크를 쓰고 조심히 덜어 용액으로 만들어 줍니다.','밀봉해 냉장 보관합니다.','solid'],
+'펩신':['위험','H315 H319 H334 H335','단백질 분해 실험에 씁니다. 효소 가루를 들이마시면 알레르기를 일으킬 수 있으므로 마스크를 쓰고 조심히 덜어 용액으로 만들어 줍니다.','밀봉해 냉장 보관합니다.','solid'],
+'리놀레산':['','','혼합물 분리 실험(물에 뜨는 액체)에 씁니다. 바닥에 흘리면 미끄럽습니다.','밀봉해 냉장 보관합니다. 산화제와 분리합니다.','org'],
 '염산':['위험','H290 H314 H335','진한 염산은 뚜껑을 열면 염화 수소 기체가 나옵니다. 환기장치(흄후드) 안에서 덜고, 희석은 물에 산을 조금씩 넣습니다. 학생에게는 묽힌 용액만 나누어 줍니다.','무기산 칸. 염기·금속·산화제(과망가니즈산 칼륨)·싸이오황산 나트륨·싸이오사이안산 칼륨과 떨어뜨립니다. 락스(차아염소산 나트륨)와 섞이면 염소 기체가 나옵니다.','acid'],
 '황산':['위험','H290 H314','물과 섞이면 열이 심하게 납니다. 반드시 물에 황산을 조금씩 넣고 저어 줍니다(반대로 하면 끓어 튑니다). 피부에 닿으면 탈수·화상을 일으키니 바로 다량의 물로 씻습니다.','무기산 칸, 낮은 선반. 염기·금속·유기물·과망가니즈산 칼륨·염소산염과 분리합니다.','acid'],
 '질산':['위험','H272 H290 H314 H331','산화성이 강한 산입니다. 금속과 반응하면 갈색의 유독한 이산화 질소가 나오므로 환기장치 안에서만 다룹니다. 피부에 닿으면 노랗게 변하며 화상을 입습니다.','갈색병, 다른 산과도 구획을 나눠 단독 보관이 안전합니다. 아세트산·에탄올·아세톤 등 유기물, 금속 가루, 염기와 분리합니다.','acid'],
@@ -491,13 +647,13 @@ const SAFE={
 const safeOf=n=>{const s=SAFE[n];return s?{sig:s[0],h:s[1]?s[1].split(' '):[],use:s[2],keep:s[3],waste:s[4]}:null};
 function ppeOf(s){const h=s.h,has=(...c)=>c.some(x=>h.includes(x));const p=[];
   if(has('H314','H318'))p.push('보안경(고글)','내화학 장갑','실험복');else if(h.length)p.push('보안경','실험용 장갑','실험복');else p.push('보안경','실험복');
-  if(has('H330','H331','H332','H334','H335','H336','H340','H350','H360'))p.push('환기장치(흄후드) 또는 충분한 환기');
+  if(has('H330','H331','H332','H334','H335','H336','H340','H350','H351','H360'))p.push('환기장치(흄후드) 또는 충분한 환기');
   if(has('H225','H226','H228'))p.push('주변 화기 제거');return p}
 function aidOf(s){const h=s.h,has=(...c)=>c.some(x=>h.includes(x));const a=[];
   a.push('<b>눈</b> 흐르는 물이나 눈 세척기로 15분 이상 씻고'+(has('H314','H318')?' 바로':'')+' 병원에 갑니다. 콘택트렌즈는 뺍니다.');
   a.push('<b>피부</b> 오염된 옷을 벗고 다량의 흐르는 물로 씻습니다. 산·염기도 중화하려 하지 말고 물로만 씻습니다.');
   a.push('<b>흡입</b> 신선한 공기가 있는 곳으로 옮깁니다. 호흡이 어렵거나 의식이 흐리면 119.');
-  a.push('<b>삼킴</b> 뱉고 입을 여러 번 헹굽니다. 억지로 토하게 하지 않습니다'+(has('H304')?'(기도로 넘어가면 치명적)':'')+'. '+(has('H301','H302','H304','H314')?'즉시 119에 연락합니다.':'이상이 있으면 병원에 갑니다.'));
+  a.push('<b>삼킴</b> 뱉고 입을 여러 번 헹굽니다. 억지로 토하게 하지 않습니다'+(has('H304')?'(기도로 넘어가면 치명적)':'')+'. '+(has('H300','H301','H302','H304','H310','H314')?'즉시 119에 연락합니다.':'이상이 있으면 병원에 갑니다.'));
   return a}
 function safetyHTML(name,cas){const s=safeOf(name);
   const link='<p class="muted">출처·한계: 원액·고체 기준으로 간추린 참고 자료입니다. 농도·제품에 따라 분류가 달라집니다. 실험 전에는 납품업체가 준 MSDS나 <a href="https://msds.kosha.or.kr" target="_blank" rel="noopener">안전보건공단 MSDS</a>(CAS '+esc(cas||'')+')의 4번 응급조치·6번 누출 대처·10번 안정성 및 반응성을 확인하세요.</p>';
@@ -511,7 +667,7 @@ function safetyHTML(name,cas){const s=safeOf(name);
   '<tr><th>응급조치</th><td>'+aidOf(s).map(x=>'<div style="margin-bottom:4px">'+x+'</div>').join('')+'</td></tr>'+
   '<tr><th>폐기</th><td>'+WASTEDOC[s.waste]+'. 하수구에 버리지 않습니다.</td></tr></table>'+link}
 function safetyModal(name){const m=findMaster(name);if(!m)return;
-  modal('<h2 style="margin:0">'+esc(m.name)+'</h2><div class="muted">'+esc(m.eng)+' · '+esc(m.formula)+' · CAS '+esc(m.cas)+' · '+chip(m.group)+' '+esc(GROUPS[baseGroup(m.group)]||'')+'</div>'+
+  modal('<h2 style="margin:0">'+esc(m.name)+'</h2><div class="muted">'+esc(m.eng)+' · '+esc(m.formula)+(m.cas?' · CAS '+esc(m.cas):'')+' · '+chip(m.group)+' '+esc(GROUPS[baseGroup(m.group)]||'')+'</div>'+
   (ghsOf(m.name).length?'<div class="row" style="margin:6px 0">'+ghsHTML(m.name)+'<span class="muted">'+ghsOf(m.name).map(c=>GHSN[c]).join(', ')+'</span></div>':'')+
   safetyHTML(m.name,m.cas)+'<button class="btn pri bigbtn" id="sX">닫기</button>');document.getElementById('sX').onclick=closeModal}
 
@@ -611,9 +767,9 @@ const HELP=[
 ['시약 찾기','찾기 탭에 이름, 초성(ㅇㅅ), 화학식(HCl), CAS 번호 가운데 아무것이나 넣으면 됩니다. 옛 이름(가성소다, 초산)으로도 찾습니다.|결과에 실 › 시약장 › 칸이 함께 나옵니다. 누르면 시약장 그림에서 그 칸이 표시됩니다.|찾기 탭 첫 화면의 "확인할 일"에는 유효기간이 지났거나 얼마 남지 않은 시약이 모입니다.'],
 ['시약장 그림 맞추기','시약장 탭에서 시약장을 눌러 단과 칸 수, 칸 이름, 칸마다 넣을 수 있는 저장군을 정합니다.|함께 두면 안 되는 시약(산과 염기, 산화제와 인화성 물질 등)을 같은 칸에 넣으려 하면 경고가 나옵니다.'],
 ['쓴 만큼 기록하기','병을 눌러 "썼어요"를 누르면 남은 양이 한 단계 줄어듭니다. 정확히 맞추려면 "자세히"에서 직접 조정합니다.|다 쓴 시약은 "구매 목록에"를 눌러 두면 더보기 › 구매 목록에 모입니다.|실험대로 가져갈 때 "꺼내기"를 눌러 두면 다른 선생님이 누가 어디서 쓰는지 볼 수 있습니다.'],
-['수업 준비','더보기 › 수업 준비에서 실험을 고르면 꺼낼 시약이 시약장 순서대로 나옵니다. 꺼내면서 체크하고, 수업이 끝나면 "모두 제자리"로 한 번에 돌려놓습니다.|더보기 › 실험별 시약에서는 2022 개정 교육과정 실험 25개에 필요한 시약과 우리 학교 재고를 볼 수 있습니다.'],
+['수업 준비','더보기 › 수업 준비에서 실험을 고르면 꺼낼 시약이 시약장 순서대로 나옵니다. 꺼내면서 체크하고, 수업이 끝나면 "모두 제자리"로 한 번에 돌려놓습니다.|더보기 › 실험별 시약에서는 2022 개정 교육과정 실험 63개에 필요한 시약과 우리 학교 재고를 볼 수 있습니다.'],
 ['같은 학교 선생님과 함께 쓰기','데이터는 각자의 기기에만 저장됩니다. 서버에 올라가지 않으므로, 선생님끼리는 "학교 데이터 묶음"을 주고받아 맞춥니다.|관리자: 더보기 › 학교·비밀번호에서 학교 비밀번호를 정하고, 더보기 › 관리에서 함께 쓸 선생님의 초대 코드를 만듭니다.|보내기: 학교·비밀번호 › "묶음 만들기"로 만든 묶음을 메신저나 메일로 보냅니다. 비밀번호는 따로 알려 주세요.|받기: "학교 데이터 받기"에 묶음을 붙여 넣고 비밀번호(처음에는 초대 코드도)를 넣으면 바뀐 내용만 합쳐집니다.|전출할 때는 "이 기기에서 이 학교 지우기"를 누르고, 관리자는 그 선생님의 접근을 해제한 뒤 비밀번호를 바꿉니다.'],
-['안전 정보 보기','병을 누르면 GHS 그림문자와 안전 정보(MSDS 요약)가 함께 나옵니다. 더보기 › 실험실 안전에서는 시약 58종의 안전 정보와 과학실 화학약품 안전 길잡이를 볼 수 있습니다.|앱의 안전 정보는 참고용입니다. 실험 전에는 납품업체가 준 MSDS와 교육청 지침을 확인하세요.'],
+['안전 정보 보기','병을 누르면 GHS 그림문자와 안전 정보(MSDS 요약)가 함께 나옵니다. 더보기 › 실험실 안전에서는 시약 89종의 안전 정보와 과학실 화학약품 안전 길잡이를 볼 수 있습니다.|앱의 안전 정보는 참고용입니다. 실험 전에는 납품업체가 준 MSDS와 교육청 지침을 확인하세요.'],
 ['자료 지키기','앱을 지우면 그 기기의 데이터도 함께 지워집니다. 학기마다 더보기 › 관리 › "백업(JSON) 복사"로 백업을 남겨 두세요.|기기를 바꿀 때는 옛 기기에서 묶음을 만들어 새 기기에서 받으면 됩니다.|디자인은 더보기 › 디자인 바꾸기에서 10가지 가운데 고를 수 있고, 내 기기에서만 바뀝니다.']];
 function vHelp(){const nat=!!window.SJJNative;
   V().innerHTML=backBar()+'<h1 class="pt">사용 방법</h1>'+
@@ -629,6 +785,43 @@ function vHelp(){const nat=!!window.SJJNative;
   '<p class="muted" style="text-align:center">세이프랩노트 '+APP_VERSION+' · 궁금한 점은 <a href="#" id="hFb">의견 보내기</a>로 물어보세요.</p>';
   bindBack();document.getElementById('hFb').onclick=e=>{e.preventDefault();go('feedback')};
   document.getElementById('hCopy').onclick=()=>{const no=()=>toast('위 주소를 길게 눌러 복사하세요');try{navigator.clipboard.writeText(WEB_URL).then(()=>toast('주소를 복사했습니다'),no)}catch(e){no()}}}
+
+/* ===== 과학실 배치도: 시약장을 실제 놓인 자리대로 끌어다 놓는다 =====
+   위치는 cab.pos={x,y,w,h}, 문·창문 같은 표시는 room.fix=[{id,t,x,y,w,h}] (칸 단위, 가로 12 × 세로 8) */
+const PW=12,PH=8;
+const FIX={board:['칠판','🖊️'],desk:['교탁','🧑‍🏫'],door:['문','🚪'],window:['창문','🪟'],bench:['실험대','🧪'],sink:['개수대','🚰'],hood:['환기장치','💨'],shower:['비상 샤워기','🚿'],ext:['소화기','🧯']};
+let planEdit=null,planSel=null;
+function planEnsure(room){const cs=S.cabinets.filter(c=>c.roomId===room.id);cs.forEach((c,i)=>{if(!c.pos)c.pos={x:(i%4)*3+.5,y:Math.floor(i/4)*3+.5,w:2,h:2}});if(!room.fix)room.fix=[];return cs}
+const planSt=p=>'left:'+(p.x/PW*100)+'%;top:'+(p.y/PH*100)+'%;width:'+(p.w/PW*100)+'%;height:'+(p.h/PH*100)+'%';
+function planHTML(room){const cs=planEnsure(room),ed=planEdit===room.id;
+  const grp=c=>{const k=Object.keys(c.slots)[0];const a=k&&c.slots[k].allowed;return baseGroup((a&&a[0])||'G')};
+  return '<div class="planwrap"><div class="plan'+(ed?' ed':'')+'" data-room="'+room.id+'" aria-label="'+esc(room.name)+' 배치도">'+
+  room.fix.filter(f=>FIX[f.t]).map(f=>'<div class="pblk fx'+(ed&&planSel==='f:'+f.id?' sel':'')+'" data-k="f:'+f.id+'" style="'+planSt(f)+'"><span aria-hidden="true">'+FIX[f.t][1]+'</span><small>'+FIX[f.t][0]+'</small></div>').join('')+
+  cs.map(c=>'<div class="pblk cb g'+grp(c)+(hl&&hl.cab===c.id?' hl':'')+(ed&&planSel==='c:'+c.id?' sel':'')+'" data-k="c:'+c.id+'" role="button" tabindex="0" style="'+planSt(c.pos)+'"><b>'+esc(c.code)+'</b><small>'+esc(c.name)+'</small></div>').join('')+'</div>'+
+  (ed?'<p class="muted" style="margin:8px 0 6px">시약장을 끌어서 실제 자리에 놓으세요. 고른 것은 아래 버튼으로 돌리거나 크기를 바꿉니다.</p><div class="row" style="gap:6px"><button class="btn sm" data-pa="rot">돌리기</button><button class="btn sm" data-pa="wider">넓게</button><button class="btn sm" data-pa="narrower">좁게</button><button class="btn sm" data-pa="del">표시 지우기</button><span class="sp"></span><button class="btn sm pri" data-pa="done">배치 완료</button></div>'+
+    '<div class="row" style="gap:6px;margin-top:8px"><span class="muted">표시 놓기</span>'+Object.keys(FIX).map(t=>'<button class="btn sm" data-fix="'+t+'"><span aria-hidden="true">'+FIX[t][1]+'</span> '+FIX[t][0]+'</button>').join('')+'</div>'
+     :'<div class="row" style="margin-top:6px"><span class="muted grow">시약장을 누르면 아래 칸 그림으로 이동합니다.</span>'+(isAdmin()?'<button class="btn sm" data-planedit="'+room.id+'">배치 바꾸기</button>':'')+'</div>')+'</div>'}
+function planBind(){
+  document.querySelectorAll('[data-planedit]').forEach(b=>b.onclick=()=>{planEdit=b.dataset.planedit;planSel=null;render()});
+  document.querySelectorAll('.plan').forEach(plan=>{const room=S.rooms.find(r=>r.id===plan.dataset.room);if(!room)return;const ed=planEdit===room.id;
+    const objOf=k=>k[0]==='c'?(cabOf(k.slice(2))||{}).pos:room.fix.find(f=>f.id===k.slice(2));
+    const wrap=plan.parentNode;
+    plan.querySelectorAll('.pblk').forEach(el=>{const k=el.dataset.k;
+      if(!ed){if(k[0]==='c'){const goCab=()=>{const t=document.getElementById('cabw-'+k.slice(2));if(t){t.scrollIntoView({behavior:'smooth',block:'center'});t.classList.add('flash');setTimeout(()=>t.classList.remove('flash'),1400)}};el.onclick=goCab;el.onkeydown=e=>{if(e.key==='Enter')goCab()}}return}
+      el.onpointerdown=e=>{const p=objOf(k);if(!p)return;e.preventDefault();planSel=k;plan.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');
+        const r=plan.getBoundingClientRect(),sx=e.clientX,sy=e.clientY,ox=p.x,oy=p.y;let moved=false;try{el.setPointerCapture(e.pointerId)}catch(_){}
+        el.onpointermove=ev=>{const nx=Math.min(PW-p.w,Math.max(0,Math.round((ox+(ev.clientX-sx)/r.width*PW)*2)/2)),ny=Math.min(PH-p.h,Math.max(0,Math.round((oy+(ev.clientY-sy)/r.height*PH)*2)/2));
+          if(nx!==p.x||ny!==p.y){p.x=nx;p.y=ny;el.style.left=(nx/PW*100)+'%';el.style.top=(ny/PH*100)+'%';moved=true}};
+        el.onpointerup=el.onpointercancel=()=>{el.onpointermove=null;if(moved){cfgBump();save()}}}});
+    if(!ed)return;
+    wrap.querySelectorAll('[data-pa]').forEach(b=>b.onclick=()=>{const a=b.dataset.pa;if(a==='done'){planEdit=null;planSel=null;cfgBump();save();render();return}
+      const p=planSel&&objOf(planSel);if(!p){toast('먼저 배치도에서 옮길 것을 누르세요');return}
+      if(a==='rot'){const w=p.w;p.w=Math.min(PW,p.h);p.h=Math.min(PH,w)}
+      if(a==='wider'){if(p.w>=p.h)p.w=Math.min(PW,p.w+1);else p.h=Math.min(PH,p.h+1)}
+      if(a==='narrower'){if(p.w>=p.h)p.w=Math.max(1,p.w-1);else p.h=Math.max(1,p.h-1)}
+      if(a==='del'){if(planSel[0]==='c'){toast('시약장은 여기서 지울 수 없습니다. 문·창문 같은 표시만 지웁니다');return}room.fix=room.fix.filter(f=>f.id!==planSel.slice(2));planSel=null}
+      if(p){p.x=Math.min(p.x,PW-p.w);p.y=Math.min(p.y,PH-p.h)}cfgBump();save();render()});
+    wrap.querySelectorAll('[data-fix]').forEach(b=>b.onclick=()=>{const t=b.dataset.fix;const wide=['board','window','bench'].includes(t);const f={id:uid(),t,x:5,y:PH-1,w:wide?3:1,h:1};room.fix.push(f);planSel='f:'+f.id;cfgBump();save();render()})})}
 /* ===== 저장군 ===== */
 const GROUPS={A1:'무기산',A2:'산화성 산',A3:'유기산',B:'염기',F:'인화성',O:'산화제',M:'반응성 금속',T:'독성',G:'일반'};
 const baseGroup=g=>(g||'G').split('(')[0];
@@ -642,7 +835,7 @@ const GHSMAP={'염산':[5,7],'황산':[5],'질산':[3,5,6],'아세트산':[2,5],
 '탄산 나트륨':[7],'염화 칼슘':[7],'염화 리튬':[7],'염화 스트론튬':[5],'염화 암모늄':[7],'황산 구리(II)':[5,7,9],'염화 구리(II)':[5,7,9],'황산 아연':[5,7,9],'질산 칼륨':[3],'질산 은':[3,5,9],
 '염화 바륨':[6],'아이오딘':[7,8,9],'과망가니즈산 칼륨':[3,5,7,8,9],'과산화 수소':[5,7],'이산화 망가니즈':[7],'크로뮴산 칼륨':[7,8,9],'다이크로뮴산 칼륨':[3,5,6,8,9],'염화 코발트(II)':[7,8,9],
 '염화 철(III)':[5,7],'싸이오사이안산 칼륨':[7],'마그네슘':[2],'아연':[9],'철 가루':[2],'산화 구리(II)':[9],'에탄올':[2,7],'아세톤':[2,7],'헥세인':[2,7,8,9],'페놀프탈레인':[8],
-'메틸 오렌지':[6],'메틸렌 블루':[7],'질산 납(II)':[3,5,7,8,9]};
+'메틸 오렌지':[6],'메틸렌 블루':[7],'질산 납(II)':[3,5,7,8,9],'수산화 칼륨':[5,7],'산화 칼슘':[5,7],'인산':[5],'질산 암모늄':[3,7],'질산 나트륨':[3,7],'질산 스트론튬':[3,5],'질산 구리(II)':[3,5,7,9],'붕산':[8],'아이오딘산 칼륨':[3,5,7],'아황산수소 나트륨':[7],'황산 철(II)':[7],'살리실산':[5,7,8],'아세트산 무수물':[2,5,6],'아이소아밀 알코올':[2,7],'헥사메틸렌다이아민':[5,7],'염화 아디프산':[5],'다이클로로메테인':[7,8],'다이사이아노은산 칼륨':[6,9],'루미놀':[7],'베네딕트 용액':[7,9],'아세트올세인 용액':[5],'아세트산카민 용액':[5],'석유 에터':[2,7,8,9],'아밀레이스':[8],'펩신':[7,8]};
 const ghsOf=n=>(GHSMAP[n]||[]).map(i=>'GHS0'+i);
 function ghsSVG(code){const t=GHSN[code];const short={GHS01:'폭발',GHS02:'인화',GHS03:'산화',GHS04:'가스',GHS05:'부식',GHS06:'독성',GHS07:'유해',GHS08:'건강',GHS09:'환경'}[code];
   return '<svg viewBox="0 0 40 40" role="img" aria-label="'+t+'"><title>'+t+'</title><rect x="8" y="8" width="24" height="24" transform="rotate(45 20 20)" fill="#fff" stroke="#e00" stroke-width="3"/><text x="20" y="24" text-anchor="middle" font-size="10" font-weight="800" fill="#000" font-family="Noto Sans KR,sans-serif">'+short+'</text></svg>'}
@@ -770,7 +963,7 @@ function vSearch(){
   const al=alerts();const wasteL=S.waste.reduce((s,w)=>s+w.amount,0)/1000;
   const bk=S.basket;V().innerHTML=(bk?'<div class="note info" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="grow">수업 준비 중: <b>'+esc(bk.title)+'</b> · 꺼냄 '+bk.items.filter(x=>x.got).length+'/'+bk.items.filter(x=>x.id).length+'</span><button class="btn sm" id="goBk">이어서</button></div>':'')+'<section class="panel"><label for="q" style="margin-top:0">찾을 시약</label><input id="q" class="search" placeholder="이름·초성·화학식·CAS" value="'+esc(lastQ)+'" autocomplete="off">'+
   '<div class="muted" style="margin-top:6px">이름, 초성(ㅇㅅ), 화학식(NaOH), CAS 번호, 옛 이름(요오드), 태그(지시약), 칸 이름(A-2-좌)으로 찾습니다.</div><div id="results" aria-live="polite"></div></section>'+
-  '<section class="panel"><h2>우리 학교 시약장</h2><p class="lede">시약 <b>'+S.bottles.length+'</b>병, <b>'+new Set(S.bottles.map(b=>b.name)).size+'</b>종이 시약장 <b>'+S.cabinets.length+'</b>개에 들어 있습니다.'+(wasteL?' 폐액은 <b>'+wasteL.toFixed(1)+'</b> L 보관 중입니다.':'')+'</p>'+
+  '<section class="panel"><h2>우리 학교 시약장</h2><p class="lede">'+'시약 '+S.bottles.length+'병, '+new Set(S.bottles.map(b=>b.name)).size+'종이 시약장 '+S.cabinets.length+'개에 들어 있습니다.'+(wasteL?' 폐액은 '+wasteL.toFixed(1)+' L 보관 중입니다.':'')+'</p>'+
   (S.bottles.length?'<div class="ptable" aria-label="저장군별 병 수">'+Object.keys(GROUPS).filter(g=>groups[g]).map(g=>'<button class="tile g'+g+'" data-grp="'+esc(GROUPS[g])+'" aria-label="'+esc(GROUPS[g])+' '+groups[g]+'병 보기"><span class="tg">'+esc(g)+'</span><span class="tf">'+groups[g]+'</span><span class="tn">'+esc(GROUPS[g])+'</span></button>').join('')+'</div><p class="muted" style="margin:8px 0 0">저장군을 누르면 그 시약만 모아 봅니다.</p>':'<div class="note info">아직 등록한 시약이 없습니다. 등록 탭에서 라벨 사진을 찍어 첫 시약을 넣어 보세요.</div>')+'</section>'+
   '<section class="panel"><h2>확인할 일 '+al.length+'건</h2>'+(al.length?al.map((x,i)=>'<div class="alert" data-al="'+i+'"><span class="k '+x[0]+'">'+esc(x[1])+'</span><span class="grow">'+(x[2]?'<b>'+esc(x[2].name)+'</b> <span class="path">'+pathOf(x[2])+'</span>':'업무 › 재고 실사에서 이어서 하세요')+'</span></div>').join(''):'<div class="note ok">지금 확인할 일이 없습니다.</div>')+'</section>';
   const q=document.getElementById('q');q.oninput=()=>{lastQ=q.value;doSearch()};doSearch();document.querySelectorAll('[data-grp]').forEach(t=>t.onclick=()=>{lastQ=t.dataset.grp;q.value=lastQ;doSearch();q.scrollIntoView({behavior:'smooth',block:'start'})});if(document.getElementById('goBk'))document.getElementById('goBk').onclick=()=>go('basket');
@@ -809,12 +1002,12 @@ function cabHTML(cab){const room=roomOf(cab.roomId);let cells='';
   return '<div class="cab" style="--ccol:var(--c'+mg[0]+')"><div class="hd"><span class="code">'+esc(cab.code)+'</span>'+esc(cab.name)+'<span class="room">'+esc(room?room.name:'')+'</span></div><div class="grid" style="grid-template-columns:repeat('+cab.cols+',1fr)">'+cells+'</div></div>'}
 function vCabinet(){
   V().innerHTML='<section class="panel"><div class="row"><h2 class="grow" style="margin:0">시약장 배치</h2>'+(isAdmin()?'<button class="btn" id="addCab">시약장 추가</button>':'')+'</div>'+
-  '<p class="muted">칸을 누르면 그 칸의 시약이 나옵니다. 칸 아래 작은 글씨는 넣을 수 있는 저장군입니다.</p>'+
-  S.rooms.map(room=>{const cs=S.cabinets.filter(c=>c.roomId===room.id);return cs.length?'<h3>'+esc(room.name)+'</h3><div class="cabs">'+cs.map(cabHTML).join('')+'</div>':''}).join('')+'</section>'+
+  '<p class="muted">위 배치도는 과학실에 시약장이 놓인 자리입니다. 아래 그림에서 칸을 누르면 그 칸의 시약이 나옵니다. 칸 아래 작은 글씨는 넣을 수 있는 저장군입니다.</p>'+
+  S.rooms.map(room=>{const cs=S.cabinets.filter(c=>c.roomId===room.id);return cs.length?'<h3>'+esc(room.name)+'</h3>'+planHTML(room)+'<div class="cabs">'+cs.map(c=>'<div id="cabw-'+c.id+'">'+cabHTML(c)+'</div>').join('')+'</div>':''}).join('')+'</section>'+
   '<section class="panel"><h2>저장군 기준</h2><div class="legend">'+Object.entries(GROUPS).map(([k,v])=>'<span class="g'+k+'"><i></i>'+k+' '+v+'</span>').join('')+'</div><p class="muted">같은 칸 금지: 산–염기, 질산–유기산·인화성, 산화제–인화성·유기산·금속, 금속–산</p></section>';
   document.querySelectorAll('.slot').forEach(el=>el.onclick=()=>slotModal(el.dataset.cab,el.dataset.k));
-  const ac=document.getElementById('addCab');if(ac)ac.onclick=()=>cabEditModal(null);
-  const el=document.querySelector('.slot.hl');if(el)el.scrollIntoView({block:'center'});
+  planBind();const ac=document.getElementById('addCab');if(ac)ac.onclick=()=>cabEditModal(null);
+  const el=document.querySelector('.slot.hl');if(el&&!planEdit)el.scrollIntoView({block:'center'});
 }
 function slotModal(cabId,k){const cab=cabOf(cabId);const s=cab.slots[k];const bs=bottlesIn(cabId,k);
   modal('<h2>'+esc(slotLabel(cab,k))+'</h2><div class="path">'+esc(roomOf(cab.roomId)?.name||'')+' › '+esc(cab.name)+'</div>'+(bs.length?bs.map(resRow).join(''):'<div class="note info">빈 칸입니다. 아래 버튼으로 바로 등록하세요.</div>')+
@@ -971,14 +1164,15 @@ function vAdd(){
       $('back').onclick=closeModal;$('force').onclick=doIt}else doIt()}}
 
 /* ===== 실험 ===== */
-let expFilter='전체';
+let expFilter='전체',expQ='';
 const have=name=>S.bottles.filter(b=>b.name===name);
 function vExp(){const levels=['전체',...new Set(EXP.map(e=>e.level))];const list=EXP.filter(e=>expFilter==='전체'||e.level===expFilter);
-  V().innerHTML=backBar()+'<section class="panel"><h2>2022 개정 교육과정 실험 준비</h2><p class="muted">실험을 고르면 필요한 시약과 우리 학교 재고·위치가 나옵니다. 시약을 누르면 위치를 봅니다.</p><div class="seg" role="group" aria-label="학교급">'+levels.map(l=>'<button aria-pressed="'+(l===expFilter)+'" data-lv="'+esc(l)+'">'+esc(l)+'</button>').join('')+'</div></section>'+
-  list.map(e=>{const miss=e.reagents.filter(r=>!have(r).length);return '<section class="panel"><div class="row"><div class="grow"><div class="muted">'+esc(e.level)+' · '+esc(e.topic)+'</div><b>'+esc(e.title)+'</b></div>'+(miss.length?'<span class="tag no">부족 '+miss.length+'종</span>':'<span class="tag have">준비 완료</span>')+'</div><div style="margin-top:8px">'+
+  V().innerHTML=backBar()+'<section class="panel"><h2>2022 개정 교육과정 실험 준비</h2><p class="muted">실험을 고르면 필요한 시약과 우리 학교 재고·위치가 나옵니다. 시약을 누르면 위치를 봅니다.</p><div class="seg" role="group" aria-label="학교급">'+levels.map(l=>'<button aria-pressed="'+(l===expFilter)+'" data-lv="'+esc(l)+'">'+esc(l)+'</button>').join('')+'</div><input id="expQ" type="search" value="'+esc(expQ)+'" placeholder="단원·실험·시약 이름으로 찾기" aria-label="실험 찾기"><p class="muted" id="expN" style="margin:8px 0 0"></p></section>'+
+  list.map(e=>{const miss=e.reagents.filter(r=>!have(r).length);return '<section class="panel" data-ex="'+esc([e.topic,e.title,...e.reagents].join(' ').toLowerCase())+'"><div class="row"><div class="grow"><div class="muted">'+esc(e.level)+' · '+esc(e.topic)+'</div><b>'+esc(e.title)+'</b></div>'+(miss.length?'<span class="tag no">부족 '+miss.length+'종</span>':'<span class="tag have">준비 완료</span>')+'</div><div style="margin-top:8px">'+
   e.reagents.map(r=>{const h=have(r);return '<button class="tag '+(h.length?'have':'no')+'" data-r="'+esc(r)+'">'+esc(r)+(h.length?' '+h.length+'병':' 없음')+'</button>'}).join('')+'</div>'+'<div class="row" style="margin-top:10px">'+(canEdit()?'<button class="btn pri sm" data-prep="'+EXP.indexOf(e)+'">이 실험 준비</button>':'')+(miss.length&&canEdit()?'<button class="btn sm" data-miss="'+EXP.indexOf(e)+'">없는 시약 '+miss.length+'종 구매 목록에</button>':'')+'</div></section>'}).join('');
   bindBack();document.querySelectorAll('[data-prep]').forEach(b=>b.onclick=()=>startBasket(EXP[+b.dataset.prep]));
   document.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{expFilter=b.dataset.lv;vExp()});
+  const exq=document.getElementById('expQ'),exf=()=>{expQ=exq.value;const q=expQ.trim().toLowerCase();let c=0;document.querySelectorAll('[data-ex]').forEach(x=>{const ok=!q||x.dataset.ex.includes(q);x.style.display=ok?'':'none';if(ok)c++});document.getElementById('expN').textContent='실험 '+c+'개'};exq.oninput=exf;exf();
   document.querySelectorAll('[data-r]').forEach(t=>t.onclick=()=>{const h=have(t.dataset.r);if(h.length)bottleModal(h[0].id);else{lastQ=t.dataset.r;go('search')}});
   document.querySelectorAll('[data-miss]').forEach(bn=>bn.onclick=()=>{const e=EXP[+bn.dataset.miss];e.reagents.filter(r=>!have(r).length).forEach(r=>addBuy(r,e.topic+' 실험'));toast('구매 목록에 추가했습니다')})}
 
@@ -1065,11 +1259,11 @@ function vMore(){const bk=S.basket;const ad=isAdmin(),ed=canEdit();
   const row=(id,ic,t,d)=>'<button data-go="'+id+'"><span class="mi" aria-hidden="true">'+E(ic)+'</span><span class="mt"><b>'+t+'</b><span>'+d+'</span></span></button>';
   const sec=(t,rows)=>rows.some(Boolean)?'<section class="mgroup"><h2>'+t+'</h2><div class="mlist">'+rows.filter(Boolean).join('')+'</div></section>':'';
   V().innerHTML='<h1 class="pt">더보기</h1><div class="mcols">'+
-  sec('수업',[ed&&row('basket','basket','수업 준비',bk?'진행 중: '+esc(bk.title):'실험을 고르면 꺼낼 시약이 순서대로'),row('exp','exp','실험별 시약','2022 개정 교육과정 실험 25개'),row('safety','safety','실험실 안전','시약별 안전 정보와 안전 길잡이')])+
+  sec('수업',[ed&&row('basket','basket','수업 준비',bk?'진행 중: '+esc(bk.title):'실험을 고르면 꺼낼 시약이 순서대로'),row('exp','exp','실험별 시약','2022 개정 교육과정 실험 63개'),row('safety','safety','실험실 안전','시약별 안전 정보와 안전 길잡이')])+
   sec('재고',[ed&&row('work:buy','buy','구매 목록',S.buy.length?S.buy.length+'개 품목':'살 것이 없습니다'),ed&&row('work:waste','waste','폐액',(S.waste.reduce((a,w)=>a+w.amount,0)/1000).toFixed(1)+' L 보관 중'),ed&&row('work:audit','audit','재고 실사',S.audit?'진행 중':'학기마다 한 번')])+
   sec('우리 학교',[row('school','lock','학교·비밀번호',S.lock?'잠금 켜짐, 데이터 보내기와 받기':'비밀번호를 정하세요'),row('admin','admin',ad?'관리':'내 정보',ad?'구성원, 시약장, 백업':'이름과 역할')])+
-  sec('도움말과 설정',[row('help','help','사용 방법','처음이라면 여기부터, 웹앱 안내'),row('theme','theme','디자인 바꾸기',TH.name+' 사용 중'),row('feedback','feedback','의견 보내기','질문, 문제점, 개선 제안')])+'</div>';
-  document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const [t,sb]=b.dataset.go.split(':');if(sb)sub=sb;go(t)})}
+  sec('도움말과 설정',[row('help','help','사용 방법','처음이라면 여기부터, 웹앱 안내'),row('theme','theme','디자인 바꾸기',TH.name+' 사용 중'),'<button id="toLang"><span class="mi" aria-hidden="true">🌐</span><span class="mt"><b>언어 · Language</b><span lang="'+LANG+'">'+LANGS[LANG]+'</span></span></button>',row('feedback','feedback','의견 보내기','질문, 문제점, 개선 제안')])+'</div>';
+  document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const [t,sb]=b.dataset.go.split(':');if(sb)sub=sb;go(t)});document.getElementById('toLang').onclick=langModal}
 
 /* ===== 수업 준비 바구니 ===== */
 function startBasket(e){const make=()=>{const items=e.reagents.map(r=>{const hs=have(r).filter(b=>b.remain>0).sort((a,b)=>(a.out?1:0)-(b.out?1:0)||b.remain-a.remain);return {name:r,id:hs[0]?hs[0].id:null,got:false}});
@@ -1095,7 +1289,7 @@ function vBasket(){const bk=S.basket;
 
 /* ===== 처음 설정 ===== */
 const wordmark=()=>'<div class="wordmark" role="img" aria-label="세이프랩노트"><span class="tile gA1"><span class="tg">safe</span><span class="tf">Sf</span><span class="tn">세이프</span></span><span class="tile gB"><span class="tg">lab</span><span class="tf">Lb</span><span class="tn">랩</span></span><span class="tile gG"><span class="tg">note</span><span class="tf">Nt</span><span class="tn">노트</span></span></div>';
-function welcome(){modal(wordmark()+'<h2 style="text-align:center">우리 학교 시약, 찾기 쉽게</h2><p style="text-align:center">라벨을 찍어 등록하고, 이름만 넣으면 어느 칸인지 바로 나옵니다.<br>우리 학교 시약장을 3단계로 만들거나 예시 학교로 먼저 둘러보세요.</p><button class="btn pri bigbtn" id="wStart">우리 학교로 시작 (3단계)</button><button class="btn" id="wRecv" style="width:100%;margin-top:8px">전입 교사: 학교 데이터 받기</button><button class="btn" id="wDemo" style="width:100%;margin-top:8px">예시로 둘러보기</button>');
+function welcome(){modal(wordmark()+'<h2 style="text-align:center">우리 학교 시약, 찾기 쉽게</h2><p style="text-align:center">라벨을 찍어 등록하고, 이름만 넣으면 어느 칸인지 바로 나옵니다.<br>우리 학교 시약장을 3단계로 만들거나 예시 학교로 먼저 둘러보세요.</p><button class="btn pri bigbtn" id="wStart">우리 학교로 시작 (3단계)</button><button class="btn" id="wRecv" style="width:100%;margin-top:8px">전입 교사: 학교 데이터 받기</button><button class="btn" id="wDemo" style="width:100%;margin-top:8px">예시로 둘러보기</button><button class="btn sm" id="wLang" style="display:block;margin:12px auto 0">🌐 '+LANGS[LANG]+'</button>');document.getElementById('wLang').onclick=langModal;
   document.getElementById('wRecv').onclick=()=>receiveModal(true);
   document.getElementById('wDemo').onclick=()=>{save();closeModal();themeModal()};
   document.getElementById('wStart').onclick=()=>{S=blank();save();render();wizard()}}
@@ -1285,7 +1479,7 @@ function vFeedback(){let type='bug',rating=0;
 document.getElementById('schoolName').onclick=()=>schoolPicker(false);
 const br=document.getElementById('brand');br.style.cursor='pointer';br.title='디자인 고르기';br.onclick=()=>themeModal();
 try{if('serviceWorker' in navigator&&location.protocol==='https:'&&!window.SJJNative)navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
-render();if(FIRST)welcome();else if(needUnlock())showLock();
+i18nStart();render();if(FIRST)welcome();else if(needUnlock())showLock();
 setTimeout(()=>flushOutbox().then(n=>{if(n)toast('보관해 둔 의견 '+n+'건을 보냈습니다')}),2500);window.addEventListener('online',()=>flushOutbox());
 </script>
 </body>
