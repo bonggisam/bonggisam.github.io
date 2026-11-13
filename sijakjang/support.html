@@ -31,7 +31,7 @@
 </form>
 <script>
 /* 앱의 FEEDBACK.endpoint 와 같은 Apps Script 웹 앱 주소를 넣으세요 */
-const ENDPOINT='';
+const ENDPOINT='https://script.google.com/macros/s/AKfycbxEvRaPYg9jmCcsZRK5Cwh4nUOJZvOnql4U75IQ46tZnSstmvlWoT3S02mjhyHxT-2q/exec';
 document.getElementById('fb').onsubmit=async e=>{e.preventDefault();const f=e.target,m=document.getElementById('fbMsg');if(f.hp.value)return;
   if(!ENDPOINT){m.textContent='지금은 의견 받기를 준비하고 있습니다. 앱의 의견 보내기를 이용해 주세요.';return}
   const p={type:f.type.value,screen:f.screen.value,rating:f.rating.value,text:f.text.value.trim(),email:f.email.value.trim(),version:'web-support',platform:'web',device:'',design:'',role:''};

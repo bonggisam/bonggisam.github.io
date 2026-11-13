@@ -1443,7 +1443,7 @@ function vCoffee(){const nat=window.SJJNative&&typeof window.SJJNative.tip==='fu
 /* ===== 의견 보내기 (설문) =====
    FEEDBACK.endpoint 에 Google Apps Script 웹 앱 주소를 넣으면 응답이 구글 시트에 쌓입니다.
    비어 있거나 전송이 막히면 내용을 복사해 메일로 보내도록 안내합니다. */
-const FEEDBACK={endpoint:''};
+const FEEDBACK={endpoint:'https://script.google.com/macros/s/AKfycbxEvRaPYg9jmCcsZRK5Cwh4nUOJZvOnql4U75IQ46tZnSstmvlWoT3S02mjhyHxT-2q/exec'};
 const OUTBOX='sijakjang-fb-outbox';
 function outbox(){try{return JSON.parse(lsGet(OUTBOX)||'[]')}catch(e){return []}}
 async function postFb(p){if(!FEEDBACK.endpoint||!navigator.onLine)return false;try{await fetch(FEEDBACK.endpoint,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)});return true}catch(e){return false}}
