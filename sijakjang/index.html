@@ -17,7 +17,7 @@
 /* ---------- 공통 구조 ---------- */
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;word-break:keep-all;overflow-wrap:anywhere}
 button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 header.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bar);color:var(--bar-ink);border-bottom:var(--bar-line)}
@@ -33,7 +33,11 @@ nav.tabs button{background:none;border:0;cursor:pointer;color:var(--nav-ink);dis
 nav.tabs button svg{width:22px;height:22px}
 nav.tabs button[aria-current=page]{color:var(--nav-on);font-weight:700}
 .panel{background:var(--card);border:var(--card-border);border-radius:var(--r);padding:18px;margin-bottom:16px;box-shadow:var(--card-shadow)}
-h2{font-family:var(--display);font-weight:var(--display-w);font-size:21px;letter-spacing:var(--display-track);margin:0 0 10px;line-height:1.25}
+h1.pt{font-family:var(--display);font-weight:var(--display-w);font-size:26px;letter-spacing:var(--display-track);line-height:1.2;margin:2px 2px 14px}
+h2{font-family:var(--display);font-weight:var(--display-w);font-size:20px;letter-spacing:var(--display-track);margin:0 0 10px;line-height:1.3}
+.lede{margin:0 0 12px;line-height:1.6}
+.lede b{font-family:var(--display);font-size:1.15em;font-variant-numeric:tabular-nums}
+table,.stat,.tile .tf{font-variant-numeric:tabular-nums}
 h3{font-size:16px;margin:16px 0 8px}
 .muted{color:var(--quiet);font-size:14px}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -60,6 +64,9 @@ label{display:block;font-size:13px;color:var(--quiet);margin:10px 0 4px}
 .res{display:flex;gap:12px;align-items:center;padding:10px;border:var(--res-border);border-radius:var(--r);margin-top:8px;cursor:pointer;background:var(--card)}
 .res:hover{background:var(--hover)}
 .res .nm{font-weight:700}
+.res>.grow{min-width:0}
+.res>:last-child{flex:none}
+@media(max-width:430px){.res{gap:10px;padding:10px 8px}.res .tile{width:60px;height:60px}.res .tile .tf{font-size:15px;margin-top:7px}.res .tile .tg{font-size:9px}.res .tile .tn{max-width:54px}.res .meter{width:64px}.res .btn.use{padding:5px 8px}}
 .path{font-size:14px;color:var(--quiet)}
 .path b{color:var(--ink)}
 .meter{height:8px;width:78px;background:var(--track);border-radius:4px;overflow:hidden;flex:none}
@@ -128,6 +135,29 @@ a{color:var(--link)}
 
 .use{min-width:76px}
 .bigbtn{width:100%;min-height:64px;font-size:19px;border-radius:14px}
+/* 저장군 주기율표 줄 · 워드마크 · 더보기 목록 */
+.ptable{display:grid;grid-template-columns:repeat(auto-fill,minmax(56px,1fr));gap:8px;max-width:640px}
+@media(min-width:600px){.ptable{grid-template-columns:repeat(auto-fill,minmax(72px,1fr))}}
+.ptable .tile{cursor:pointer;font:inherit;padding:0;width:auto;height:auto;aspect-ratio:1}
+.ptable .tile .tf{font-size:22px}
+.ptable .tile .tn{font-size:10px}
+.ptable .tile .tn{max-width:92%}
+.wordmark{display:flex;justify-content:center;gap:6px;margin:4px 0 16px}
+.wordmark .tile{width:76px;height:76px}
+.wordmark .tile .tf{font-size:28px}
+.wordmark .tile .tn{font-size:11px;max-width:70px}
+.mcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:0 20px;align-items:start}
+.mgroup{margin-bottom:18px}
+.mgroup h2{font-size:14px;font-family:var(--body);font-weight:700;color:var(--quiet);letter-spacing:0;margin:0 4px 6px}
+.mlist{background:var(--card);border:var(--card-border);border-radius:var(--r);box-shadow:var(--card-shadow);overflow:hidden}
+.mlist button{display:flex;align-items:center;gap:14px;width:100%;min-height:68px;padding:10px 14px;background:none;border:0;border-top:var(--slot-line);color:var(--ink);text-align:left;cursor:pointer}
+.mlist button:first-child{border-top:0}
+.mlist button:hover{background:var(--hover)}
+.mi{flex:none;width:44px;height:44px;border-radius:var(--tile-r);background:var(--field);display:flex;align-items:center;justify-content:center;font-size:24px}
+.mt{display:flex;flex-direction:column;min-width:0}
+.mt b{font-size:16.5px}
+.mt span{font-size:13.5px;color:var(--quiet)}
+@media (prefers-reduced-motion:no-preference){.btn,.res,.tile,.mlist button,nav.tabs button{transition:transform .08s ease}.btn:active,.res:active,.ptable .tile:active,nav.tabs button:active{transform:scale(.97)}}
 .more{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .more button{background:var(--card);color:var(--ink);border:var(--card-border);border-radius:16px;padding:18px 14px;text-align:left;cursor:pointer;box-shadow:var(--card-shadow);min-height:104px;display:flex;flex-direction:column;gap:6px}
 .more button b{font-size:17px}
@@ -497,7 +527,7 @@ const GUIDE=[
 let safeQ='';
 function vSafety(){
   const list=M.filter(m=>!safeQ||(m.name+m.eng+m.formula+m.alias.join('')).toLowerCase().includes(safeQ.toLowerCase()));
-  V().innerHTML=backBar()+'<h2 style="margin:4px 0 6px">실험실 안전</h2>'+
+  V().innerHTML=backBar()+'<h1 class="pt">실험실 안전</h1>'+
   '<section class="panel"><h3 style="margin-top:0">과학실 화학약품 안전 길잡이</h3>'+GUIDE.map(g=>'<details style="margin:8px 0"><summary><b>'+g[0]+'</b></summary><ul style="margin:8px 0;padding-left:20px">'+g[1].split('|').map(x=>'<li style="margin:4px 0">'+x+'</li>').join('')+'</ul></details>').join('')+
   '<p class="muted">교육부·한국과학창의재단 「과학실험 안전 매뉴얼」(초등학교·중학교·고등학교, 2021)의 화학약품 관련 내용을 간추려 풀어 쓴 것입니다. 원문은 <a href="https://www.scienceall.com" target="_blank" rel="noopener">사이언스올</a>에서 받을 수 있습니다. 학교·교육청 지침이 다르면 그 지침을 따르세요.</p></section>'+
   '<section class="panel"><h3 style="margin-top:0">시약별 안전 정보 (MSDS 요약)</h3><input id="sfQ" placeholder="시약 이름·화학식으로 찾기" value="'+esc(safeQ)+'" aria-label="시약 찾기">'+
@@ -552,7 +582,7 @@ function drawBatch(){if(tab!=='batch')return;const box=document.getElementById('
   box.querySelectorAll('.bcard').forEach(batchBind);batchSummary()}
 function vBatch(){
   if(!canEdit()){go('add');return}
-  V().innerHTML='<button class="back" id="backAdd">‹ 등록</button><h2 style="margin:4px 0 6px">여러 병 한꺼번에 등록</h2>'+
+  V().innerHTML='<button class="back" id="backAdd">‹ 등록</button><h1 class="pt">여러 병 한꺼번에 등록</h1>'+
   '<section class="panel"><p class="muted" style="margin-top:0">시약병 라벨을 한 병씩 이어서 찍거나, 미리 찍어 둔 사진을 여러 장 고르세요. 사진마다 글자를 읽어 목록을 만들고, 확인한 뒤 한 번에 등록합니다.</p>'+
   '<label class="btn pri bigbtn" style="margin:0;display:flex;justify-content:center;align-items:center;gap:8px;cursor:pointer"><span aria-hidden="true">'+E('add')+'</span> 라벨 사진 찍기<input id="bShot" type="file" accept="image/*" capture="environment" style="display:none"></label>'+
   '<label class="btn" style="margin:8px 0 0;display:flex;justify-content:center;color:var(--btn-ink);cursor:pointer">앨범에서 여러 장 고르기<input id="bPick" type="file" accept="image/*" multiple style="display:none"></label>'+
@@ -586,7 +616,7 @@ const HELP=[
 ['안전 정보 보기','병을 누르면 GHS 그림문자와 안전 정보(MSDS 요약)가 함께 나옵니다. 더보기 › 실험실 안전에서는 시약 58종의 안전 정보와 과학실 화학약품 안전 길잡이를 볼 수 있습니다.|앱의 안전 정보는 참고용입니다. 실험 전에는 납품업체가 준 MSDS와 교육청 지침을 확인하세요.'],
 ['자료 지키기','앱을 지우면 그 기기의 데이터도 함께 지워집니다. 학기마다 더보기 › 관리 › "백업(JSON) 복사"로 백업을 남겨 두세요.|기기를 바꿀 때는 옛 기기에서 묶음을 만들어 새 기기에서 받으면 됩니다.|디자인은 더보기 › 디자인 바꾸기에서 10가지 가운데 고를 수 있고, 내 기기에서만 바뀝니다.']];
 function vHelp(){const nat=!!window.SJJNative;
-  V().innerHTML=backBar()+'<h2 style="margin:4px 0 6px">사용 방법</h2>'+
+  V().innerHTML=backBar()+'<h1 class="pt">사용 방법</h1>'+
   '<section class="panel">'+HELP.map((g,i)=>'<details style="margin:8px 0"'+(i===1?' open':'')+'><summary><b>'+g[0]+'</b></summary><ul style="margin:8px 0;padding-left:20px">'+g[1].split('|').map(x=>'<li style="margin:5px 0">'+x+'</li>').join('')+'</ul></details>').join('')+'</section>'+
   '<section class="panel"><h3 style="margin-top:0">'+(nat?'컴퓨터와 다른 휴대폰에서는 웹앱으로':'웹앱과 아이폰·아이패드 앱')+'</h3>'+
   '<p>세이프랩노트는 설치 없이 웹 브라우저에서도 똑같이 쓸 수 있습니다. 교무실 컴퓨터, 안드로이드 휴대폰, 크롬북에서는 아래 주소로 들어오세요.</p>'+
@@ -672,7 +702,7 @@ const isCho=q=>q.length>0&&[...q].every(ch=>CHO.includes(ch));
 function matchText(q,fields){const nq=norm(q);if(!nq)return false;const qc=q.replace(/\s/g,'');
   if(isCho(qc))return fields.some(f=>cho((f||'').replace(/\s/g,'')).startsWith(qc));
   return fields.some(f=>norm(f).includes(nq))}
-function bottleFields(b){const m=findMaster(b.name);return [b.name,b.formula,b.cas,b.memo,...b.tags,...(m?[m.eng,...m.alias]:[])]}
+function bottleFields(b){const m=findMaster(b.name);return [b.name,b.formula,b.cas,b.memo,GROUPS[baseGroup(b.group)],...b.tags,...(m?[m.eng,...m.alias]:[])]}
 
 /* ===== 위치 ===== */
 const cabOf=id=>S.cabinets.find(c=>c.id===id);
@@ -740,11 +770,10 @@ function vSearch(){
   const al=alerts();const wasteL=S.waste.reduce((s,w)=>s+w.amount,0)/1000;
   const bk=S.basket;V().innerHTML=(bk?'<div class="note info" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="grow">수업 준비 중: <b>'+esc(bk.title)+'</b> · 꺼냄 '+bk.items.filter(x=>x.got).length+'/'+bk.items.filter(x=>x.id).length+'</span><button class="btn sm" id="goBk">이어서</button></div>':'')+'<section class="panel"><label for="q" style="margin-top:0">찾을 시약</label><input id="q" class="search" placeholder="이름·초성·화학식·CAS" value="'+esc(lastQ)+'" autocomplete="off">'+
   '<div class="muted" style="margin-top:6px">이름, 초성(ㅇㅅ), 화학식(NaOH), CAS 번호, 옛 이름(요오드), 태그(지시약), 칸 이름(A-2-좌)으로 찾습니다.</div><div id="results" aria-live="polite"></div></section>'+
-  '<section class="panel"><h2>우리 학교 시약 현황</h2><div class="stats"><div class="stat"><div class="n">'+S.bottles.length+'</div><div class="l">병</div></div><div class="stat"><div class="n">'+new Set(S.bottles.map(b=>b.name)).size+'</div><div class="l">종</div></div><div class="stat"><div class="n">'+S.cabinets.length+'</div><div class="l">시약장</div></div><div class="stat"><div class="n">'+wasteL.toFixed(1)+'</div><div class="l">L 폐액 보관 중</div></div></div>'+
-  '<div class="dist" aria-label="저장군별 분포">'+Object.keys(GROUPS).filter(g=>groups[g]).map(g=>'<span class="g'+g+'" style="width:'+(groups[g]/total*100)+'%" title="'+g+' '+GROUPS[g]+' '+groups[g]+'병"></span>').join('')+'</div>'+
-  '<div class="legend">'+Object.keys(GROUPS).filter(g=>groups[g]).map(g=>'<span class="g'+g+'"><i></i>'+g+' '+GROUPS[g]+' '+groups[g]+'</span>').join('')+'</div></section>'+
+  '<section class="panel"><h2>우리 학교 시약장</h2><p class="lede">시약 <b>'+S.bottles.length+'</b>병, <b>'+new Set(S.bottles.map(b=>b.name)).size+'</b>종이 시약장 <b>'+S.cabinets.length+'</b>개에 들어 있습니다.'+(wasteL?' 폐액은 <b>'+wasteL.toFixed(1)+'</b> L 보관 중입니다.':'')+'</p>'+
+  (S.bottles.length?'<div class="ptable" aria-label="저장군별 병 수">'+Object.keys(GROUPS).filter(g=>groups[g]).map(g=>'<button class="tile g'+g+'" data-grp="'+esc(GROUPS[g])+'" aria-label="'+esc(GROUPS[g])+' '+groups[g]+'병 보기"><span class="tg">'+esc(g)+'</span><span class="tf">'+groups[g]+'</span><span class="tn">'+esc(GROUPS[g])+'</span></button>').join('')+'</div><p class="muted" style="margin:8px 0 0">저장군을 누르면 그 시약만 모아 봅니다.</p>':'<div class="note info">아직 등록한 시약이 없습니다. 등록 탭에서 라벨 사진을 찍어 첫 시약을 넣어 보세요.</div>')+'</section>'+
   '<section class="panel"><h2>확인할 일 '+al.length+'건</h2>'+(al.length?al.map((x,i)=>'<div class="alert" data-al="'+i+'"><span class="k '+x[0]+'">'+esc(x[1])+'</span><span class="grow">'+(x[2]?'<b>'+esc(x[2].name)+'</b> <span class="path">'+pathOf(x[2])+'</span>':'업무 › 재고 실사에서 이어서 하세요')+'</span></div>').join(''):'<div class="note ok">지금 확인할 일이 없습니다.</div>')+'</section>';
-  const q=document.getElementById('q');q.oninput=()=>{lastQ=q.value;doSearch()};doSearch();if(document.getElementById('goBk'))document.getElementById('goBk').onclick=()=>go('basket');
+  const q=document.getElementById('q');q.oninput=()=>{lastQ=q.value;doSearch()};doSearch();document.querySelectorAll('[data-grp]').forEach(t=>t.onclick=()=>{lastQ=t.dataset.grp;q.value=lastQ;doSearch();q.scrollIntoView({behavior:'smooth',block:'start'})});if(document.getElementById('goBk'))document.getElementById('goBk').onclick=()=>go('basket');
   document.querySelectorAll('[data-al]').forEach(el=>el.onclick=()=>{const x=al[+el.dataset.al];if(x[2])bottleModal(x[2].id);else{sub='audit';go('work')}});
 }
 function resRow(b){return '<div class="res" role="button" tabindex="0" data-b="'+b.id+'">'+tile(b)+'<div class="grow"><div class="nm">'+esc(b.name)+' <span class="muted">'+b.size+' '+b.unit+(b.made?' · 자체 제조':'')+(b.memo?' · '+esc(b.memo):'')+'</span></div><div class="path">'+pathOf(b)+(b.out?' · <span style="color:var(--warn)">사용 중</span>':'')+'</div>'+(b.tags.length?'<div>'+b.tags.map(t=>'<span class="tag">#'+esc(t)+'</span>').join('')+'</div>':'')+'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">'+meter(b.remain)+'<span class="muted" style="font-size:12px">'+remainLabel(b.remain)+'</span>'+(canEdit()&&b.remain>0?'<button class="btn sm use" data-use="'+b.id+'">'+E('use')+' 썼어요</button>':'')+'</div></div>'}
@@ -1033,14 +1062,13 @@ function importCSV(text){const lines=text.trim().split(/\r?\n/).filter(Boolean);
 
 /* ===== 더보기 ===== */
 function vMore(){const bk=S.basket;const ad=isAdmin(),ed=canEdit();
-  const card=(id,ic,t,d)=>'<button data-go="'+id+'"><span class="em" style="font-size:28px" aria-hidden="true">'+E(ic)+'</span><b>'+t+'</b><span>'+d+'</span></button>';
-  V().innerHTML='<h2 style="margin:4px 0 14px">더보기</h2><div class="more">'+card('help','help','사용 방법','처음이라면 여기부터 · 웹앱 안내')+
-  (ed?card('basket','basket','수업 준비',bk?'진행 중: '+esc(bk.title):'실험을 고르면 꺼낼 시약이 순서대로'):'')+
-  card('exp','exp','실험별 시약','2022 교육과정 실험 25개')+card('safety','safety','실험실 안전','시약별 MSDS 요약 · 안전 길잡이')+
-  (ed?card('work:buy','buy','구매 목록',S.buy.length+'개 품목'):'')+
-  (ed?card('work:waste','waste','폐액',(S.waste.reduce((a,w)=>a+w.amount,0)/1000).toFixed(1)+' L 보관 중'):'')+
-  (ed?card('work:audit','audit','재고 실사',S.audit?'진행 중':'학기마다 한 번'):'')+
-  card('school','lock','학교·비밀번호',S.lock?'잠금 켜짐 · 데이터 보내기/받기':'비밀번호를 정하세요')+card('admin','admin',ad?'관리':'내 정보',ad?'구성원·시약장·백업':'이름·역할')+card('theme','theme','디자인 바꾸기',TH.name+' 사용 중')+card('feedback','feedback','의견 보내기','질문·문제점·개선 제안')+'</div>';
+  const row=(id,ic,t,d)=>'<button data-go="'+id+'"><span class="mi" aria-hidden="true">'+E(ic)+'</span><span class="mt"><b>'+t+'</b><span>'+d+'</span></span></button>';
+  const sec=(t,rows)=>rows.some(Boolean)?'<section class="mgroup"><h2>'+t+'</h2><div class="mlist">'+rows.filter(Boolean).join('')+'</div></section>':'';
+  V().innerHTML='<h1 class="pt">더보기</h1><div class="mcols">'+
+  sec('수업',[ed&&row('basket','basket','수업 준비',bk?'진행 중: '+esc(bk.title):'실험을 고르면 꺼낼 시약이 순서대로'),row('exp','exp','실험별 시약','2022 개정 교육과정 실험 25개'),row('safety','safety','실험실 안전','시약별 안전 정보와 안전 길잡이')])+
+  sec('재고',[ed&&row('work:buy','buy','구매 목록',S.buy.length?S.buy.length+'개 품목':'살 것이 없습니다'),ed&&row('work:waste','waste','폐액',(S.waste.reduce((a,w)=>a+w.amount,0)/1000).toFixed(1)+' L 보관 중'),ed&&row('work:audit','audit','재고 실사',S.audit?'진행 중':'학기마다 한 번')])+
+  sec('우리 학교',[row('school','lock','학교·비밀번호',S.lock?'잠금 켜짐, 데이터 보내기와 받기':'비밀번호를 정하세요'),row('admin','admin',ad?'관리':'내 정보',ad?'구성원, 시약장, 백업':'이름과 역할')])+
+  sec('도움말과 설정',[row('help','help','사용 방법','처음이라면 여기부터, 웹앱 안내'),row('theme','theme','디자인 바꾸기',TH.name+' 사용 중'),row('feedback','feedback','의견 보내기','질문, 문제점, 개선 제안')])+'</div>';
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const [t,sb]=b.dataset.go.split(':');if(sb)sub=sb;go(t)})}
 
 /* ===== 수업 준비 바구니 ===== */
@@ -1066,7 +1094,8 @@ function vBasket(){const bk=S.basket;
   document.getElementById('cancelBk').onclick=()=>{finish('수업 준비 취소');go('more')}}
 
 /* ===== 처음 설정 ===== */
-function welcome(){modal('<h2>세이프랩노트에 오신 것을 환영합니다</h2><p>우리 학교 시약장을 3단계로 만들거나, 예시 학교로 먼저 둘러볼 수 있습니다.</p><button class="btn pri bigbtn" id="wStart">우리 학교로 시작 (3단계)</button><button class="btn" id="wRecv" style="width:100%;margin-top:8px">전입 교사: 학교 데이터 받기</button><button class="btn" id="wDemo" style="width:100%;margin-top:8px">예시로 둘러보기</button>');
+const wordmark=()=>'<div class="wordmark" role="img" aria-label="세이프랩노트"><span class="tile gA1"><span class="tg">safe</span><span class="tf">Sf</span><span class="tn">세이프</span></span><span class="tile gB"><span class="tg">lab</span><span class="tf">Lb</span><span class="tn">랩</span></span><span class="tile gG"><span class="tg">note</span><span class="tf">Nt</span><span class="tn">노트</span></span></div>';
+function welcome(){modal(wordmark()+'<h2 style="text-align:center">우리 학교 시약, 찾기 쉽게</h2><p style="text-align:center">라벨을 찍어 등록하고, 이름만 넣으면 어느 칸인지 바로 나옵니다.<br>우리 학교 시약장을 3단계로 만들거나 예시 학교로 먼저 둘러보세요.</p><button class="btn pri bigbtn" id="wStart">우리 학교로 시작 (3단계)</button><button class="btn" id="wRecv" style="width:100%;margin-top:8px">전입 교사: 학교 데이터 받기</button><button class="btn" id="wDemo" style="width:100%;margin-top:8px">예시로 둘러보기</button>');
   document.getElementById('wRecv').onclick=()=>receiveModal(true);
   document.getElementById('wDemo').onclick=()=>{save();closeModal();themeModal()};
   document.getElementById('wStart').onclick=()=>{S=blank();save();render();wizard()}}
@@ -1109,7 +1138,7 @@ async function checkPassword(pw,lock){lock=lock||S.lock;if(!lock)return true;ret
 function needUnlock(){if(!S.lock)return false;const t=+lsGet(UK(IX.active))||0;return t<Date.now()}
 function remember(days){lsSet(UK(IX.active),String(Date.now()+days*864e5))}
 function showLock(){const d=document.createElement('div');d.className='lock-screen';d.id='lock';
-  d.innerHTML='<form class="lock-box" id="lockForm"><div class="big" aria-hidden="true">'+E('lock')+'</div><h2 style="text-align:center">'+esc(S.school||'우리 학교')+'</h2><p class="muted" style="text-align:center">학교 비밀번호를 넣어 주세요.</p><label for="lkPw">비밀번호</label><input id="lkPw" type="password" autocomplete="current-password" required><label style="display:flex;gap:6px;align-items:center;color:var(--ink)"><input id="lkRem" type="checkbox" checked style="width:auto;min-height:0"> 이 기기에서 30일 동안 기억</label><div id="lkMsg"></div><button class="btn pri bigbtn" style="margin-top:12px">열기</button>'+(IX.list.length>1?'<button type="button" class="btn" id="lkOther" style="width:100%;margin-top:8px">다른 학교 고르기</button>':'')+'</form>';
+  d.innerHTML='<form class="lock-box" id="lockForm">'+wordmark()+'<h2 style="text-align:center">'+esc(S.school||'우리 학교')+'</h2><p class="muted" style="text-align:center">학교 비밀번호를 넣어 주세요.</p><label for="lkPw">비밀번호</label><input id="lkPw" type="password" autocomplete="current-password" required><label style="display:flex;gap:6px;align-items:center;color:var(--ink)"><input id="lkRem" type="checkbox" checked style="width:auto;min-height:0"> 이 기기에서 30일 동안 기억</label><div id="lkMsg"></div><button class="btn pri bigbtn" style="margin-top:12px">열기</button>'+(IX.list.length>1?'<button type="button" class="btn" id="lkOther" style="width:100%;margin-top:8px">다른 학교 고르기</button>':'')+'</form>';
   document.body.appendChild(d);const f=document.getElementById('lkPw');f.focus();
   document.getElementById('lockForm').onsubmit=async e=>{e.preventDefault();if(await checkPassword(f.value)){remember(document.getElementById('lkRem').checked?30:0.02);d.remove();render()}else{document.getElementById('lkMsg').innerHTML='<div class="note bad">비밀번호가 맞지 않습니다. 학교 관리자에게 확인하세요.</div>';f.select()}};
   const o=document.getElementById('lkOther');if(o)o.onclick=()=>{d.remove();schoolPicker(true)}}
@@ -1203,7 +1232,7 @@ const SUPPORT={
         {id:'tip.coffee2',emo:'☕☕',name:'커피 두잔',desc:'옆자리 선생님 것까지',price:'₩6,600'},
         {id:'tip.meal',emo:'🍚',name:'든든한 한끼',desc:'국밥 한 그릇의 응원',price:'₩11,000'}]};
 function vCoffee(){const nat=window.SJJNative&&typeof window.SJJNative.tip==='function';const anyWeb=Object.values(SUPPORT.web).some(Boolean);
-  V().innerHTML='<h2 style="margin:4px 0 14px">선생님을 응원합니다</h2>'+
+  V().innerHTML='<h1 class="pt">선생님을 응원합니다</h1>'+
   '<section class="panel" style="text-align:center"><div style="font-size:56px" aria-hidden="true">'+E('cheer')+'</div><h3 style="margin:8px 0">오늘도 과학실을 지키는 선생님께</h3><p>수업 준비에 실험 준비, 시약 정리와 안전 점검까지.<br>눈에 잘 띄지 않는 그 수고 덕분에 아이들은 오늘도 안전하게 실험합니다.<br><b>학교의 모든 과학 선생님을 응원합니다.</b></p></section>'+
   '<section class="panel"><h3 style="margin-top:0">왜 만들었나요</h3><p>시약장 앞에서 "그 시약이 어디 있더라", "얼마나 남았지" 하며 보내는 시간을 줄여 드리고 싶었습니다. 시약 관리가 쉬워지면 선생님은 수업과 학생에게 더 마음을 쓸 수 있으니까요.</p><p>세이프랩노트는 과학 선생님께 작은 도움이 되고자 만들었습니다. 광고 없이, 모든 기능이 무료입니다.</p></section>'+
   '<section class="panel" style="text-align:center"><div style="font-size:40px" aria-hidden="true">'+E('coffee')+'</div><h3 style="margin:6px 0">개발자에게 커피 한잔</h3><p>도움이 되었다면 커피 한잔으로 응원해 주세요. 더 좋은 앱을 만드는 힘이 됩니다.</p><p class="muted">응원해도 바뀌는 기능은 없습니다. 모든 기능은 계속 무료입니다.</p></section>'+
