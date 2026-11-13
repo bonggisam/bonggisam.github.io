@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="시약장">
-<title>시약장 — 우리 학교 시약 관리</title>
+<meta name="apple-mobile-web-app-title" content="세이프랩노트">
+<title>세이프랩노트 — 우리 학교 시약 관리</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link id="themeFont" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;600;800&display=swap" rel="stylesheet">
@@ -171,7 +171,7 @@ header.top{border-image:var(--bar-grad,none) 1}
 </head>
 <body>
 <header class="top">
-  <span class="brand" id="brand">시약장</span><button class="school" id="schoolName" style="background:none;border:0;color:inherit;cursor:pointer;padding:6px 4px;font-size:14px" aria-label="학교 바꾸기"></button><span class="sp"></span>
+  <span class="brand" id="brand">세이프랩노트</span><button class="school" id="schoolName" style="background:none;border:0;color:inherit;cursor:pointer;padding:6px 4px;font-size:14px" aria-label="학교 바꾸기"></button><span class="sp"></span>
   <span class="muted" id="who" style="font-size:13px"></span>
 </header>
 <main id="view"></main>
@@ -502,7 +502,7 @@ let tab='search',hl=null,sub='buy';
 function renderNav(){document.getElementById('nav').innerHTML=tabs().map(([k,t])=>'<button data-tab="'+k+'" '+(navOf(tab)===k?'aria-current="page"':'')+'><span class="em" aria-hidden="true">'+E(k)+'</span>'+t+'</button>').join('');
   document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.tab))}
 function go(t,opts){tab=t;hl=opts&&opts.hl?opts.hl:(t==='cabinet'?hl:null);render();window.scrollTo(0,0)}
-function render(){document.getElementById('brand').innerHTML='<span class="em" aria-hidden="true">'+E('brand')+'</span>시약장';document.getElementById('schoolName').textContent=(S.school||'우리 학교')+' ▾';document.getElementById('who').textContent=S.me.name+' · '+S.me.role;renderNav();({search:vSearch,cabinet:vCabinet,add:vAdd,more:vMore,basket:vBasket,theme:vTheme,coffee:vCoffee,feedback:vFeedback,school:vSchool,exp:vExp,work:vWork,admin:vAdmin})[tab]()}
+function render(){document.getElementById('brand').innerHTML='<span class="em" aria-hidden="true">'+E('brand')+'</span>세이프랩노트';document.getElementById('schoolName').textContent=(S.school||'우리 학교')+' ▾';document.getElementById('who').textContent=S.me.name+' · '+S.me.role;renderNav();({search:vSearch,cabinet:vCabinet,add:vAdd,more:vMore,basket:vBasket,theme:vTheme,coffee:vCoffee,feedback:vFeedback,school:vSchool,exp:vExp,work:vWork,admin:vAdmin})[tab]()}
 const backBar=()=>'<button class="back" id="backMore">‹ 더보기</button>';
 function bindBack(){const b=document.getElementById('backMore');if(b)b.onclick=()=>go('more')}
 const V=()=>document.getElementById('view');
@@ -759,7 +759,7 @@ function vAdmin(){
   if($('addRoom'))$('addRoom').onclick=()=>{const n=$('roomName').value.trim();if(!n)return;S.rooms.push({id:uid(),name:n});logAct('실 추가: '+n);cfgBump();save();vAdmin()};
   $('csvGo').onclick=()=>{const r=importCSV($('csvIn').value);save();toast(r.ok+'병 가져옴'+(r.bad?', 위치를 못 찾은 '+r.bad+'줄은 건너뜀':''))};
   $('bk').onclick=()=>copyOut('out',JSON.stringify(S));
-  $('csvAll').onclick=()=>{const rows=[['시약','화학식','CAS','저장군','용량','단위','잔량(%)','실','시약장','칸','제조사','등급','개봉일','유효기간','자체제조','메모','태그']].concat(S.bottles.map(b=>{const c=cabOf(b.cabId);return [b.name,b.formula,b.cas,b.group,b.size,b.unit,Math.round(b.remain*100),roomOf(c?.roomId)?.name||'',c?c.code+' '+c.name:'',c?slotLabel(c,b.slot):'',b.maker,b.grade,b.opened,b.expiry,b.made?'예':'',b.memo,b.tags.join(' ')]}));const t=rows.map(r=>r.map(csv).join(',')).join('\n');copyOut('out',t);download('시약장_대장_'+today()+'.csv','\ufeff'+t)};
+  $('csvAll').onclick=()=>{const rows=[['시약','화학식','CAS','저장군','용량','단위','잔량(%)','실','시약장','칸','제조사','등급','개봉일','유효기간','자체제조','메모','태그']].concat(S.bottles.map(b=>{const c=cabOf(b.cabId);return [b.name,b.formula,b.cas,b.group,b.size,b.unit,Math.round(b.remain*100),roomOf(c?.roomId)?.name||'',c?c.code+' '+c.name:'',c?slotLabel(c,b.slot):'',b.maker,b.grade,b.opened,b.expiry,b.made?'예':'',b.memo,b.tags.join(' ')]}));const t=rows.map(r=>r.map(csv).join(',')).join('\n');copyOut('out',t);download('세이프랩노트_시약대장_'+today()+'.csv','\ufeff'+t)};
   const restore=t=>{try{const o=JSON.parse(t);if(!o.cabinets||!o.bottles)throw 0;S=migrate(o);save();render();toast('복원했습니다')}catch(e){toast('백업 형식이 아닙니다')}};
   $('imp').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>restore(r.result);r.readAsText(f)};
   $('pasteGo').onclick=()=>restore($('pasteIn').value);
@@ -807,7 +807,7 @@ function vBasket(){const bk=S.basket;
   document.getElementById('cancelBk').onclick=()=>{finish('수업 준비 취소');go('more')}}
 
 /* ===== 처음 설정 ===== */
-function welcome(){modal('<h2>시약장에 오신 것을 환영합니다</h2><p>우리 학교 시약장을 3단계로 만들거나, 예시 학교로 먼저 둘러볼 수 있습니다.</p><button class="btn pri bigbtn" id="wStart">우리 학교로 시작 (3단계)</button><button class="btn" id="wRecv" style="width:100%;margin-top:8px">전입 교사: 학교 데이터 받기</button><button class="btn" id="wDemo" style="width:100%;margin-top:8px">예시로 둘러보기</button>');
+function welcome(){modal('<h2>세이프랩노트에 오신 것을 환영합니다</h2><p>우리 학교 시약장을 3단계로 만들거나, 예시 학교로 먼저 둘러볼 수 있습니다.</p><button class="btn pri bigbtn" id="wStart">우리 학교로 시작 (3단계)</button><button class="btn" id="wRecv" style="width:100%;margin-top:8px">전입 교사: 학교 데이터 받기</button><button class="btn" id="wDemo" style="width:100%;margin-top:8px">예시로 둘러보기</button>');
   document.getElementById('wRecv').onclick=()=>receiveModal(true);
   document.getElementById('wDemo').onclick=()=>{save();closeModal();themeModal()};
   document.getElementById('wStart').onclick=()=>{S=blank();save();render();wizard()}}
@@ -920,7 +920,7 @@ function vSchool(){const L=S.lock;const ad=isAdmin();
     if(n.length<6){$('pwMsg').innerHTML='<div class="note bad">6자 이상으로 정하세요.</div>';return}if(n!==n2){$('pwMsg').innerHTML='<div class="note bad">두 번 넣은 비밀번호가 다릅니다.</div>';return}
     await setPassword(n);remember(30);logAct(L?'학교 비밀번호 변경':'학교 비밀번호 설정');save();vSchool();toast(L?'비밀번호를 바꿨습니다. 다른 교사에게 새 비밀번호와 묶음을 다시 보내세요':'비밀번호를 정했습니다')};
   if($('exGo'))$('exGo').onclick=async()=>{if(!(await checkPassword($('exPw').value))){$('exMsg').innerHTML='<div class="note bad">비밀번호가 맞지 않습니다.</div>';return}
-    const pkg=await makePackage($('exPw').value);logAct('학교 데이터 묶음 만듦');save();copyOut('exOut',pkg);download((S.school||'학교')+'_시약장_'+today()+'.sjj',pkg);
+    const pkg=await makePackage($('exPw').value);logAct('학교 데이터 묶음 만듦');save();copyOut('exOut',pkg);download((S.school||'학교')+'_세이프랩노트_'+today()+'.sjj',pkg);
     $('exMsg').innerHTML='<div class="note ok">묶음을 복사했습니다. 메신저에 붙여 넣어 보내고, 비밀번호는 따로 알려 주세요.</div>'};
   $('scRecv').onclick=()=>receiveModal(false);$('scPick').onclick=()=>schoolPicker(false);
   $('scLeave').onclick=()=>{modal('<h2>이 기기에서 지우기</h2><p>'+esc(S.school||'이 학교')+'의 시약장 데이터를 이 기기에서 지웁니다. 되돌릴 수 없습니다.</p><div class="row"><button class="btn bad grow" id="yes">지우기</button><button class="btn" id="no">취소</button></div>');
@@ -944,7 +944,7 @@ const SUPPORT={
         {id:'tip.coffee2',emo:'☕☕',name:'커피 두잔',desc:'옆자리 선생님 것까지',price:'₩6,600'},
         {id:'tip.meal',emo:'🍚',name:'든든한 한끼',desc:'국밥 한 그릇의 응원',price:'₩11,000'}]};
 function vCoffee(){const nat=window.SJJNative&&typeof window.SJJNative.tip==='function';const anyWeb=Object.values(SUPPORT.web).some(Boolean);
-  V().innerHTML=backBar()+'<section class="panel" style="text-align:center"><div style="font-size:56px" aria-hidden="true">'+E('coffee')+'</div><h2>개발자에게 커피 한잔</h2><p>시약장은 광고 없이 모두 무료입니다.<br>도움이 되었다면 만든 고등학교 화학 교사를 응원해 주세요.</p><p class="muted">응원해도 바뀌는 기능은 없습니다. 모든 기능은 계속 무료입니다.</p></section>'+
+  V().innerHTML=backBar()+'<section class="panel" style="text-align:center"><div style="font-size:56px" aria-hidden="true">'+E('coffee')+'</div><h2>개발자에게 커피 한잔</h2><p>세이프랩노트는 광고 없이 모두 무료입니다.<br>도움이 되었다면 만든 고등학교 화학 교사를 응원해 주세요.</p><p class="muted">응원해도 바뀌는 기능은 없습니다. 모든 기능은 계속 무료입니다.</p></section>'+
   '<section class="panel">'+SUPPORT.tips.map(t=>{const url=SUPPORT.web[t.id];const inner='<span style="font-size:26px;width:56px;text-align:left" aria-hidden="true">'+t.emo+'</span><span class="grow" style="text-align:left"><b>'+t.name+'</b><br><span class="muted">'+t.desc+'</span></span><b data-price="'+t.id+'">'+(nat?'…':t.price)+'</b>';
     const st='width:100%;margin:6px 0;display:flex;align-items:center;gap:8px;min-height:72px;text-decoration:none';
     if(nat)return '<button class="btn" data-tip="'+t.id+'" style="'+st+'">'+inner+'</button>';
@@ -953,7 +953,7 @@ function vCoffee(){const nat=window.SJJNative&&typeof window.SJJNative.tip==='fu
   '<p class="muted" style="margin-top:12px">문의·제안은 <a href="#" id="toFb">의견 보내기</a>로 남겨 주세요.</p></section>';
   bindBack();document.getElementById('toFb').onclick=e=>{e.preventDefault();go('feedback')};
   if(nat){if(window.SJJNative.prices)window.SJJNative.prices(SUPPORT.tips.map(t=>t.id)).then(p=>{Object.entries(p||{}).forEach(([k,v])=>{const el=document.querySelector('[data-price="'+k+'"]');if(el)el.textContent=v})}).catch(()=>{});
-    document.querySelectorAll('[data-tip]').forEach(b=>b.onclick=()=>window.SJJNative.tip(b.dataset.tip).then(ok=>{if(ok){logAct('개발자 응원: '+SUPPORT.tips.find(t=>t.id===b.dataset.tip).name);save();modal('<div style="text-align:center;font-size:56px">'+E('coffee')+'</div><h2 style="text-align:center">고맙습니다!</h2><p style="text-align:center">보내 주신 응원으로 더 좋은 시약장을 만들겠습니다.</p><button class="btn pri bigbtn" id="ty">닫기</button>');document.getElementById('ty').onclick=closeModal}}).catch(()=>toast('결제가 취소되었습니다')))}}
+    document.querySelectorAll('[data-tip]').forEach(b=>b.onclick=()=>window.SJJNative.tip(b.dataset.tip).then(ok=>{if(ok){logAct('개발자 응원: '+SUPPORT.tips.find(t=>t.id===b.dataset.tip).name);save();modal('<div style="text-align:center;font-size:56px">'+E('coffee')+'</div><h2 style="text-align:center">고맙습니다!</h2><p style="text-align:center">보내 주신 응원으로 더 좋은 세이프랩노트를 만들겠습니다.</p><button class="btn pri bigbtn" id="ty">닫기</button>');document.getElementById('ty').onclick=closeModal}}).catch(()=>toast('결제가 취소되었습니다')))}}
 
 /* ===== 의견 보내기 (설문) =====
    FEEDBACK.endpoint 에 Google Apps Script 웹 앱 주소를 넣으면 응답이 구글 시트에 쌓입니다.
