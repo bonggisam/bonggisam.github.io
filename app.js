@@ -20,12 +20,12 @@ const inAndroidApp = (() => {
 const KEY = 'adeul-local-v1';
 const TOWN = '쇼핑타운';
 const ISSUES = ['영업시간', '들어가는 시간', '주소나 위치', '전화번호', '물건 들어오는 날', '품목', '기타'];
-const TABS = [['home', '홈'], ['shop', '장보기'], ['camps', '훈련소'], ['todo', '팁'], ['about', '만든 사람']];
+const TABS = [['home', '홈'], ['shop', '장보기'], ['camps', '훈련소'], ['todo', '더보기'], ['about', '만든 사람']];
 const ICONS = {
   home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
   shop: '<circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.5 12h11.5l2-8H6.2"/>',
   camps: '<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',
-  todo: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/>',
+  todo: '<circle cx="12" cy="12" r="9"/><circle cx="7.5" cy="12" r=".9" fill="currentColor"/><circle cx="12" cy="12" r=".9" fill="currentColor"/><circle cx="16.5" cy="12" r=".9" fill="currentColor"/>',
   about: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
 };
 
@@ -151,12 +151,16 @@ function storeRow(store) {
   return `<a class="row" href="#/store/${store.id}"><span class="row-head"><span><b>${esc(store.name)}</b>${city ? `<span>${esc(city)}</span>` : ''}</span>${hours ? `<span class="time">${esc(hours)}</span>` : ''}</span>${hours ? `${bar(hours, 'thin')}<small>${em('🟢')}오늘 열어요${store.separate ? ', 입장 시간 구분 있음' : ''}</small>` : `<span class="status ${status.kind}">${esc(status.line)}</span>`}</a>`;
 }
 
-function todayCard(store) {
+/** 홈에 놓는 저장한 마트 한 줄. 이름과 오늘 여는 시간, 얇은 막대만 보여 준다. 입장 시간 구분 같은 자세한 건 마트 화면에서. 앱의 HomeStoreRow와 같다. */
+function homeStoreRow(store) {
   const now = nowDay();
   const status = storeStatus(store, now, content);
-  return `<a class="card hero saved" href="#/store/${store.id}"><span class="sticker" aria-hidden="true">⭐ 저장한 마트</span><h2>${em('🏪')}${esc(store.name)}</h2><p class="headline ${status.kind}">${esc(status.line)}</p>${entryBars(entryRows(store, now, content))}</a>`;
+  const hours = status.kind === 'open' ? (status.line.match(/\d{1,2}:\d{2}~\d{1,2}:\d{2}/) || [''])[0] : '';
+  const label = hours ? `${store.name}, 오늘 ${hours}에 열어요${store.separate ? ', 입장 시간 구분 있음' : ''}` : `${store.name}, ${status.line}`;
+  return `<a class="home-store" href="#/store/${store.id}" aria-label="${esc(label)}"><span class="row-head" aria-hidden="true"><b>${esc(store.name)}${store.separate ? '<i>입장 구분</i>' : ''}</b>${hours ? `<span class="time">${esc(hours)}</span>` : ''}</span>${hours ? bar(hours, 'thin') : `<span class="status ${status.kind}" aria-hidden="true">${esc(status.line)}</span>`}</a>`;
 }
 
+/** 홈은 휴대폰 한 화면에 다 들어가게 한다(2026-11-17): 그림, 남은 날, 저장한 마트, 바로가기 세 칸. 앱의 HomeView와 같다. */
 function renderHome() {
   const local = readLocal();
   const now = nowDay();
@@ -164,12 +168,11 @@ function renderHome() {
   const saved = local.saved.map(storeById).filter(Boolean);
   const art = artById(local.art);
   return `<h1 class="sr">홈</h1>
-  <a class="art" href="#/art"><img src="art/${art.id}.jpg" alt="${esc(art.name)} 그림" width="1080" height="450"><span class="art-msg"><span>${em('🍀')}${esc(art.msg)}</span><small>🖼️ 바꾸기</small></span></a>
+  <a class="art" href="#/art" aria-label="${esc(`${art.name} 그림. ${art.msg}. 눌러서 홈 그림 바꾸기`)}"><img src="art/${art.id}.jpg" alt="" width="1080" height="450"></a>
   ${ddayHero(s, now)}
-  ${saved.length ? '<h2 class="on-olive">🛒 오늘 갈 마트</h2>' : ''}
-  ${saved.length ? `${todayCard(saved[0])}${saved.slice(1).map(storeRow).join('')}${staleBox() || `<small>${esc(baseText())} 운영표와 휴점 공지를 보고 정리했어요.</small>`}`
-    : `<div class="card hero"><h2>${em('🛒')}자주 가는 마트가 오늘 몇 시에 여는지 바로 보여 드릴게요</h2><p>마트를 하나 저장해 두시면 여기에 오늘 여는 시간이 나와요.</p><a class="btn" href="#/shop">${em('🛒')}마트 찾으러 가기</a></div>`}
-  <div class="tiles"><a class="tile brass" href="#/check"><span aria-hidden="true">🪪</span>처음이라면</a><a class="tile cream" href="#/papers"><span aria-hidden="true">🎒</span>가져갈 것</a><a class="tile deep" href="#/camps"><span aria-hidden="true">🎖️</span>수료식</a></div>`;
+  ${saved.length ? `<div class="home-stores"><h2 class="on-olive">🛒 오늘 갈 마트</h2>${saved.map(homeStoreRow).join('')}${staleBox()}</div>`
+    : `<a class="card home-empty" href="#/shop"><b>${em('🛒')}자주 가는 마트를 저장해 두시면 오늘 여는 시간이 여기에 나와요</b><span class="btn">${em('🛒')}마트 찾으러 가기</span></a>`}
+  <nav class="tiles" aria-label="바로가기"><a class="tile brass" href="#/check"><span aria-hidden="true">🪪</span>처음이라면</a><a class="tile cream" href="#/papers"><span aria-hidden="true">🎒</span>가져갈 것</a><a class="tile deep" href="#/camps"><span aria-hidden="true">🎖️</span>수료식</a></nav>`;
 }
 
 /** 홈 위쪽. 전역까지 남은 날을 달력처럼 크게 보여 준다. 누르면 날짜를 고친다. 앱의 DischargeHero와 같다. */
@@ -187,18 +190,24 @@ function ddayHero(s, now) {
   const track = rankTrack(s, now);
   const chev = (n, on) => `<span class="chev${on ? ' on' : ''}">${'<i></i>'.repeat(n)}</span>`;
   const ranks = track ? `<span class="ranks" aria-hidden="true">${track.steps.map((r, i) => `<span>${chev(i + 1, i <= track.current)}<b>${r.name}</b><small>${i === 0 ? '입대' : `${r.from.y === now.y ? '' : `${String(r.from.y).slice(2)}년 `}${r.from.m}월`}${i === track.current && i > 0 ? ' 🎉' : ''}</small></span>`).join('')}</span>
-    <span class="progress" aria-hidden="true"><i style="width:${Math.round(s.progress * 100)}%"></i></span>
-    <span class="tail">예상 진급 달이에요. 부대 심사에 따라 늦어질 수 있어요.</span>` : '';
+    <span class="progress" aria-hidden="true"><i style="width:${Math.round(s.progress * 100)}%"></i></span>` : '';
   const lead = track && track.current >= 0 ? `🪖 지금 ${RANK_NOW[track.current]}` : '🪖 우리 아이';
-  const rankText = track && track.current >= 0 ? ` 지금 ${track.steps[track.current].name}, 복무 ${Math.round(s.progress * 100)}% 지났어요.` : '';
+  const rankText = track && track.current >= 0 ? ` 지금 ${track.steps[track.current].name}, 복무 ${Math.round(s.progress * 100)}% 지났어요. 진급 달은 예상이에요.` : '';
   return `<a class="dday" href="#/dday" aria-label="${esc(`${date}. ${counting ? `전역까지 ${s.left}일` : s.headline}. ${tail}.${rankText} 눌러서 입대일과 전역일 고치기`)}">
     <span class="top" aria-hidden="true"><span class="lead"><span>${esc(lead)}</span><b>${counting ? '전역까지' : esc(date)}</b></span>${big}</span>
-    <span class="tail" aria-hidden="true">${esc(tail)}</span>
+    <span class="tail" aria-hidden="true"><span>${esc(tail)}</span>${track ? '<small>진급 달은 예상</small>' : ''}</span>
     ${ranks}</a>`;
 }
 const RANK_NOW = ['이병이에요', '일병이에요', '상병이에요', '병장이에요'];
 
 const welcome = { service: 'army', date: '' };
+
+/** 처음 화면의 화면 디자인 칸. 바탕색 위에 전역일 칸 색과 칸 색을 작게 보여 준다. 앱 WelcomeView의 ThemeChip과 같다. */
+function themeChip(t) {
+  const now = themeById(readLocal().theme).id;
+  const c = colorsOf(t);
+  return `<button type="button" class="theme-chip" data-theme="${t.id}" aria-pressed="${t.id === now}" aria-label="${esc(`${t.name}. ${t.mood}`)}"><span class="sw" aria-hidden="true" style="${esc(`background:${c.bg}`)}"><i style="${esc(`background:${c.hero};border-color:${c.heroEdge}`)}"></i><i style="${esc(`background:${c.card};border-color:${c.edge}`)}"></i></span><b aria-hidden="true">${t.id === now ? '✅ ' : ''}${esc(t.name)}</b></button>`;
+}
 
 /** 처음 열 때 한 번 보여 준다. 가입은 없고, 넘겨도 홈의 큰 숫자를 눌러 나중에 넣을 수 있다. */
 function renderWelcome() {
@@ -219,6 +228,9 @@ function renderWelcome() {
   <div class="chips">${Object.entries(SERVICES).map(([k, v]) => `<button type="button" data-wservice="${k}" aria-pressed="${k === welcome.service}">${esc(v.name)}${v.months ? ` ${v.months}개월` : ''}</button>`).join('')}</div>
   <div class="card form"><label for="welcome-date">${asksEnd ? '전역일' : '입대일'}</label><input type="date" id="welcome-date" value="${esc(welcome.date)}"></div>
   <div aria-live="polite">${result}</div>
+  <h2>화면 색은 어떤 게 좋으세요?</h2>
+  <p class="lede">누르시면 바로 바뀌어요. 나중에 더보기 탭에서 다시 고를 수 있어요.</p>
+  <div class="theme-chips">${THEMES.map(themeChip).join('')}</div>
   <button type="button" class="btn accent" data-welcome="save">${em('💾')}이렇게 저장할게요</button>
   <button type="button" class="btn outline" data-welcome="later">${em('⏰')}나중에 할게요</button>
   <small>홈 화면 위쪽의 큰 숫자를 누르면 언제든 넣거나 고칠 수 있어요.</small></div>`;
@@ -246,7 +258,7 @@ function renderDday() {
     <p class="big ${s.headline.startsWith('D-') ? '' : 'long'}">${esc(s.headline)}</p>
     ${s.end && !s.dateProblem ? `<p>예상 전역일 <b>${esc(longDay(s.end))}</b></p>` : ''}
     <p>${esc(s.note)}</p>
-    <small>휴가, 징계, 조기 전역 같은 일로 실제 전역일은 조금 달라질 수 있어요.</small>
+    <small>휴가, 징계, 조기 전역 같은 일로 실제 전역일은 조금 달라질 수 있어요. 홈의 진급 달은 예상이고, 부대 심사에 따라 늦어질 수 있어요.</small>
   </div>`;
 }
 
@@ -259,7 +271,7 @@ function renderCheck() {
 }
 
 const renderPapers = () => `${backLink('#/home')}<h1>이것만 챙겨 가세요</h1>${content.papers.map(card).join('')}<a class="btn outline" href="#/rules">${em('💡')}더 알아 두면 좋은 것</a>`;
-const renderRules = () => `${backLink('#/home')}<h1>알아 두면 좋아요</h1>${content.rules.map(card).join('')}`;
+const renderRules = (from) => `${from === 'more' ? backLink('#/todo', '더보기') : backLink('#/home')}<h1>알아 두면 좋아요</h1>${content.rules.map(card).join('')}`;
 // 마트 상세에서 왔으면(#/goods/마트번호) 뒤로 가기가 그 마트로 돌아간다.
 // 상품 이름(items)이 있는 칸은 짧은 설명(lead) 아래에 이름을 하나씩 이름표로 보여 준다.
 // 이 칸이 없는 자료(옛 판)나 주류 칸은 지금처럼 글로 보인다. 앱의 GoodsCard와 같다.
@@ -371,7 +383,7 @@ function renderAsk() {
 
 function renderQna() {
   const list = [...(content.qna || [])].sort((a, b) => (a.on < b.on ? 1 : a.on > b.on ? -1 : 0));
-  return `${backLink('#/todo')}
+  return `${backLink('#/todo', '더보기')}
   <h1>묻고 답하기</h1>
   <p class="on-olive">부모님들이 남겨 주신 질문에 만든 사람이 공식 자료를 찾아 답했어요.</p>
   <a class="btn accent" href="#/ask">${em('✍️')}질문 남기기</a>
@@ -420,7 +432,7 @@ function renderLinks() {
   const suggested = suggestedStage(summarize(readLocal(), nowDay()), nowDay());
   const current = linksView.group || (groups.some((g) => g.id === suggested) ? suggested : groups[0]?.id);
   const checked = links[0] ? parseDay(links[0].checked) : null;
-  return `${backLink('#/todo')}<h1>공식 사이트 모음</h1>
+  return `${backLink('#/todo', '더보기')}<h1>공식 사이트 모음</h1>
   <p>병무청, 국방부, 각 군의 공식 누리집이에요. 주소는 직접 열어 확인했어요.</p>
   <div class="chips">${groups.map((g) => `<button type="button" data-lgroup="${esc(g.id)}" aria-pressed="${g.id === current}">${STAGE_EMOJI[g.id] ? em(STAGE_EMOJI[g.id]) : ''}${esc(g.title)}</button>`).join('')}</div>
   ${links.filter((l) => l.group === current && safeUrl(l.url)).map((l) => `<div class="card link"><small>${esc(l.org)}</small><h2>${esc(l.title)}</h2><p>${esc(l.body)}</p>${l.login !== '필요 없음' ? `<small>로그인: ${esc(l.login)}</small>` : ''}<a class="btn outline open" target="_blank" rel="noopener" href="${esc(l.url)}" aria-label="${esc(l.title)} 열기">열기</a></div>`).join('')}
@@ -486,29 +498,37 @@ function renderCamp(id) {
   <small>식당과 숙소는 특정 가게를 추천하지 않아요. 지도에서 주변을 찾아보시고, 수료식 날은 붐비니 미리 알아 두시면 좋아요.</small>`;
 }
 
+/** 다섯 번째 탭 "더보기"(2026-11-17, 전에는 "팁"). 갈래별로 묶은 차림표만 두고, 팁과 소식은 따로 연다. 앱의 MoreView와 같다. */
 function renderTodo() {
-  const current = tipsView.stage || suggestedStage(summarize(readLocal(), nowDay()), nowDay());
-  return `<h1>팁</h1>
+  const row = (href, emoji, title, sub) => `<a class="menu-row" href="${href}">${em(emoji)}<span><b>${esc(title)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</span><i aria-hidden="true">›</i></a>`;
+  const group = (emoji, title, rows) => `<h2 class="on-olive">${em(emoji)}${esc(title)}</h2><div class="menu">${rows}</div>`;
+  const qna = content.qna?.length ? `답한 질문 ${content.qna.length}개` : '궁금한 걸 남기면 공식 자료로 답해요';
+  return `<h1>더보기</h1>
   <a class="btn" href="tel:1303"><span>${em('📞')}걱정될 땐 1303<small class="on-dark">국방헬프콜이에요. 24시간 무료고, 부모님도 전화하실 수 있어요</small></span></a>
-  <label class="field" for="tip-q">궁금한 내용 찾기</label>
-  <input type="search" id="tip-q" value="${esc(tipsView.query)}" autocomplete="off">
-  <a class="btn outline" href="#/links">${em('🏛️')}병무청·국방부 공식 사이트 모음</a>
-  <div class="chips">${content.stages.map((x) => `<button type="button" data-stage="${esc(x.id)}" aria-pressed="${x.id === current && !tipsView.query.trim()}">${STAGE_EMOJI[x.id] ? em(STAGE_EMOJI[x.id]) : ''}${esc(x.title)}</button>`).join('')}</div>
-  <div id="tip-list" style="display:grid;gap:10px">${tipItems(current)}</div>
-  <small>부대나 군마다 다른 게 많아요. "논산은"이라고 적힌 건 육군훈련소 이야기예요. 헷갈리면 아이나 부대에 한 번 물어보세요.</small>
-  <h2 class="section">${em('📢')}소식</h2>${content.news.map(card).join('')}
-  <button type="button" class="btn accent" data-share="1">${em('📣')}다른 부모님께 알려 주기</button>
+  ${group('📚', '알아 두면 좋은 것', `${row('#/tips', '💡', '시기별 팁', `입대 전부터 전역 뒤까지 ${content.tips.length}가지`)}${row('#/news', '📢', '소식', content.news.length ? `새 소식 ${content.news.length}건` : '')}${row('#/rules/more', '🙋', '누가, 어떻게 이용하나요', '영외마트 이용 자격과 지킬 것')}${row('#/links', '🏛️', '병무청·국방부 공식 사이트', '공식 누리집 모음')}`)}
+  ${group('💬', '묻고 알리기', `${row('#/qna', '💬', '묻고 답하기', qna)}${row('#/report', '✏️', '틀린 내용 알려 주기', '마트 시간이나 안내가 다르면 알려 주세요')}<button type="button" class="menu-row" data-share="1">${em('📣')}<span><b>다른 부모님께 알려 주기</b><small>이 앱을 문자나 카톡으로 보내요</small></span><i aria-hidden="true">›</i></button>`)}
   <p class="notice caution" id="share-done" hidden>안내 문구를 복사했어요.</p>
-  <a class="btn outline" href="#/qna">${em('💬')}묻고 답하기${content.qna?.length ? ` <small>${content.qna.length}개</small>` : ''}</a>
-  <a class="btn outline" href="#/rules">${em('🙋')}누가, 어떻게 이용하나요</a>
-  <a class="btn outline" href="#/report">${em('✏️')}틀린 내용 알려 주기</a>`;
+  ${group('🎨', '앱 꾸미기', `${row('#/theme', '🎨', '화면 디자인 고르기', `바탕과 칸 색 ${THEMES.length}가지`)}${row('#/art/more', '🖼️', '홈 그림 고르기', `홈 맨 위 그림 ${HOME_ART.length}장`)}`)}`;
 }
 
+/** 시기별 팁. 더보기에서 연다. 앱의 TipsView와 같다. */
+function renderTips() {
+  const current = tipsView.stage || suggestedStage(summarize(readLocal(), nowDay()), nowDay());
+  return `${backLink('#/todo', '더보기')}<h1>시기별 팁</h1>
+  <label class="field" for="tip-q">궁금한 내용 찾기</label>
+  <input type="search" id="tip-q" value="${esc(tipsView.query)}" autocomplete="off">
+  <div class="chips">${content.stages.map((x) => `<button type="button" data-stage="${esc(x.id)}" aria-pressed="${x.id === current && !tipsView.query.trim()}">${STAGE_EMOJI[x.id] ? em(STAGE_EMOJI[x.id]) : ''}${esc(x.title)}</button>`).join('')}</div>
+  <div id="tip-list" style="display:grid;gap:10px">${tipItems(current)}</div>
+  <small>부대나 군마다 다른 게 많아요. "논산은"이라고 적힌 건 육군훈련소 이야기예요. 헷갈리면 아이나 부대에 한 번 물어보세요.</small>`;
+}
+
+const renderNews = () => `${backLink('#/todo', '더보기')}<h1>소식</h1>${content.news.length ? content.news.map(card).join('') : '<p>아직 새 소식이 없어요.</p>'}`;
+
 /** 홈 맨 위 그림 고르기. 고른 그림은 이 기기에만 저장한다. 앱의 HomeArtPicker와 같다. */
-function renderArt() {
+function renderArt(from) {
   const now = readLocal().art;
   const pick = (a) => `<button type="button" class="art-pick" data-art="${a.id}" aria-pressed="${a.id === now}"><img src="art/${a.id}.jpg" alt="" width="1080" height="450" loading="lazy"><span>${a.id === now ? '✅ ' : ''}${esc(a.name)}</span></button>`;
-  return `${backLink('#/home', '홈')}<h1>홈 그림 고르기</h1>
+  return `${from === 'more' ? backLink('#/todo', '더보기') : backLink('#/home', '홈')}<h1>홈 그림 고르기</h1>
   <p class="on-olive-text">건강하고 행복하길 바라는 마음을 담은 우리 자연 그림이에요. 고르시면 홈 맨 위에 바로 보여요.</p>
   ${['수묵화', '수채화'].map((g) => `<h2 class="on-olive">${g === '수묵화' ? '🖌️' : '🎨'} ${g}</h2><div class="art-grid">${HOME_ART.filter((a) => a.group === g).map(pick).join('')}</div>`).join('')}`;
 }
@@ -528,10 +548,10 @@ function renderTheme() {
     <span class="mini" aria-hidden="true" style="${esc(vars(t))}"><span class="mini-hero"><span>🪖 전역까지</span><b>540</b></span><span class="mini-card">🛒 오늘 갈 마트<i></i></span><span class="mini-tiles"><i></i><i></i><i></i></span><span class="mini-tab"><i></i><i></i><i></i><i></i><i></i></span></span>
     <b>${t.id === now ? '✅ ' : ''}${++n}. ${esc(t.name)} ${t.emoji}</b><small>${esc(t.mood)}</small></button>`;
   const groups = [...new Set(THEMES.map((t) => t.group))];
-  return `${backLink('#/about', '만든 사람')}<h1>화면 디자인 고르기</h1>
+  return `${backLink('#/todo', '더보기')}<h1>화면 디자인 고르기</h1>
   <p class="on-olive-text">앱의 바탕색과 칸 색, 큰 숫자 글꼴이 바뀌어요. 누르시면 바로 바뀌고, 이 기기에만 저장돼요. 홈 맨 위 그림은 따로 골라요.</p>
   ${groups.map((g) => `<h2 class="on-olive">${esc(g)}</h2><div class="theme-grid">${THEMES.filter((t) => t.group === g).map(pick).join('')}</div>`).join('')}
-  <a class="btn outline" href="#/art">${em('🖼️')}홈 그림 고르기</a>`;
+  <a class="btn outline" href="#/art/more">${em('🖼️')}홈 그림 고르기</a>`;
 }
 
 /** 다섯 번째 탭 "만든 사람". 소개, 커피 한 잔, 바라는 점. 앱의 AboutView와 같은 내용. */
@@ -563,8 +583,6 @@ function renderAbout() {
   ${wishView.state === 'copied' ? '<p class="notice caution">아직 받는 곳을 준비하고 있어요. 적으신 내용을 복사해 두었어요.</p>' : ''}
   <button type="button" class="btn accent" data-send-wish="1">${em('📮')}설문지로 보내기</button>
   <small>로그인 없이 보내지고, 이름이나 연락처는 묻지 않아요. 따로 답장은 못 드려요.</small></div>
-  <a class="btn outline" href="#/theme">${em('🎨')}화면 디자인 고르기</a>
-  <a class="btn outline" href="#/art">${em('🖼️')}홈 그림 고르기</a>
   <h2 class="section">${em('ℹ️')}알아 두실 것</h2>
   ${card({ title: '국군복지단의 공식 앱이 아니에요', emoji: '🏷️', body: '공개된 공식 자료를 사람이 하나하나 읽고 정리한 무료 앱이에요. 법률 상담은 아니라서, 가시기 전엔 마트에 전화해 보시는 게 제일 정확해요.' })}
   ${card({ title: '언제 자료인가요', emoji: '🗓️', body: `마트 ${content.stores.length}곳은 ${baseText()} 운영표로, 휴점 공지는 ${checkedText()}까지 살펴보고 정리했어요. 지금 쓰는 자료는 ${content.revision}판이에요.`, source: '국군복지단 월간 공지' })}
@@ -583,8 +601,12 @@ function route() {
   if (name === 'ask') return { tab: 'todo', html: renderAsk() };
   if (name === 'report') return { tab: arg ? 'shop' : 'todo', html: renderReport(arg) };
   if (name === 'goods') return { tab: 'shop', html: renderGoods(arg) };
-  if (name === 'art') return { tab: 'home', html: renderArt() };
-  if (name === 'theme') return { tab: 'about', html: renderTheme() };
+  if (name === 'art') return { tab: arg === 'more' ? 'todo' : 'home', html: renderArt(arg) };
+  if (name === 'rules') return { tab: arg === 'more' ? 'todo' : 'home', html: renderRules(arg) };
+  if (name === 'tips') return { tab: 'todo', html: renderTips() };
+  if (name === 'news') return { tab: 'todo', html: renderNews() };
+  // 화면 디자인 고르기는 처음 화면에서 고르고, 나중에는 더보기 탭에서 연다(2026-11-17).
+  if (name === 'theme') return { tab: 'todo', html: renderTheme() };
   const tab = ['shop', 'goods'].includes(name) ? 'shop' : name === 'camps' ? 'camps' : name === 'about' ? 'about' : ['todo', 'links'].includes(name) ? 'todo' : 'home';
   return { tab, html: (known[name] || renderHome)() };
 }

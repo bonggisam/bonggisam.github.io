@@ -271,8 +271,6 @@ body { background: var(--t-page); }
 /* 홈 맨 위 그림(수묵화·수채화 12장 중 고른 것). 누르면 그림 고르기로 간다. 앱의 HomeArtBanner와 같다. */
 .art { display: block; border-radius: 24px; overflow: hidden; background: var(--t-card); color: var(--t-ink); text-decoration: none; }
 .art img { display: block; width: 100%; height: auto; aspect-ratio: 1080 / 450; }
-.art-msg { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 16px 12px; font-size: 15px; font-weight: 600; }
-.art-msg small { flex: none; font-weight: 600; color: var(--t-accent-ink); }
 .on-olive-text { color: var(--t-on-bg-muted); }
 .art-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .art-pick { display: grid; padding: 0; border: 0; border-radius: 16px; overflow: hidden; background: var(--t-card); color: var(--t-ink); text-align: left; cursor: pointer; }
@@ -305,6 +303,58 @@ body { background: var(--t-page); }
 .mini-tab { display: flex; justify-content: space-around; margin: 2px -8px 0; padding: 4px 0 5px; background: var(--m-tab); }
 .mini-tab i { display: block; width: 14px; height: 4px; border-radius: 2px; background: var(--m-tab-ink); opacity: .7; }
 .mini-tab i:first-child { background: var(--m-tab-on); opacity: 1; }
+
+/* ── 홈 한 화면(2026-11-17): 휴대폰 한 화면에 그림, 남은 날, 저장한 마트, 바로가기 네 칸이 다 보이게 줄였다. 앱의 HomeView와 같다. ── */
+#view:has(> .dday) { gap: 10px; padding-top: 12px; }
+.art { border-radius: 18px; }
+.dday { gap: 6px; padding: 12px 14px; margin: 0; }
+.dday .num { font-size: 64px; }
+.dday .lead { font-size: 13.5px; }
+.dday .tail { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 14px; }
+.dday .tail small { flex: none; font-size: 12px; color: var(--t-hero-sub); opacity: .85; }
+.dday .ranks b { font-size: 13.5px; line-height: 1.3; }
+.dday .ranks small { font-size: 11.5px; line-height: 1.3; }
+.dday .chev { height: 22px; gap: 2px; }
+.dday .chev i { width: 24px; height: 4px; }
+.dday .progress { height: 6px; }
+.home-stores { display: grid; gap: 7px; }
+.home-stores > h2 { font-size: 17px; }
+.home-store { display: grid; gap: 6px; padding: 10px 14px 12px; border: var(--t-edge-w) solid var(--t-edge); border-radius: 16px; background: var(--t-card); color: var(--t-ink); text-decoration: none; }
+.home-store .row-head { align-items: center; }
+.home-store b { font-size: 17px; font-weight: 900; }
+.home-store b i { margin-left: 7px; padding: 1px 7px; border-radius: 6px; background: var(--t-tag); font-style: normal; font-size: 12px; font-weight: 700; vertical-align: 2px; }
+.home-store .time { font-weight: 700; }
+.home-empty { gap: 10px; text-decoration: none; }
+.home-empty b { font-size: 17px; line-height: 1.45; }
+.tiles { gap: 8px; }
+.tile { min-height: 74px; gap: 4px; padding: 9px 6px; overflow-wrap: normal; align-items: center; justify-content: center; text-align: center; font-size: 15px; line-height: 1.3; border-radius: 16px; }
+.tile span { font-size: 26px; }
+/* 처음 화면의 화면 디자인 칸(3줄 4칸). 고르면 바로 앱 전체 색이 바뀐다. */
+.theme-chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+.theme-chip { display: grid; gap: 6px; padding: 6px 6px 8px; border: 0; border-radius: 14px; background: var(--t-card); color: var(--t-ink); box-shadow: 0 0 0 var(--t-edge-w) var(--t-edge); text-align: center; cursor: pointer; }
+.theme-chip[aria-pressed="true"] { box-shadow: 0 0 0 4px var(--t-ring); }
+.theme-chip:focus-visible { outline: 3px solid var(--t-on-bg); outline-offset: 4px; }
+.theme-chip .sw { display: flex; gap: 4px; height: 34px; padding: 6px; border-radius: 9px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .1); }
+.theme-chip .sw i { flex: 1; border: 1.5px solid; border-radius: 5px; }
+.theme-chip b { font-size: 14px; line-height: 1.3; }
+/* 작은 휴대폰(아이폰 SE 등): 계급장 막대를 빼고 숫자와 칸을 조금 더 줄인다. */
+@media (max-height: 760px) and (max-width: 600px) {
+  .dday .num { font-size: 54px; }
+  .dday .chev { display: none; }
+  .tile { min-height: 62px; font-size: 13.5px; }
+  .tile span { font-size: 22px; }
+}
+
+/* 더보기 탭 차림표(2026-11-17). 갈래마다 한 칸에 줄을 모은다. 앱의 MoreView와 같다. */
+.menu { display: grid; background: var(--t-card); color: var(--t-ink); --muted: var(--t-muted); border: var(--t-edge-w) solid var(--t-edge); border-radius: 18px; overflow: hidden; }
+.menu-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 10px 16px; border: 0; background: none; color: inherit; font: inherit; text-align: left; text-decoration: none; cursor: pointer; }
+.menu-row + .menu-row { border-top: 1.5px solid var(--t-card-line); }
+.menu-row .em { margin: 0; font-size: 24px; line-height: 1; }
+.menu-row > span:not(.em) { flex: 1; display: grid; gap: 1px; min-width: 0; }
+.menu-row b { font-size: 17px; font-weight: 800; }
+.menu-row small { font-size: 13.5px; }
+.menu-row > i { font-style: normal; font-size: 24px; color: var(--t-muted); }
+.menu-row:focus-visible { outline: 3px solid var(--t-ink); outline-offset: -4px; }
 
 /* 12번 "또렷하게": 글자와 칸을 한 단계 크게 */
 html[data-big-text] #view { zoom: 1.1; }
