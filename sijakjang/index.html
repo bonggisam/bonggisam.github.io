@@ -977,7 +977,7 @@ function uid(){return Math.random().toString(36).slice(2,9)}
 function pushH(b,h){b.hist.push(h);b.mt=Date.now()}
 function tombAdd(id){S.tomb=S.tomb||[];S.tomb.push({id,t:Date.now()});if(S.tomb.length>2000)S.tomb.shift()}
 function cfgBump(){S.cfgMt=Date.now()}
-const APP_VERSION='1.0.0';
+const APP_VERSION='1.0.1';
 const IDX='sijakjang-schools',DK=id=>'sijakjang-data-'+id,UK=id=>'sijakjang-unlock-'+id;
 let IX={active:null,list:[]};
 function lsGet(k){if(window.SJJStore)return SJJStore.get(k);try{return localStorage.getItem(k)}catch(e){return null}}
