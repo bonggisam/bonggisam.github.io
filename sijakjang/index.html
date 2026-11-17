@@ -234,6 +234,7 @@ body.tile-dot .tile::after{content:"";position:absolute;top:6px;right:6px;width:
 header.top{border-image:var(--bar-grad,none) 1}
 .brand .em{margin-right:4px}
 /* 디자인 고르기 */
+.themes{display:grid;gap:8px}
 .th-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .th-card{border-radius:12px;padding:10px;cursor:pointer;text-align:left;border:2px solid transparent;min-height:118px}
 .th-card[aria-pressed=true]{outline:3px solid var(--focus);outline-offset:2px}
@@ -255,6 +256,12 @@ header.top{border-image:var(--bar-grad,none) 1}
 <div id="modalRoot"></div>
 <script>
 'use strict';
+/* 앱(iOS)에서 화면을 다시 불러와도 방금 바꾼 설정(언어·디자인)이 남도록 작은 값은 세션에도 적어 둔다 */
+(function(){const S=window.SJJStore;if(!S)return;const K='sjj-overlay';let o={};try{o=JSON.parse(sessionStorage.getItem(K)||'{}')}catch(e){}
+  const put=()=>{try{sessionStorage.setItem(K,JSON.stringify(o))}catch(e){}};const g=S.get,s=S.set,d=S.del;
+  S.get=k=>Object.prototype.hasOwnProperty.call(o,k)?o[k]:g(k);
+  S.set=(k,v)=>{v=String(v);if(v.length<2000){o[k]=v;put()}else if(k in o){delete o[k];put()}s(k,v)};
+  S.del=k=>{o[k]=null;put();d(k)}})();
 /* ===== 디자인 10종 ===== */
 const BASEV={'--display-w':'800','--display-track':'0','--focus':'#f08c2e','--bar-line':'0','--nav-border':'0','--card-border':'0','--pri-edge':'var(--pri)','--line':'#e3e8ec',
  '--ok':'#16794a','--ok-bg':'#ddf2e6','--warn':'#94570a','--warn-bg':'#fcefd9','--bad':'#b3261e','--bad-bg':'#fbe3e1','--chip-ink':'#1d2a33','--tile-ink':'#1d2a33','--tile-bg':'#1d2a33'};
