@@ -130,6 +130,25 @@ a{color:var(--link)}
 .label-card{border:2px solid #000;background:#fff;color:#000;padding:12px;border-radius:4px;display:grid;grid-template-columns:1fr auto;gap:8px;font-family:"Noto Sans KR",sans-serif}
 .label-card .ln{font-size:20px;font-weight:800}
 .label-card .ls{font-size:13px}
+/* 2026-11 추가: 되돌리기·GHS 칸 표시·혼합 금지·빈 화면 안내·2단 화면·큰 글자 */
+.toast.undo{display:flex;gap:12px;align-items:center;padding:8px 8px 8px 16px;max-width:calc(100vw - 32px)}
+.toast.undo .btn{background:var(--card);color:var(--ink);border-color:var(--card);min-height:34px;white-space:nowrap}
+.slot .ghs.sg{justify-content:center;gap:2px}.slot .ghs.sg svg{width:24px;height:24px}
+.slot.mix{background:var(--bad-bg);box-shadow:inset 0 0 0 3px var(--bad)}
+.slot .mixk{font-size:11px;font-weight:800;color:var(--bad)}
+.slot.sel{outline:3px solid var(--hl);outline-offset:-3px;background:var(--hl-bg)}
+select.mixsel{border-color:var(--bad)!important;box-shadow:0 0 0 2px var(--bad-bg)}
+.guide{display:flex;flex-direction:column;gap:10px;margin:8px 0}
+.gstep{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px;border:var(--slot-line);border-radius:var(--r-s)}
+.gstep .gn{flex:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;background:var(--info-bg);color:var(--info)}
+.gstep.done .gn{background:var(--ok-bg);color:var(--ok)}
+.gstep .grow{min-width:150px}
+.cab2{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,380px);gap:16px;align-items:start}
+.cab2>aside{position:sticky;top:76px;max-height:calc(100vh - 190px);overflow:auto}
+.cab2 .pane{margin-bottom:0}
+html.bigtext .slot{min-height:92px}
+html.bigtext nav.tabs button{font-size:12px;line-height:1.2}
+html.bigtext .tile .tn,html.bigtext .slot .cnt{white-space:normal;overflow:visible;text-overflow:clip}
 @media print{body *{visibility:hidden}.label-card,.label-card *{visibility:visible}.label-card{position:fixed;top:10mm;left:10mm;width:90mm}}
 @media (prefers-reduced-motion:no-preference){.slot.hl{animation:pulse 1.2s ease-out 2}@keyframes pulse{0%{outline-offset:-3px}50%{outline-offset:-8px}100%{outline-offset:-3px}}}
 
@@ -194,7 +213,8 @@ html:not([lang=ko]) .bigbtn{font-size:17px}
 body{background-image:var(--bg-img,none);background-size:var(--bg-size,auto)}
 nav.tabs{left:0;right:0;bottom:0}
 body.nav-float nav.tabs{left:50%;right:auto;transform:translateX(-50%);bottom:14px;border-radius:999px;padding:0 10px;box-shadow:0 6px 20px rgba(20,40,55,.25)}
-@media(max-width:520px){body.nav-float nav.tabs{left:8px;right:8px;transform:none}nav.tabs button{min-width:0;flex:1}}
+@media(max-width:520px){body.nav-float nav.tabs{left:8px;right:8px;transform:none;padding:0 6px}nav.tabs button{min-width:0;flex:1;padding:8px 1px 10px;font-size:12px;letter-spacing:-.3px}}
+nav.tabs button{white-space:nowrap}
 nav.tabs .em{font-size:22px;line-height:1;filter:var(--em-filter,none)}
 nav.tabs button[aria-current=page] .em{filter:none;transform:scale(1.12)}
 .tile{width:72px;height:72px}
@@ -539,7 +559,7 @@ function i18nStart(){if(LANG==='ko'&&!window.__I18N_MISS)return;document.documen
   if(window.__I18N_MISS){go();return}
   const load=(l,cb)=>{const s=document.createElement('script');s.src='i18n/'+l+'.js';s.onload=()=>cb(window.I18N_DATA||{});s.onerror=()=>cb({});document.head.appendChild(s)};
   load('en',en=>{I18N_EN=en;if(LANG==='en'){I18N=en;go()}else load(LANG,d=>{I18N=d;go()})})}
-function langModal(){modal('<h2>언어 · Language</h2><div class="themes" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">'+Object.keys(LANGS).map(l=>'<button class="btn'+(l===LANG?' pri':'')+'" data-lang="'+l+'" lang="'+l+'" style="width:100%">'+LANGS[l]+'</button>').join('')+'</div><p class="muted">시약 이름 같은 데이터는 언어를 바꿔도 그대로 유지됩니다. 안전 정보와 사용 방법처럼 긴 글은 한국어와 영어로 제공됩니다.</p><button class="btn bigbtn" id="lgX">닫기</button>');
+function langModal(){modal('<h2>언어 · Language</h2><div class="themes" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr))">'+Object.keys(LANGS).map(l=>'<button class="btn'+(l===LANG?' pri':'')+'" data-lang="'+l+'" lang="'+l+'" style="width:100%">'+LANGS[l]+'</button>').join('')+'</div><p class="muted">시약 이름 같은 데이터는 언어를 바꿔도 그대로 유지됩니다.</p><button class="btn bigbtn" id="lgX">닫기</button>');
   document.getElementById('lgX').onclick=closeModal;
   document.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{lsSet('sijakjang-lang',b.dataset.lang);location.reload()})}
 /* ===== 안전 정보 =====
@@ -656,7 +676,7 @@ function aidOf(s){const h=s.h,has=(...c)=>c.some(x=>h.includes(x));const a=[];
   a.push('<b>삼킴</b> 뱉고 입을 여러 번 헹굽니다. 억지로 토하게 하지 않습니다'+(has('H304')?'(기도로 넘어가면 치명적)':'')+'. '+(has('H300','H301','H302','H304','H310','H314')?'즉시 119에 연락합니다.':'이상이 있으면 병원에 갑니다.'));
   return a}
 function safetyHTML(name,cas){const s=safeOf(name);
-  const link='<p class="muted">출처·한계: 원액·고체 기준으로 간추린 참고 자료입니다. 농도·제품에 따라 분류가 달라집니다. 실험 전에는 납품업체가 준 MSDS나 <a href="https://msds.kosha.or.kr" target="_blank" rel="noopener">안전보건공단 MSDS</a>(CAS '+esc(cas||'')+')의 4번 응급조치·6번 누출 대처·10번 안정성 및 반응성을 확인하세요.</p>';
+  const link='<p class="muted">출처·한계: 원액·고체 기준으로 간추린 참고 자료입니다. 농도·제품에 따라 분류가 달라집니다. 실험 전에는 납품업체가 준 MSDS나 <a href="https://msds.kosha.or.kr" target="_blank" rel="noopener">안전보건공단 MSDS</a>(CAS '+esc(cas||'없음')+')의 4번 응급조치·6번 누출 대처·10번 안정성 및 반응성을 확인하세요.</p>';
   if(!s)return '<p class="muted">이 시약의 안전 요약은 아직 없습니다.</p>'+link;
   return '<table class="sf">'+
   '<tr><th>신호어</th><td>'+(s.sig?'<b style="color:var(--'+(s.sig==='위험'?'bad':'warn')+')">'+s.sig+'</b>':'해당 없음 (GHS 분류 대상 아님)')+'</td></tr>'+
@@ -839,6 +859,9 @@ const GHSMAP={'염산':[5,7],'황산':[5],'질산':[3,5,6],'아세트산':[2,5],
 const ghsOf=n=>(GHSMAP[n]||[]).map(i=>'GHS0'+i);
 function ghsSVG(code){const t=GHSN[code];const short={GHS01:'폭발',GHS02:'인화',GHS03:'산화',GHS04:'가스',GHS05:'부식',GHS06:'독성',GHS07:'유해',GHS08:'건강',GHS09:'환경'}[code];
   return '<svg viewBox="0 0 40 40" role="img" aria-label="'+t+'"><title>'+t+'</title><rect x="8" y="8" width="24" height="24" transform="rotate(45 20 20)" fill="#fff" stroke="#e00" stroke-width="3"/><text x="20" y="24" text-anchor="middle" font-size="10" font-weight="800" fill="#000" font-family="Noto Sans KR,sans-serif">'+short+'</text></svg>'}
+const GHS_PRI=['GHS06','GHS01','GHS02','GHS03','GHS05','GHS08','GHS04','GHS07','GHS09'];
+function slotGhs(bs){const set=new Set();bs.forEach(b=>ghsOf(b.name).forEach(c=>set.add(c)));const top=GHS_PRI.filter(c=>set.has(c)).slice(0,2);return top.length?'<span class="ghs sg">'+top.map(ghsSVG).join('')+'</span>':''}
+function slotBad(cab,k,bs){const s=cab.slots[k];const al=s&&s.allowed&&s.allowed.length?s.allowed:null;for(let i=0;i<bs.length;i++){if(al&&!al.includes(baseGroup(bs[i].group)))return true;for(let j=i+1;j<bs.length;j++)if(conflicts(bs[i].group,bs[j].group))return true}return false}
 const ghsHTML=n=>{const c=ghsOf(n);return c.length?'<span class="ghs">'+c.map(ghsSVG).join('')+'</span>':''};
 
 /* ===== 저장 (이 기기에만) ===== */
@@ -918,6 +941,7 @@ const chip=g=>'<span class="chip '+gcls(g)+'">'+esc(g)+'</span>';
 const meter=v=>'<span class="meter" aria-label="잔량 '+Math.round(v*100)+'%"><i class="'+(v<=0.2?'low':'')+'" style="width:'+Math.round(v*100)+'%"></i></span>';
 function tile(b){return b.photo?'<img class="thumb" src="'+b.photo+'" alt="'+esc(b.name)+' 사진">':'<span class="tile '+gcls(b.group)+'"><span class="tg">'+esc(baseGroup(b.group))+'</span><span class="tf">'+esc(b.formula||'?')+'</span><span class="tn">'+esc(b.name)+'</span></span>'}
 function toast(t){const d=document.createElement('div');d.className='toast';d.setAttribute('role','status');d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2300)}
+function undoToast(t,fn){document.querySelectorAll('.toast.undo').forEach(x=>x.remove());const d=document.createElement('div');d.className='toast undo';d.setAttribute('role','status');d.innerHTML='<span>'+esc(t)+'</span><button class="btn sm" id="undoBtn">되돌리기</button>';document.body.appendChild(d);const tm=setTimeout(()=>d.remove(),7000);d.querySelector('button').onclick=()=>{clearTimeout(tm);d.remove();fn();save();render();toast('되돌렸습니다')}}
 const today=()=>new Date().toISOString().slice(0,10);
 const daysTo=d=>d?Math.round((Date.parse(d)-Date.parse(today()))/864e5):null;
 function modal(html){const root=document.getElementById('modalRoot');root.innerHTML='<div class="modal-bg" id="mbg"><div class="modal" role="dialog" aria-modal="true">'+html+'</div></div>';
@@ -938,13 +962,13 @@ exp:'<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"/><path d
 I.more='<circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/>';
 I.basket='<path d="M4 9h16l-1.5 10a2 2 0 0 1-2 1.7h-9a2 2 0 0 1-2-1.7z"/><path d="M9 9l3-5 3 5"/>';
 I.waste='<path d="M5 7h14l-1 13H6z"/><path d="M9 4h6v3H9z"/>';
-const tabs=()=>canEdit()?[['search','찾기'],['cabinet','시약장'],['add','등록'],['more','더보기'],['coffee','응원']]:[['search','찾기'],['cabinet','시약장'],['more','더보기'],['coffee','응원']];
-const navOf=t=>['exp','work','admin','basket','theme','school','safety','help','feedback'].includes(t)?'more':t==='batch'?'add':t;
+const tabs=()=>canEdit()?[['search','찾기'],['cabinet','시약장'],['add','등록'],['more','더보기'],['feedback','의견'],['coffee','응원']]:[['search','찾기'],['cabinet','시약장'],['more','더보기'],['feedback','의견'],['coffee','응원']];
+const navOf=t=>['exp','work','admin','basket','theme','school','safety','help','print'].includes(t)?'more':t==='batch'?'add':t;
 let tab='search',hl=null,sub='buy';
 function renderNav(){document.getElementById('nav').innerHTML=tabs().map(([k,t])=>'<button data-tab="'+k+'" '+(navOf(tab)===k?'aria-current="page"':'')+'><span class="em" aria-hidden="true">'+E(k)+'</span>'+t+'</button>').join('');
   document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.tab))}
 function go(t,opts){tab=t;hl=opts&&opts.hl?opts.hl:(t==='cabinet'?hl:null);render();window.scrollTo(0,0)}
-function render(){document.getElementById('brand').innerHTML='<span class="em" aria-hidden="true">'+E('brand')+'</span>세이프랩노트';document.getElementById('schoolName').textContent=(S.school||'우리 학교')+' ▾';document.getElementById('who').textContent=S.me.name+' · '+S.me.role;renderNav();({search:vSearch,cabinet:vCabinet,add:vAdd,more:vMore,basket:vBasket,theme:vTheme,coffee:vCoffee,safety:vSafety,help:vHelp,batch:vBatch,feedback:vFeedback,school:vSchool,exp:vExp,work:vWork,admin:vAdmin})[tab]()}
+function render(){document.getElementById('brand').innerHTML='<span class="em" aria-hidden="true">'+E('brand')+'</span>세이프랩노트';document.getElementById('schoolName').textContent=(S.school||'우리 학교')+' ▾';document.getElementById('who').textContent=S.me.name+' · '+S.me.role;renderNav();({search:vSearch,cabinet:vCabinet,add:vAdd,more:vMore,basket:vBasket,theme:vTheme,coffee:vCoffee,safety:vSafety,help:vHelp,batch:vBatch,feedback:vFeedback,school:vSchool,exp:vExp,work:vWork,admin:vAdmin,print:vPrint})[tab]()}
 const backBar=()=>'<button class="back" id="backMore">‹ 더보기</button>';
 function bindBack(){const b=document.getElementById('backMore');if(b)b.onclick=()=>go('more')}
 const V=()=>document.getElementById('view');
@@ -957,17 +981,20 @@ function alerts(){const a=[];
     if(b.remain<=0.2)a.push(['bad','잔량 '+Math.round(b.remain*100)+'%',b]);
     if(b.out)a.push(['info','사용 중 · '+b.out.who+' · '+b.out.where,b]);
     if(b.opened&&daysTo(b.opened)<-365*5)a.push(['warn','개봉 5년 경과 — 처분 검토',b])});
-  if(S.audit)a.unshift(['info','재고 실사 진행 중',null]);return a}
+  if(S.audit)a.unshift(['info','재고 실사 진행 중',null]);
+  if(!S.demo&&S.bottles.length){const bd=S.lastBackup?Math.floor((Date.now()-S.lastBackup)/864e5):null;if(bd===null)a.push(['warn','백업한 적 없음',null,'backup']);else if(bd>=90)a.push(['warn','백업한 지 '+bd+'일',null,'backup'])}
+  return a}
+function startGuide(){const hc=S.cabinets.length>0;return '<div class="guide"><div class="gstep'+(hc?' done':'')+'"><span class="gn" aria-hidden="true">'+(hc?'✓':'1')+'</span><div class="grow"><b>시약장 만들기</b><div class="muted">'+(hc?'시약장 '+S.cabinets.length+'개가 준비되어 있습니다.':'과학실에 있는 시약장을 먼저 그려 둡니다.')+'</div></div>'+(canEdit()?'<button class="btn sm" data-guide="cabinet">'+(hc?'시약장 보기':'시약장 추가')+'</button>':'')+'</div><div class="gstep"><span class="gn" aria-hidden="true">2</span><div class="grow"><b>첫 시약 등록</b><div class="muted">라벨 사진을 찍으면 이름과 CAS를 읽어 줍니다.</div></div>'+(canEdit()?'<button class="btn sm pri" data-guide="add">시약 등록</button>':'')+'</div></div>'}
 function vSearch(){
   const groups={};S.bottles.forEach(b=>{const g=baseGroup(b.group);groups[g]=(groups[g]||0)+1});const total=S.bottles.length||1;
   const al=alerts();const wasteL=S.waste.reduce((s,w)=>s+w.amount,0)/1000;
   const bk=S.basket;V().innerHTML=(bk?'<div class="note info" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="grow">수업 준비 중: <b>'+esc(bk.title)+'</b> · 꺼냄 '+bk.items.filter(x=>x.got).length+'/'+bk.items.filter(x=>x.id).length+'</span><button class="btn sm" id="goBk">이어서</button></div>':'')+'<section class="panel"><label for="q" style="margin-top:0">찾을 시약</label><input id="q" class="search" placeholder="이름·초성·화학식·CAS" value="'+esc(lastQ)+'" autocomplete="off">'+
   '<div class="muted" style="margin-top:6px">이름, 초성(ㅇㅅ), 화학식(NaOH), CAS 번호, 옛 이름(요오드), 태그(지시약), 칸 이름(A-2-좌)으로 찾습니다.</div><div id="results" aria-live="polite"></div></section>'+
   '<section class="panel"><h2>우리 학교 시약장</h2><p class="lede">'+'시약 '+S.bottles.length+'병, '+new Set(S.bottles.map(b=>b.name)).size+'종이 시약장 '+S.cabinets.length+'개에 들어 있습니다.'+(wasteL?' 폐액은 '+wasteL.toFixed(1)+' L 보관 중입니다.':'')+'</p>'+
-  (S.bottles.length?'<div class="ptable" aria-label="저장군별 병 수">'+Object.keys(GROUPS).filter(g=>groups[g]).map(g=>'<button class="tile g'+g+'" data-grp="'+esc(GROUPS[g])+'" aria-label="'+esc(GROUPS[g])+' '+groups[g]+'병 보기"><span class="tg">'+esc(g)+'</span><span class="tf">'+groups[g]+'</span><span class="tn">'+esc(GROUPS[g])+'</span></button>').join('')+'</div><p class="muted" style="margin:8px 0 0">저장군을 누르면 그 시약만 모아 봅니다.</p>':'<div class="note info">아직 등록한 시약이 없습니다. 등록 탭에서 라벨 사진을 찍어 첫 시약을 넣어 보세요.</div>')+'</section>'+
-  '<section class="panel"><h2>확인할 일 '+al.length+'건</h2>'+(al.length?al.map((x,i)=>'<div class="alert" data-al="'+i+'"><span class="k '+x[0]+'">'+esc(x[1])+'</span><span class="grow">'+(x[2]?'<b>'+esc(x[2].name)+'</b> <span class="path">'+pathOf(x[2])+'</span>':'업무 › 재고 실사에서 이어서 하세요')+'</span></div>').join(''):'<div class="note ok">지금 확인할 일이 없습니다.</div>')+'</section>';
-  const q=document.getElementById('q');q.oninput=()=>{lastQ=q.value;doSearch()};doSearch();document.querySelectorAll('[data-grp]').forEach(t=>t.onclick=()=>{lastQ=t.dataset.grp;q.value=lastQ;doSearch();q.scrollIntoView({behavior:'smooth',block:'start'})});if(document.getElementById('goBk'))document.getElementById('goBk').onclick=()=>go('basket');
-  document.querySelectorAll('[data-al]').forEach(el=>el.onclick=()=>{const x=al[+el.dataset.al];if(x[2])bottleModal(x[2].id);else{sub='audit';go('work')}});
+  (S.bottles.length?'<div class="ptable" aria-label="저장군별 병 수">'+Object.keys(GROUPS).filter(g=>groups[g]).map(g=>'<button class="tile g'+g+'" data-grp="'+esc(GROUPS[g])+'" aria-label="'+esc(GROUPS[g])+' '+groups[g]+'병 보기"><span class="tg">'+esc(g)+'</span><span class="tf">'+groups[g]+'</span><span class="tn">'+esc(GROUPS[g])+'</span></button>').join('')+'</div><p class="muted" style="margin:8px 0 0">저장군을 누르면 그 시약만 모아 봅니다.</p>':startGuide())+'</section>'+
+  '<section class="panel"><h2>확인할 일 '+al.length+'건</h2>'+(al.length?al.map((x,i)=>'<div class="alert" data-al="'+i+'"><span class="k '+x[0]+'">'+esc(x[1])+'</span><span class="grow">'+(x[2]?'<b>'+esc(x[2].name)+'</b> <span class="path">'+pathOf(x[2])+'</span>':x[3]==='backup'?'더보기 › 관리에서 백업 파일을 저장해 두세요':'업무 › 재고 실사에서 이어서 하세요')+'</span></div>').join(''):'<div class="note ok">지금 확인할 일이 없습니다.</div>')+'</section>';
+  const q=document.getElementById('q');q.oninput=()=>{lastQ=q.value;doSearch()};doSearch();document.querySelectorAll('[data-grp]').forEach(t=>t.onclick=()=>{lastQ=t.dataset.grp;q.value=lastQ;doSearch();q.scrollIntoView({behavior:'smooth',block:'start'})});if(document.getElementById('goBk'))document.getElementById('goBk').onclick=()=>go('basket');document.querySelectorAll('[data-guide]').forEach(b=>b.onclick=()=>{const g=b.dataset.guide;if(g==='cabinet'&&!S.cabinets.length&&isAdmin()){go('cabinet');cabEditModal(null)}else go(g)});
+  document.querySelectorAll('[data-al]').forEach(el=>el.onclick=()=>{const x=al[+el.dataset.al];if(x[2])bottleModal(x[2].id);else if(x[3]==='backup')go('admin');else{sub='audit';go('work')}});
 }
 function resRow(b){return '<div class="res" role="button" tabindex="0" data-b="'+b.id+'">'+tile(b)+'<div class="grow"><div class="nm">'+esc(b.name)+' <span class="muted">'+b.size+' '+b.unit+(b.made?' · 자체 제조':'')+(b.memo?' · '+esc(b.memo):'')+'</span></div><div class="path">'+pathOf(b)+(b.out?' · <span style="color:var(--warn)">사용 중</span>':'')+'</div>'+(b.tags.length?'<div>'+b.tags.map(t=>'<span class="tag">#'+esc(t)+'</span>').join('')+'</div>':'')+'</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">'+meter(b.remain)+'<span class="muted" style="font-size:12px">'+remainLabel(b.remain)+'</span>'+(canEdit()&&b.remain>0?'<button class="btn sm use" data-use="'+b.id+'">'+E('use')+' 썼어요</button>':'')+'</div></div>'}
 function bindRes(root){(root||document).querySelectorAll('.res[data-b]').forEach(el=>{el.onclick=()=>bottleModal(el.dataset.b);el.onkeydown=e=>{if(e.key==='Enter')bottleModal(el.dataset.b)}});
@@ -996,17 +1023,27 @@ function doSearch(){
 function cabHTML(cab){const room=roomOf(cab.roomId);let cells='';
   for(let r=1;r<=cab.rows;r++)for(let c=1;c<=cab.cols;c++){const k=slotKey(r,c);const bs=bottlesIn(cab.id,k);const s=cab.slots[k];const on=hl&&hl.cab===cab.id&&hl.k===k;
     const names=[...new Set(bs.map(b=>b.name))];const n0=names[0];const cnt0=bs.filter(b=>b.name===n0).length;
-    cells+='<button class="slot'+(on?' hl':'')+'" data-cab="'+cab.id+'" data-k="'+k+'" aria-label="'+esc(slotLabel(cab,k))+', '+bs.length+'병"><span class="sn">'+r+'단'+(cab.cols>1?' '+colName(cab,c):'')+(s.name?' · '+esc(s.name):'')+'</span>'+
-    '<span class="cnt">'+(bs.length?esc(n0)+(cnt0>1?' ×'+cnt0:'')+(names.length>1?' 외 '+(names.length-1)+'종':''):'<span class="muted">빈 칸</span>')+'</span>'+(bs.some(b=>b.out)?'<span class="out">사용 중</span>':'')+'<span class="grp">'+(s.allowed||[]).join('·')+'</span></button>'}
+    const bad=slotBad(cab,k,bs);cells+='<button class="slot'+(on?' hl':'')+(bad?' mix':'')+'" data-cab="'+cab.id+'" data-k="'+k+'" aria-label="'+esc(slotLabel(cab,k))+', '+bs.length+'병'+(bad?', 같이 두면 안 되는 시약 있음':'')+'">'+(bad?'<span class="mixk">⚠ 같이 두면 안 됨</span>':'')+'<span class="sn">'+r+'단'+(cab.cols>1?' '+colName(cab,c):'')+(s.name?' · '+esc(s.name):'')+'</span>'+
+    '<span class="cnt">'+(bs.length?esc(n0)+(cnt0>1?' ×'+cnt0:'')+(names.length>1?' 외 '+(names.length-1)+'종':''):'<span class="muted">빈 칸</span>')+'</span>'+(bs.some(b=>b.out)?'<span class="out">사용 중</span>':'')+slotGhs(bs)+'<span class="grp">'+(s.allowed||[]).join('·')+'</span></button>'}
   const mg=cabMainGroup(cab);
   return '<div class="cab" style="--ccol:var(--c'+mg[0]+')"><div class="hd"><span class="code">'+esc(cab.code)+'</span>'+esc(cab.name)+'<span class="room">'+esc(room?room.name:'')+'</span></div><div class="grid" style="grid-template-columns:repeat('+cab.cols+',1fr)">'+cells+'</div></div>'}
-function vCabinet(){
-  V().innerHTML='<section class="panel"><div class="row"><h2 class="grow" style="margin:0">시약장 배치</h2>'+(isAdmin()?'<button class="btn" id="addCab">시약장 추가</button>':'')+'</div>'+
-  '<p class="muted">위 배치도는 과학실에 시약장이 놓인 자리입니다. 아래 그림에서 칸을 누르면 그 칸의 시약이 나옵니다. 칸 아래 작은 글씨는 넣을 수 있는 저장군입니다.</p>'+
-  S.rooms.map(room=>{const cs=S.cabinets.filter(c=>c.roomId===room.id);return cs.length?'<h3>'+esc(room.name)+'</h3>'+planHTML(room)+'<div class="cabs">'+cs.map(c=>'<div id="cabw-'+c.id+'">'+cabHTML(c)+'</div>').join('')+'</div>':''}).join('')+'</section>'+
-  '<section class="panel"><h2>저장군 기준</h2><div class="legend">'+Object.entries(GROUPS).map(([k,v])=>'<span class="g'+k+'"><i></i>'+k+' '+v+'</span>').join('')+'</div><p class="muted">같은 칸 금지: 산–염기, 질산–유기산·인화성, 산화제–인화성·유기산·금속, 금속–산</p></section>';
-  document.querySelectorAll('.slot').forEach(el=>el.onclick=()=>slotModal(el.dataset.cab,el.dataset.k));
-  planBind();const ac=document.getElementById('addCab');if(ac)ac.onclick=()=>cabEditModal(null);
+let paneSel=null;
+const wide=()=>window.innerWidth>=900;
+function slotPaneHTML(){const cab=paneSel&&cabOf(paneSel.cab);if(!cab||!cab.slots[paneSel.k])return '<div class="panel pane"><h2>칸 내용</h2><p class="muted">왼쪽 시약장에서 칸을 누르면 그 칸의 시약이 여기에 나옵니다.</p></div>';
+  const k=paneSel.k,bs=bottlesIn(cab.id,k);
+  return '<div class="panel pane"><h2>'+esc(slotLabel(cab,k))+'</h2><div class="path">'+esc(roomOf(cab.roomId)?.name||'')+' › '+esc(cab.name)+'</div>'+(bs.length?bs.map(resRow).join(''):'<div class="note info">빈 칸입니다. 아래 버튼으로 바로 등록하세요.</div>')+
+  '<div class="row" style="margin-top:14px">'+(canEdit()?'<button class="btn pri grow" id="pnAdd">이 칸에 등록</button>':'')+(isAdmin()?'<button class="btn" id="pnSet">칸 설정</button>':'')+'</div></div>'}
+function slotPaneDraw(){const el=document.getElementById('slotPane');if(!el)return;el.innerHTML=slotPaneHTML();bindRes(el);
+  document.querySelectorAll('.slot.sel').forEach(x=>x.classList.remove('sel'));if(paneSel){const q=document.querySelector('.slot[data-cab="'+paneSel.cab+'"][data-k="'+paneSel.k+'"]');if(q)q.classList.add('sel')}
+  const a=document.getElementById('pnAdd');if(a)a.onclick=()=>{draft={cabId:paneSel.cab,slot:paneSel.k};go('add')};const st=document.getElementById('pnSet');if(st)st.onclick=()=>slotModal(paneSel.cab,paneSel.k)}
+function vCabinet(){const two=wide()&&S.cabinets.length>0;if(hl&&two)paneSel={cab:hl.cab,k:hl.k};
+  const body=S.rooms.map(room=>{const cs=S.cabinets.filter(c=>c.roomId===room.id);return cs.length?'<h3>'+esc(room.name)+'</h3>'+planHTML(room)+'<div class="cabs">'+cs.map(c=>'<div id="cabw-'+c.id+'">'+cabHTML(c)+(isAdmin()?'<div class="row" style="justify-content:flex-end;margin:4px 0 12px"><button class="btn sm" data-ec3="'+c.id+'">시약장 편집</button></div>':'')+'</div>').join('')+'</div>':''}).join('');
+  V().innerHTML='<div class="'+(two?'cab2':'')+'"><div><section class="panel"><div class="row"><h2 class="grow" style="margin:0">시약장 배치</h2>'+(isAdmin()?'<button class="btn" id="addCab">시약장 추가</button>':'')+'</div>'+
+  (S.cabinets.length?'<p class="muted">위 배치도는 과학실에 시약장이 놓인 자리입니다. 아래 그림에서 칸을 누르면 그 칸의 시약이 나옵니다. 칸 아래 작은 글씨는 넣을 수 있는 저장군입니다.</p>'+body:'<div class="note info">아직 시약장이 없습니다. '+(isAdmin()?'"시약장 추가"를 눌러 과학실의 시약장을 먼저 만들어 주세요.':'관리자가 시약장을 만들면 여기에 나옵니다.')+'</div>')+'</section>'+
+  '<section class="panel"><h2>저장군 기준</h2><div class="legend">'+Object.entries(GROUPS).map(([k,v])=>'<span class="g'+k+'"><i></i>'+k+' '+v+'</span>').join('')+'</div><p class="muted">같은 칸 금지: 산–염기, 질산–유기산·인화성, 산화제–인화성·유기산·금속, 금속–산</p></section></div>'+(two?'<aside id="slotPane"></aside>':'')+'</div>';
+  document.querySelectorAll('.slot').forEach(el=>el.onclick=()=>{if(document.getElementById('slotPane')){paneSel={cab:el.dataset.cab,k:el.dataset.k};slotPaneDraw()}else slotModal(el.dataset.cab,el.dataset.k)});
+  document.querySelectorAll('[data-ec3]').forEach(b=>b.onclick=()=>cabEditModal(b.dataset.ec3));
+  planBind();const ac=document.getElementById('addCab');if(ac)ac.onclick=()=>cabEditModal(null);slotPaneDraw();
   const el=document.querySelector('.slot.hl');if(el&&!planEdit)el.scrollIntoView({block:'center'});
 }
 function slotModal(cabId,k){const cab=cabOf(cabId);const s=cab.slots[k];const bs=bottlesIn(cabId,k);
@@ -1033,7 +1070,14 @@ function cabEditModal(cabId){const cab=cabId?cabOf(cabId):null;
     else{cab.code=code;cab.name=name;cab.roomId=roomId;const ns={};for(let r=1;r<=rows;r++)for(let c=1;c<=cols;c++){const k=slotKey(r,c);ns[k]=cab.slots[k]||{name:'',allowed:[]}}
       S.bottles.filter(b=>b.cabId===cab.id&&!ns[b.slot]).forEach(b=>{b.slot='1-1';pushH(b,{t:today(),who:S.me.name,what:'칸 축소로 1단 첫 칸으로 이동'})});cab.rows=rows;cab.cols=cols;cab.slots=ns;logAct('시약장 편집: '+code);cfgBump()}
     save();closeModal();render();toast('저장했습니다')};
-  const del=$('cDel');if(del)del.onclick=()=>{const n=S.bottles.filter(b=>b.cabId===cab.id).length;if(n){toast('시약 '+n+'병을 먼저 옮겨 주세요');return}S.cabinets=S.cabinets.filter(c=>c.id!==cab.id);logAct('시약장 삭제: '+cab.code);cfgBump();save();closeModal();render()}}
+  const del=$('cDel');if(del)del.onclick=()=>{const n=S.bottles.filter(b=>b.cabId===cab.id).length;if(n){toast('시약 '+n+'병을 먼저 옮겨 주세요');return}const at=S.cabinets.indexOf(cab);S.cabinets=S.cabinets.filter(c=>c.id!==cab.id);logAct('시약장 삭제: '+cab.code);cfgBump();save();closeModal();render();undoToast('시약장을 삭제했습니다',()=>{S.cabinets.splice(Math.min(at,S.cabinets.length),0,cab);logAct('시약장 삭제 되돌림: '+cab.code);cfgBump()})}}
+
+function roomEditModal(id){const r=roomOf(id);if(!r)return;
+  modal('<h2>실 편집</h2><label for="rName">실 이름</label><input id="rName" value="'+esc(r.name)+'"><div class="row" style="margin-top:14px"><button class="btn pri grow" id="rSave">저장</button><button class="btn bad" id="rDel">삭제</button><button class="btn" id="rX">취소</button></div>');
+  const $=i=>document.getElementById(i);$('rX').onclick=closeModal;
+  $('rSave').onclick=()=>{const n=$('rName').value.trim();if(!n)return;r.name=n;logAct('실 이름 변경: '+n);cfgBump();save();closeModal();render();toast('저장했습니다')};
+  $('rDel').onclick=()=>{const n=S.cabinets.filter(c=>c.roomId===id).length;if(n){toast('시약장 '+n+'개를 먼저 옮기거나 삭제해 주세요');return}if(S.rooms.length<2){toast('실은 하나 이상 있어야 합니다');return}
+    const at=S.rooms.indexOf(r);S.rooms=S.rooms.filter(x=>x.id!==id);logAct('실 삭제: '+r.name);cfgBump();save();closeModal();render();undoToast('실을 삭제했습니다',()=>{S.rooms.splice(Math.min(at,S.rooms.length),0,r);cfgBump()})}}
 
 /* ===== 병 상세 ===== */
 function bottleModal(id){const b=S.bottles.find(x=>x.id===id);if(!b)return;const m=findMaster(b.name);const ed=canEdit();
@@ -1055,13 +1099,13 @@ function bottleModal(id){const b=S.bottles.find(x=>x.id===id);if(!b)return;const
   if($('bUse'))$('bUse').onclick=()=>{useOnce(b.id);closeModal();render()};
   const rr=$('rr'),rv=$('rv');rr.oninput=()=>rv.textContent=rr.value+'%';document.querySelectorAll('[data-q]').forEach(x=>x.onclick=()=>{rr.value=x.dataset.q;rv.textContent=x.dataset.q+'%'});
   const fill=()=>{const c=cabOf($('mvCab').value);$('mvSlot').innerHTML=Object.keys(c.slots).map(k=>'<option value="'+k+'" '+(c.id===b.cabId&&k===b.slot?'selected':'')+'>'+esc(slotLabel(c,k))+'</option>').join('');chk()};
-  const chk=()=>{$('mvWarn').innerHTML=slotWarnings(cabOf($('mvCab').value),$('mvSlot').value,b.group,b.id).map(x=>'<div class="note bad">'+esc(x)+'</div>').join('')};
+  const chk=()=>{const w=slotWarnings(cabOf($('mvCab').value),$('mvSlot').value,b.group,b.id);$('mvWarn').innerHTML=w.map(x=>'<div class="note bad">⚠ '+esc(x)+'</div>').join('');$('mvCab').classList.toggle('mixsel',!!w.length);$('mvSlot').classList.toggle('mixsel',!!w.length)};
   $('mvCab').onchange=fill;$('mvSlot').onchange=chk;fill();
   if($('bOut'))$('bOut').onclick=()=>{b.out={who:S.me.name,where:$('outWhere').value.trim()||'실험대',t:today()};pushH(b,{t:today(),who:S.me.name,what:'꺼냄 → '+b.out.where});save();bottleModal(id);toast('꺼낸 것으로 기록했습니다')};
   if($('bIn'))$('bIn').onclick=()=>{pushH(b,{t:today(),who:S.me.name,what:'제자리에 넣음'});b.out=null;save();bottleModal(id);toast('제자리에 넣었습니다')};
   $('bBuy').onclick=()=>{addBuy(b.name,'잔량 '+Math.round(b.remain*100)+'%');toast('구매 목록에 추가했습니다')};
   $('bDel').onclick=()=>{modal('<h2>'+esc(b.name)+' 폐기</h2><p>목록에서 지우고 폐기 기록을 남깁니다. 실제 처리는 폐시약 수거 절차를 따르세요.</p><div class="row"><button class="btn bad grow" id="yes">폐기</button><button class="btn" id="no">취소</button></div>');
-    $('no').onclick=()=>bottleModal(id);$('yes').onclick=()=>{tombAdd(id);S.bottles=S.bottles.filter(x=>x.id!==id);logAct('폐기: '+b.name+' '+b.size+b.unit);save();closeModal();render();toast('폐기했습니다')}};
+    $('no').onclick=()=>bottleModal(id);$('yes').onclick=()=>{const at=S.bottles.indexOf(b);tombAdd(id);S.bottles=S.bottles.filter(x=>x.id!==id);logAct('폐기: '+b.name+' '+b.size+b.unit);save();closeModal();render();undoToast('폐기했습니다',()=>{S.tomb=(S.tomb||[]).filter(x=>x.id!==id);S.bottles.splice(Math.min(at,S.bottles.length),0,b);logAct('폐기 되돌림: '+b.name)})}};
   $('bSave').onclick=()=>{const nr=rr.value/100,nc=$('mvCab').value,ns=$('mvSlot').value;
     if(nr!==b.remain){pushH(b,{t:today(),who:S.me.name,what:'잔량 '+Math.round(b.remain*100)+'% → '+Math.round(nr*100)+'%'});b.remain=nr}
     if(nc!==b.cabId||ns!==b.slot){const from=cabOf(b.cabId)?slotLabel(cabOf(b.cabId),b.slot):'';b.cabId=nc;b.slot=ns;pushH(b,{t:today(),who:S.me.name,what:'이동 '+from+' → '+slotLabel(cabOf(nc),ns)})}
@@ -1136,7 +1180,7 @@ function vAdd(){
     $('rec').innerHTML=r.length?'<div class="muted">'+esc(g)+'에 맞는 칸</div><div class="row" style="margin:4px 0 8px">'+r.map(x=>'<button class="btn sm" data-rc="'+x.cab.id+'|'+x.k+'">'+esc(slotLabel(x.cab,x.k))+'</button>').join('')+'</div>':'<div class="note warn">'+esc(g)+'을(를) 넣을 수 있는 칸이 없습니다. 시약장 탭에서 칸 설정을 바꾸세요.</div>';
     document.querySelectorAll('[data-rc]').forEach(x=>x.onclick=()=>{const [c,k]=x.dataset.rc.split('|');$('pCab').value=c;fillSlots(k)})};
   const fillSlots=sel=>{const c=cabOf($('pCab').value);if(!c)return;$('pSlot').innerHTML=Object.keys(c.slots).map(k=>'<option value="'+k+'" '+(k===sel?'selected':'')+'>'+esc(slotLabel(c,k))+' · '+bottlesIn(c.id,k).length+'병</option>').join('');chk()};
-  const chk=()=>{const c=cabOf($('pCab').value);if(!c)return;$('pWarn').innerHTML=slotWarnings(c,$('pSlot').value,$('fGroup').value).map(x=>'<div class="note bad">'+esc(x)+'</div>').join('')};
+  const chk=()=>{const c=cabOf($('pCab').value);if(!c)return;const w=slotWarnings(c,$('pSlot').value,$('fGroup').value);$('pWarn').innerHTML=w.map(x=>'<div class="note bad">⚠ '+esc(x)+'</div>').join('');$('pCab').classList.toggle('mixsel',!!w.length);$('pSlot').classList.toggle('mixsel',!!w.length)};
   $('pCab').onchange=()=>fillSlots();$('pSlot').onchange=chk;$('fGroup').onchange=()=>{recommend();chk()};
   $('mName').oninput=()=>{const q=$('mName').value.trim();if(!q){$('sugg').innerHTML='';return}const list=M.filter(m=>matchText(q,[m.name,m.eng,m.formula,m.cas,...m.alias])).slice(0,8);
     $('sugg').innerHTML=list.length?'<div class="sugg">'+list.map(m=>'<button data-m="'+esc(m.name)+'">'+chip(m.group)+' <b>'+esc(m.name)+'</b> <span class="muted">'+esc(m.formula)+' · '+esc(m.cas)+'</span></button>').join('')+'</div>':'<div class="muted">목록에 없는 시약입니다. 화학식·CAS·저장군을 직접 입력하세요.</div>';
@@ -1222,10 +1266,10 @@ function vAdmin(){
   '<h3>이 학교에서 앱을 쓰는 교사</h3><p class="muted">관리자가 초대한 교사만 학교 데이터를 받을 수 있습니다.</p><table><tr><th>이름</th><th>역할</th><th>상태</th><th></th></tr>'+S.members.map((m,i)=>'<tr'+(m.active===false?' style="opacity:.5"':'')+'><td>'+esc(m.name)+(m.id===S.me.id?' (나)':'')+'</td><td>'+(isAdmin()&&m.id!==S.me.id&&m.active!==false?'<select data-role="'+i+'" aria-label="'+esc(m.name)+' 역할" style="min-height:36px;padding:4px 8px">'+['관리자','구성원','열람'].map(r=>'<option '+(m.role===r?'selected':'')+'>'+r+'</option>').join('')+'</select>':esc(m.role))+'</td><td>'+(m.active===false?'해제됨':m.code?'초대 중':'사용 중')+'</td><td>'+(isAdmin()&&m.id!==S.me.id&&m.active!==false?(m.code?'<button class="btn sm" data-code="'+i+'">초대 코드</button> ':'')+'<button class="btn sm" data-out="'+i+'">해제</button>':'')+'</td></tr>').join('')+'</table>'+
   (isAdmin()?'<div class="row" style="margin-top:8px"><input id="nm" class="grow" placeholder="새 구성원 이름" aria-label="새 구성원 이름"><select id="nr" style="width:120px" aria-label="역할"><option>구성원</option><option>관리자</option><option>열람</option></select><button class="btn" id="addM">초대 코드 만들기</button></div>':'')+
   '<div class="note info">같은 학교 교사끼리만 쓰는 그룹입니다. 데이터는 이 기기에만 저장되고, 다른 교사에게는 <b>더보기 › 학교·비밀번호</b>에서 비밀번호로 잠근 묶음으로 보냅니다.</div><button class="btn pri" id="saveA">저장</button></section>'+
-  '<section class="panel"><h2>실과 시약장</h2>'+S.rooms.map(r=>'<h3>'+esc(r.name)+'</h3>'+S.cabinets.filter(c=>c.roomId===r.id).map(c=>'<div class="row" style="margin:6px 0"><span class="chip gG">'+esc(c.code)+'</span><span class="grow">'+esc(c.name)+' <span class="muted">'+c.rows+'단 × '+c.cols+'열</span></span>'+(isAdmin()?'<button class="btn sm" data-ec="'+c.id+'">편집</button>':'')+'</div>').join('')).join('')+
+  '<section class="panel"><h2>실과 시약장</h2>'+S.rooms.map(r=>'<div class="row" style="margin-top:14px"><h3 class="grow" style="margin:0">'+esc(r.name)+'</h3>'+(isAdmin()?'<button class="btn sm" data-er="'+r.id+'">실 편집</button>':'')+'</div>'+S.cabinets.filter(c=>c.roomId===r.id).map(c=>'<div class="row" style="margin:6px 0"><span class="chip gG">'+esc(c.code)+'</span><span class="grow">'+esc(c.name)+' <span class="muted">'+c.rows+'단 × '+c.cols+'열</span></span>'+(isAdmin()?'<button class="btn sm" data-ec="'+c.id+'">편집</button>':'')+'</div>').join('')).join('')+
   (isAdmin()?'<div class="row" style="margin-top:10px"><button class="btn" id="addCab2">시약장 추가</button><input id="roomName" class="grow" placeholder="새 실 이름 (예: 생명과학실)" aria-label="새 실 이름"><button class="btn" id="addRoom">실 추가</button></div>':'')+'</section>'+
   '<section class="panel"><h2>가져오기·내보내기</h2><p class="muted">기존 엑셀 대장을 CSV로 붙여 넣으면 한 번에 등록됩니다. 첫 줄: 시약,용량,단위,시약장코드,단,열</p><textarea id="csvIn" placeholder="시약,용량,단위,시약장코드,단,열&#10;염산,500,mL,A,2,1&#10;에탄올,1000,mL,F,1,1"></textarea><button class="btn" id="csvGo" style="margin-top:8px">CSV 가져오기</button>'+
-  '<div class="row" style="margin-top:14px"><button class="btn" id="bk">백업(JSON) 복사</button><button class="btn" id="csvAll">시약 대장(CSV) 복사</button><label class="btn" style="margin:0;color:var(--btn-ink)">백업 파일 불러오기<input id="imp" type="file" accept=".json,application/json,text/plain" style="display:none"></label></div><textarea id="out" style="display:none;margin-top:8px" readonly aria-label="복사할 내용"></textarea>'+
+  '<div class="note '+(S.lastBackup&&Date.now()-S.lastBackup<90*864e5?'ok':'warn')+'" id="bkState"><b>'+(S.lastBackup?'마지막 백업: '+new Date(S.lastBackup).toISOString().slice(0,10):'아직 백업한 적이 없습니다.')+'</b><br><span>데이터는 이 기기에만 있으니 학기마다 백업 파일을 저장해 두세요.</span></div><div class="row" style="margin-top:8px"><button class="btn pri" id="bkFile">백업 파일 저장</button><button class="btn" id="bk">백업(JSON) 복사</button><button class="btn" id="csvAll">시약 대장(CSV) 복사</button><label class="btn" style="margin:0;color:var(--btn-ink)">백업 파일 불러오기<input id="imp" type="file" accept=".json,application/json,text/plain" style="display:none"></label></div><textarea id="out" style="display:none;margin-top:8px" readonly aria-label="복사할 내용"></textarea>'+
   '<details style="margin-top:10px"><summary>백업 글 붙여넣어 복원</summary><textarea id="pasteIn" aria-label="백업 글"></textarea><button class="btn" id="pasteGo">복원</button></details></section>'+
   '<section class="panel"><h2>활동 기록</h2><table>'+S.log.slice(-20).reverse().map(l=>'<tr><td class="muted">'+esc(l.t)+'</td><td>'+esc(l.who)+'</td><td>'+esc(l.what)+'</td></tr>').join('')+'</table></section>'+
   '<section class="panel"><h2>처음부터</h2><div class="row"><button class="btn bad" id="reset">예시 데이터로 되돌리기</button><button class="btn bad" id="wipe">모두 지우고 처음 설정 다시 하기</button></div><p class="muted">GHS 그림문자·주의 문구·제조법은 참고용입니다. 안전보건공단 MSDS 원문과 교육청 지침이 우선합니다.</p></section>';
@@ -1238,9 +1282,12 @@ function vAdmin(){
   if($('addM'))$('addM').onclick=async()=>{const n=$('nm').value.trim();if(!n){toast('초대할 교사 이름을 넣어 주세요');return}const m={id:uid(),name:n,role:$('nr').value,active:true};await newInvite(m);S.members.push(m);logAct('교사 초대: '+n);cfgBump();save();vAdmin();showInvite(m)};
   document.querySelectorAll('[data-ec]').forEach(b=>b.onclick=()=>cabEditModal(b.dataset.ec));
   if($('addCab2'))$('addCab2').onclick=()=>cabEditModal(null);
+  document.querySelectorAll('[data-er]').forEach(b=>b.onclick=()=>roomEditModal(b.dataset.er));
   if($('addRoom'))$('addRoom').onclick=()=>{const n=$('roomName').value.trim();if(!n)return;S.rooms.push({id:uid(),name:n});logAct('실 추가: '+n);cfgBump();save();vAdmin()};
   $('csvGo').onclick=()=>{const r=importCSV($('csvIn').value);save();toast(r.ok+'병 가져옴'+(r.bad?', 위치를 못 찾은 '+r.bad+'줄은 건너뜀':''))};
-  $('bk').onclick=()=>copyOut('out',JSON.stringify(S));
+  const bkMark=()=>{S.lastBackup=Date.now();save()};
+  $('bk').onclick=()=>{bkMark();copyOut('out',JSON.stringify(S))};
+  $('bkFile').onclick=()=>{bkMark();download('세이프랩노트_백업_'+today()+'.json',JSON.stringify(S));vAdmin();toast('백업 파일을 저장했습니다')};
   $('csvAll').onclick=()=>{const rows=[['시약','화학식','CAS','저장군','용량','단위','잔량(%)','실','시약장','칸','제조사','등급','개봉일','유효기간','자체제조','메모','태그']].concat(S.bottles.map(b=>{const c=cabOf(b.cabId);return [b.name,b.formula,b.cas,b.group,b.size,b.unit,Math.round(b.remain*100),roomOf(c?.roomId)?.name||'',c?c.code+' '+c.name:'',c?slotLabel(c,b.slot):'',b.maker,b.grade,b.opened,b.expiry,b.made?'예':'',b.memo,b.tags.join(' ')]}));const t=rows.map(r=>r.map(csv).join(',')).join('\n');copyOut('out',t);download('세이프랩노트_시약대장_'+today()+'.csv','\ufeff'+t)};
   const restore=t=>{try{const o=JSON.parse(t);if(!o.cabinets||!o.bottles)throw 0;S=migrate(o);save();render();toast('복원했습니다')}catch(e){toast('백업 형식이 아닙니다')}};
   $('imp').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>restore(r.result);r.readAsText(f)};
@@ -1260,10 +1307,26 @@ function vMore(){const bk=S.basket;const ad=isAdmin(),ed=canEdit();
   const sec=(t,rows)=>rows.some(Boolean)?'<section class="mgroup"><h2>'+t+'</h2><div class="mlist">'+rows.filter(Boolean).join('')+'</div></section>':'';
   V().innerHTML='<h1 class="pt">더보기</h1><div class="mcols">'+
   sec('수업',[ed&&row('basket','basket','수업 준비',bk?'진행 중: '+esc(bk.title):'실험을 고르면 꺼낼 시약이 순서대로'),row('exp','exp','실험별 시약','2022 개정 교육과정 실험 63개'),row('safety','safety','실험실 안전','시약별 안전 정보와 안전 길잡이')])+
-  sec('재고',[ed&&row('work:buy','buy','구매 목록',S.buy.length?S.buy.length+'개 품목':'살 것이 없습니다'),ed&&row('work:waste','waste','폐액',(S.waste.reduce((a,w)=>a+w.amount,0)/1000).toFixed(1)+' L 보관 중'),ed&&row('work:audit','audit','재고 실사',S.audit?'진행 중':'학기마다 한 번')])+
+  sec('재고',[ed&&row('work:buy','buy','구매 목록',S.buy.length?S.buy.length+'개 품목':'살 것이 없습니다'),ed&&row('work:waste','waste','폐액',(S.waste.reduce((a,w)=>a+w.amount,0)/1000).toFixed(1)+' L 보관 중'),ed&&row('work:audit','audit','재고 실사',S.audit?'진행 중':'학기마다 한 번'),row('print','audit','인쇄용 목록','시약장 문에 붙일 목록, 실사 점검표')])+
   sec('우리 학교',[row('school','lock','학교·비밀번호',S.lock?'잠금 켜짐, 데이터 보내기와 받기':'비밀번호를 정하세요'),row('admin','admin',ad?'관리':'내 정보',ad?'구성원, 시약장, 백업':'이름과 역할')])+
-  sec('도움말과 설정',[row('help','help','사용 방법','처음이라면 여기부터, 웹앱 안내'),row('theme','theme','디자인 바꾸기',TH.name+' 사용 중'),'<button id="toLang"><span class="mi" aria-hidden="true">🌐</span><span class="mt"><b>언어 · Language</b><span lang="'+LANG+'">'+LANGS[LANG]+'</span></span></button>',row('feedback','feedback','의견 보내기','질문, 문제점, 개선 제안')])+'</div>';
+  sec('도움말과 설정',[row('help','help','사용 방법','처음이라면 여기부터, 웹앱 안내'),row('theme','theme','디자인 바꾸기',TH.name+' 사용 중'),'<button id="toLang"><span class="mi" aria-hidden="true">🌐</span><span class="mt"><b>언어 · Language</b><span lang="'+LANG+'">'+LANGS[LANG]+'</span></span></button>'])+'</div>';
   document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const [t,sb]=b.dataset.go.split(':');if(sb)sub=sb;go(t)});document.getElementById('toLang').onclick=langModal}
+
+/* ===== 인쇄용 목록 ===== */
+const PCSS='body{font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#000;margin:12mm;font-size:11pt}h1{font-size:16pt;margin:0 0 2mm}h2{font-size:13pt;margin:6mm 0 2mm;border-bottom:1.5pt solid #000;padding-bottom:1mm}.meta{color:#444;font-size:9pt;margin-bottom:4mm}table{width:100%;border-collapse:collapse;margin-bottom:4mm}th,td{border:.5pt solid #555;padding:1.5mm 2mm;text-align:left;vertical-align:top;font-size:10pt}th{background:#eee}.cab{page-break-inside:avoid}.door{page-break-after:always}.door:last-child{page-break-after:auto}.box{display:inline-block;width:4mm;height:4mm;border:.7pt solid #000}.w{width:14mm;text-align:center}@page{size:A4;margin:0}';
+function printDoc(kind){const h=t=>i18nT(t);const cabs=S.cabinets;const head=(t)=>'<h1>'+esc(h(t))+'</h1><div class="meta">'+esc(S.school||'')+' · '+today()+' · '+esc(h('세이프랩노트'))+'</div>';let body='';
+  if(kind==='door'){body=cabs.map(c=>'<div class="door">'+head('시약장 칸별 목록')+'<h2>'+esc(c.code)+' '+esc(i18nT(c.name))+' <span style="font-weight:400;font-size:10pt">'+esc(roomOf(c.roomId)?.name||'')+'</span></h2><table><tr><th style="width:26mm">'+esc(h('칸'))+'</th><th>'+esc(h('시약'))+'</th><th style="width:26mm">'+esc(h('저장군'))+'</th></tr>'+Object.keys(c.slots).map(k=>{const bs=bottlesIn(c.id,k);const names=[...new Set(bs.map(b=>b.name))];return '<tr><td>'+esc(i18nT(slotLabel(c,k)))+'</td><td>'+(names.length?names.map(n=>esc(i18nT(n))+(bs.filter(b=>b.name===n).length>1?' ×'+bs.filter(b=>b.name===n).length:'')).join(', '):'—')+'</td><td>'+esc((c.slots[k].allowed||[]).join('·'))+'</td></tr>'}).join('')+'</table></div>').join('')}
+  else{body=head('재고 실사 점검표')+cabs.map(c=>{const bs=S.bottles.filter(b=>b.cabId===c.id).sort((a,b)=>a.slot.localeCompare(b.slot,undefined,{numeric:true})||a.name.localeCompare(b.name));return '<div class="cab"><h2>'+esc(c.code)+' '+esc(i18nT(c.name))+'</h2>'+(bs.length?'<table><tr><th class="w">'+esc(h('확인'))+'</th><th style="width:24mm">'+esc(h('칸'))+'</th><th>'+esc(h('시약'))+'</th><th style="width:22mm">'+esc(h('용량'))+'</th><th style="width:18mm">'+esc(h('잔량'))+'</th><th style="width:24mm">'+esc(h('유효기간'))+'</th></tr>'+bs.map(b=>'<tr><td class="w"><span class="box"></span></td><td>'+esc(i18nT(slotLabel(c,b.slot)))+'</td><td>'+esc(i18nT(b.name))+(b.memo?' '+esc(b.memo):'')+'</td><td>'+esc(b.size+' '+b.unit)+'</td><td>'+Math.round(b.remain*100)+'%</td><td>'+esc(b.expiry||'')+'</td></tr>').join('')+'</table>':'<p>—</p>')+'</div>'}).join('')+'<p style="margin-top:8mm">'+esc(h('확인한 사람'))+': ____________________　'+esc(h('날짜'))+': ____________________</p>'}
+  return '<!doctype html><html lang="'+LANG+'"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+esc(h(kind==='door'?'시약장 칸별 목록':'재고 실사 점검표'))+'</title><style>'+PCSS+'</style></head><body>'+body+'</body></html>'}
+function printOut(kind){const html=printDoc(kind);const name='세이프랩노트_'+(kind==='door'?'시약장_칸별_목록':'재고_실사_점검표')+'_'+today()+'.html';
+  if(window.SJJNative&&SJJNative.share){SJJNative.share(name,html).catch(()=>{});toast('파일을 저장하거나 Safari로 열어 인쇄하세요');return}
+  try{let f=document.getElementById('printFrame');if(f)f.remove();f=document.createElement('iframe');f.id='printFrame';f.setAttribute('aria-hidden','true');f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';document.body.appendChild(f);f.onload=()=>{try{f.contentWindow.focus();f.contentWindow.print()}catch(e){download(name,html)}};f.srcdoc=html}catch(e){download(name,html)}}
+function vPrint(){const n=S.bottles.length;
+  V().innerHTML=backBar()+'<section class="panel"><h2>인쇄용 목록</h2><p class="muted">인쇄용지에 맞춘 목록입니다. 인쇄 창에서 "PDF로 저장"을 고르면 PDF 파일로 남길 수 있습니다.</p>'+
+  '<div class="guide"><div class="gstep"><span class="gn" aria-hidden="true">📋</span><div class="grow"><b>시약장 칸별 목록</b><div class="muted">시약장마다 한 장씩, 문에 붙여 두는 목록입니다.</div><div class="muted">시약장 '+S.cabinets.length+'개</div></div><button class="btn sm pri" data-pr="door">인쇄</button><button class="btn sm" data-pf="door">파일로 저장</button></div>'+
+  '<div class="gstep"><span class="gn" aria-hidden="true">✅</span><div class="grow"><b>재고 실사 점검표</b><div class="muted">병마다 확인 칸이 있는 점검표입니다.</div><div class="muted">시약 '+n+'병</div></div><button class="btn sm pri" data-pr="audit">인쇄</button><button class="btn sm" data-pf="audit">파일로 저장</button></div></div></section>';
+  bindBack();document.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>printOut(b.dataset.pr));
+  document.querySelectorAll('[data-pf]').forEach(b=>b.onclick=()=>download('세이프랩노트_'+(b.dataset.pf==='door'?'시약장_칸별_목록':'재고_실사_점검표')+'_'+today()+'.html',printDoc(b.dataset.pf)))}
 
 /* ===== 수업 준비 바구니 ===== */
 function startBasket(e){const make=()=>{const items=e.reagents.map(r=>{const hs=have(r).filter(b=>b.remain>0).sort((a,b)=>(a.out?1:0)-(b.out?1:0)||b.remain-a.remain);return {name:r,id:hs[0]?hs[0].id:null,got:false}});
@@ -1452,7 +1515,7 @@ const FB_TYPES=[['question','❓','질문'],['bug','🐞','문제점·오류'],[
 const FB_SCREENS=['찾기','시약장','등록','썼어요·잔량','여러 병 등록','수업 준비','실험별 시약','실험실 안전','사용 방법','구매·폐액·실사','학교·비밀번호·데이터 받기','디자인','응원·커피 한잔','처음 설정','기타'];
 function vFeedback(){let type='bug',rating=0;
   const sent=(()=>{try{return JSON.parse(lsGet('sijakjang-fb')||'[]')}catch(e){return []}})();
-  const draw=()=>{V().innerHTML=backBar()+'<section class="panel"><h2>'+E('feedback')+' 의견 보내기</h2><p class="muted">질문, 문제점, 개선할 점을 알려 주세요. 학교 시약 데이터는 보내지 않습니다.</p>'+
+  const draw=()=>{V().innerHTML='<section class="panel"><h2>'+E('feedback')+' 의견 보내기</h2><p class="muted">질문, 문제점, 개선할 점을 알려 주세요. 학교 시약 데이터는 보내지 않습니다.</p>'+
     '<form id="fbForm"><label>무엇을 보내나요?</label><div class="seg" role="group" aria-label="종류">'+FB_TYPES.map(([k,e,t])=>'<button type="button" data-ft="'+k+'" aria-pressed="'+(type===k)+'">'+e+' '+t+'</button>').join('')+'</div>'+
     '<label for="fbScreen">어느 화면인가요?</label><select id="fbScreen">'+FB_SCREENS.map(x=>'<option>'+x+'</option>').join('')+'</select>'+
     '<label>앱이 얼마나 쓸 만한가요?</label><div class="row" role="group" aria-label="만족도">'+[1,2,3,4,5].map(n=>'<button type="button" class="btn sm" data-rt="'+n+'" aria-pressed="'+(rating===n)+'" style="'+(n<=rating?'background:var(--pri);color:var(--pri-ink)':'')+'">'+'★'.repeat(1)+' '+n+'</button>').join('')+'</div>'+
@@ -1471,14 +1534,17 @@ function vFeedback(){let type='bug',rating=0;
         device:$('fbDev').checked?(navigator.userAgent.slice(0,160)+' | '+screen.width+'x'+screen.height):'',design:$('fbDev').checked?TH.name:'',role:S.me.role};
       const done=()=>{sent.push({t:today(),label,text});lsSet('sijakjang-fb',JSON.stringify(sent.slice(-20)))};
       const ok=await postFb(p);
-      if(ok){done();modal('<div style="text-align:center;font-size:48px">'+E('feedback')+'</div><h2 style="text-align:center">보냈습니다. 고맙습니다!</h2><p style="text-align:center">'+(p.email?'답장은 적어 주신 이메일로 보내 드립니다.':'보내 주신 의견은 다음 업데이트에 반영하겠습니다.')+'</p><button class="btn pri bigbtn" id="fbOk">닫기</button>');document.getElementById('fbOk').onclick=()=>{closeModal();go('more')};return}
+      if(ok){done();modal('<div style="text-align:center;font-size:48px">'+E('feedback')+'</div><h2 style="text-align:center">보냈습니다. 고맙습니다!</h2><p style="text-align:center">'+(p.email?'답장은 적어 주신 이메일로 보내 드립니다.':'보내 주신 의견은 다음 업데이트에 반영하겠습니다.')+'</p><button class="btn pri bigbtn" id="fbOk">닫기</button>');document.getElementById('fbOk').onclick=()=>{closeModal();go('search')};return}
       const q=outbox();q.push(Object.assign({queued:today()},p));lsSet(OUTBOX,JSON.stringify(q.slice(-20)));done();
-      modal('<div style="text-align:center;font-size:48px">📮</div><h2 style="text-align:center">보관해 두었습니다</h2><p style="text-align:center">지금은 보낼 수 없어 이 기기에 담아 두었습니다. 인터넷이 연결된 상태로 앱을 다시 열면 자동으로 보냅니다.</p><button class="btn pri bigbtn" id="fbOk">확인</button>');document.getElementById('fbOk').onclick=()=>{closeModal();go('more')}}};
+      modal('<div style="text-align:center;font-size:48px">📮</div><h2 style="text-align:center">보관해 두었습니다</h2><p style="text-align:center">지금은 보낼 수 없어 이 기기에 담아 두었습니다. 인터넷이 연결된 상태로 앱을 다시 열면 자동으로 보냅니다.</p><button class="btn pri bigbtn" id="fbOk">확인</button>');document.getElementById('fbOk').onclick=()=>{closeModal();go('search')}}};
   draw()}
 
+let _ww=wide();window.addEventListener('resize',()=>{if(wide()!==_ww){_ww=wide();if(tab==='cabinet'&&!document.getElementById('modalRoot').innerHTML)render()}});
 document.getElementById('schoolName').onclick=()=>schoolPicker(false);
 const br=document.getElementById('brand');br.style.cursor='pointer';br.title='디자인 고르기';br.onclick=()=>themeModal();
 try{if('serviceWorker' in navigator&&location.protocol==='https:'&&!window.SJJNative)navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
+function fitText(){try{const p=document.createElement('span');p.style.cssText='font:-apple-system-body;position:absolute;visibility:hidden';p.textContent='가';document.body.appendChild(p);const px=parseFloat(getComputedStyle(p).fontSize)||17;p.remove();const sc=Math.max(.9,Math.min(1.4,px/17));document.documentElement.style.setProperty('-webkit-text-size-adjust',Math.round(sc*100)+'%');document.documentElement.classList.toggle('bigtext',sc>=1.2)}catch(e){}}
+fitText();document.addEventListener('visibilitychange',()=>{if(!document.hidden)fitText()});
 i18nStart();render();if(FIRST)welcome();else if(needUnlock())showLock();
 setTimeout(()=>flushOutbox().then(n=>{if(n)toast('보관해 둔 의견 '+n+'건을 보냈습니다')}),2500);window.addEventListener('online',()=>flushOutbox());
 </script>
