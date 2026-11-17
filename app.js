@@ -160,7 +160,7 @@ function homeStoreRow(store) {
   return `<a class="home-store" href="#/store/${store.id}" aria-label="${esc(label)}"><span class="row-head" aria-hidden="true"><b>${esc(store.name)}${store.separate ? '<i>입장 구분</i>' : ''}</b>${hours ? `<span class="time">${esc(hours)}</span>` : ''}</span>${hours ? bar(hours, 'thin') : `<span class="status ${status.kind}" aria-hidden="true">${esc(status.line)}</span>`}</a>`;
 }
 
-/** 홈은 휴대폰 한 화면에 다 들어가게 한다(2026-11-17): 그림, 남은 날, 저장한 마트, 바로가기 세 칸. 앱의 HomeView와 같다. */
+/** 홈은 휴대폰 한 화면에 다 들어가게 한다(2026-11-17): 그림, 남은 날, 저장한 마트, 바로가기 두 칸(수료식은 훈련소 탭에 있어 뺐다). 앱의 HomeView와 같다. */
 function renderHome() {
   const local = readLocal();
   const now = nowDay();
@@ -172,7 +172,7 @@ function renderHome() {
   ${ddayHero(s, now)}
   ${saved.length ? `<div class="home-stores"><h2 class="on-olive">🛒 오늘 갈 마트</h2>${saved.map(homeStoreRow).join('')}${staleBox()}</div>`
     : `<a class="card home-empty" href="#/shop"><b>${em('🛒')}자주 가는 마트를 저장해 두시면 오늘 여는 시간이 여기에 나와요</b><span class="btn">${em('🛒')}마트 찾으러 가기</span></a>`}
-  <nav class="tiles" aria-label="바로가기"><a class="tile brass" href="#/check"><span aria-hidden="true">🪪</span>처음이라면</a><a class="tile cream" href="#/papers"><span aria-hidden="true">🎒</span>가져갈 것</a><a class="tile deep" href="#/camps"><span aria-hidden="true">🎖️</span>수료식</a></nav>`;
+  <nav class="tiles" aria-label="바로가기"><a class="tile brass" href="#/check"><span aria-hidden="true">🪪</span>처음이라면</a><a class="tile cream" href="#/papers"><span aria-hidden="true">🎒</span>가져갈 것</a></nav>`;
 }
 
 /** 홈 위쪽. 전역까지 남은 날을 달력처럼 크게 보여 준다. 누르면 날짜를 고친다. 앱의 DischargeHero와 같다. */
@@ -271,7 +271,10 @@ function renderCheck() {
 }
 
 const renderPapers = () => `${backLink('#/home')}<h1>이것만 챙겨 가세요</h1>${content.papers.map(card).join('')}<a class="btn outline" href="#/rules">${em('💡')}더 알아 두면 좋은 것</a>`;
-const renderRules = (from) => `${from === 'more' ? backLink('#/todo', '더보기') : backLink('#/home')}<h1>알아 두면 좋아요</h1>${content.rules.map(card).join('')}`;
+/** 영외마트(군마트) 이용 안내와 소식. 더보기와 홈의 "가져갈 것"에서 연다. 앱의 RulesView와 같다. */
+const renderRules = (from) => `${from === 'more' ? backLink('#/todo', '더보기') : backLink('#/home')}<h1>영외마트(군마트)</h1>
+  ${content.news.length ? `<h2 class="on-olive">${em('📢')}소식</h2>${content.news.map(card).join('')}` : ''}
+  <h2 class="on-olive">${em('🙋')}누가, 어떻게 이용하나요</h2>${content.rules.map(card).join('')}`;
 // 마트 상세에서 왔으면(#/goods/마트번호) 뒤로 가기가 그 마트로 돌아간다.
 // 상품 이름(items)이 있는 칸은 짧은 설명(lead) 아래에 이름을 하나씩 이름표로 보여 준다.
 // 이 칸이 없는 자료(옛 판)나 주류 칸은 지금처럼 글로 보인다. 앱의 GoodsCard와 같다.
@@ -498,15 +501,15 @@ function renderCamp(id) {
   <small>식당과 숙소는 특정 가게를 추천하지 않아요. 지도에서 주변을 찾아보시고, 수료식 날은 붐비니 미리 알아 두시면 좋아요.</small>`;
 }
 
-/** 다섯 번째 탭 "더보기"(2026-11-17, 전에는 "팁"). 갈래별로 묶은 차림표만 두고, 팁과 소식은 따로 연다. 앱의 MoreView와 같다. */
+/** 다섯 번째 탭 "더보기"(2026-11-17, 전에는 "팁"). 갈래별로 묶은 차림표만 둔다. 소식은 영외마트(군마트) 화면 안에 있다. 앱의 MoreView와 같다. */
 function renderTodo() {
-  const row = (href, emoji, title, sub) => `<a class="menu-row" href="${href}">${em(emoji)}<span><b>${esc(title)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</span><i aria-hidden="true">›</i></a>`;
+  const row = (href, emoji, title, sub, cls = '') => `<a class="menu-row${cls ? ` ${cls}` : ''}" href="${href}">${em(emoji)}<span><b>${esc(title)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</span><i aria-hidden="true">›</i></a>`;
   const group = (emoji, title, rows) => `<h2 class="on-olive">${em(emoji)}${esc(title)}</h2><div class="menu">${rows}</div>`;
   const qna = content.qna?.length ? `답한 질문 ${content.qna.length}개` : '궁금한 걸 남기면 공식 자료로 답해요';
   return `<h1>더보기</h1>
   <a class="btn" href="tel:1303"><span>${em('📞')}걱정될 땐 1303<small class="on-dark">국방헬프콜이에요. 24시간 무료고, 부모님도 전화하실 수 있어요</small></span></a>
-  ${group('📚', '알아 두면 좋은 것', `${row('#/tips', '💡', '시기별 팁', `입대 전부터 전역 뒤까지 ${content.tips.length}가지`)}${row('#/news', '📢', '소식', content.news.length ? `새 소식 ${content.news.length}건` : '')}${row('#/rules/more', '🙋', '누가, 어떻게 이용하나요', '영외마트 이용 자격과 지킬 것')}${row('#/links', '🏛️', '병무청·국방부 공식 사이트', '공식 누리집 모음')}`)}
-  ${group('💬', '묻고 알리기', `${row('#/qna', '💬', '묻고 답하기', qna)}${row('#/report', '✏️', '틀린 내용 알려 주기', '마트 시간이나 안내가 다르면 알려 주세요')}<button type="button" class="menu-row" data-share="1">${em('📣')}<span><b>다른 부모님께 알려 주기</b><small>이 앱을 문자나 카톡으로 보내요</small></span><i aria-hidden="true">›</i></button>`)}
+  ${group('📚', '알아 두면 좋은 것', `${row('#/rules/more', '🛒', '영외마트(군마트)', `누가, 어떻게 이용하나요${content.news.length ? ` (새 소식 ${content.news.length}건)` : ''}`, 'big')}${row('#/tips', '💡', '시기별 팁', `입대 전부터 전역 뒤까지 ${content.tips.length}가지`)}${row('#/links', '🏛️', '병무청·국방부 공식 사이트', '공식 누리집 모음')}`)}
+  ${group('💬', '묻고 알리기', `${row('#/qna', '💬', '묻고 답하기', qna)}${row('#/report', '✏️', '틀린 내용 알려 주기(영외마트)', '마트 시간이나 안내가 다르면 알려 주세요')}<button type="button" class="menu-row" data-share="1">${em('📣')}<span><b>다른 부모님께 알려 주기</b><small>이 앱을 문자나 카톡으로 보내요</small></span><i aria-hidden="true">›</i></button>`)}
   <p class="notice caution" id="share-done" hidden>안내 문구를 복사했어요.</p>
   ${group('🎨', '앱 꾸미기', `${row('#/theme', '🎨', '화면 디자인 고르기', `바탕과 칸 색 ${THEMES.length}가지`)}${row('#/art/more', '🖼️', '홈 그림 고르기', `홈 맨 위 그림 ${HOME_ART.length}장`)}`)}`;
 }
@@ -521,8 +524,6 @@ function renderTips() {
   <div id="tip-list" style="display:grid;gap:10px">${tipItems(current)}</div>
   <small>부대나 군마다 다른 게 많아요. "논산은"이라고 적힌 건 육군훈련소 이야기예요. 헷갈리면 아이나 부대에 한 번 물어보세요.</small>`;
 }
-
-const renderNews = () => `${backLink('#/todo', '더보기')}<h1>소식</h1>${content.news.length ? content.news.map(card).join('') : '<p>아직 새 소식이 없어요.</p>'}`;
 
 /** 홈 맨 위 그림 고르기. 고른 그림은 이 기기에만 저장한다. 앱의 HomeArtPicker와 같다. */
 function renderArt(from) {
@@ -545,7 +546,7 @@ function renderTheme() {
   };
   let n = 0;
   const pick = (t) => `<button type="button" class="theme-pick" data-theme="${t.id}" aria-pressed="${t.id === now}">
-    <span class="mini" aria-hidden="true" style="${esc(vars(t))}"><span class="mini-hero"><span>🪖 전역까지</span><b>540</b></span><span class="mini-card">🛒 오늘 갈 마트<i></i></span><span class="mini-tiles"><i></i><i></i><i></i></span><span class="mini-tab"><i></i><i></i><i></i><i></i><i></i></span></span>
+    <span class="mini" aria-hidden="true" style="${esc(vars(t))}"><span class="mini-hero"><span>🪖 전역까지</span><b>540</b></span><span class="mini-card">🛒 오늘 갈 마트<i></i></span><span class="mini-tiles"><i></i><i></i></span><span class="mini-tab"><i></i><i></i><i></i><i></i><i></i></span></span>
     <b>${t.id === now ? '✅ ' : ''}${++n}. ${esc(t.name)} ${t.emoji}</b><small>${esc(t.mood)}</small></button>`;
   const groups = [...new Set(THEMES.map((t) => t.group))];
   return `${backLink('#/todo', '더보기')}<h1>화면 디자인 고르기</h1>
@@ -604,7 +605,6 @@ function route() {
   if (name === 'art') return { tab: arg === 'more' ? 'todo' : 'home', html: renderArt(arg) };
   if (name === 'rules') return { tab: arg === 'more' ? 'todo' : 'home', html: renderRules(arg) };
   if (name === 'tips') return { tab: 'todo', html: renderTips() };
-  if (name === 'news') return { tab: 'todo', html: renderNews() };
   // 화면 디자인 고르기는 처음 화면에서 고르고, 나중에는 더보기 탭에서 연다(2026-11-17).
   if (name === 'theme') return { tab: 'todo', html: renderTheme() };
   const tab = ['shop', 'goods'].includes(name) ? 'shop' : name === 'camps' ? 'camps' : name === 'about' ? 'about' : ['todo', 'links'].includes(name) ? 'todo' : 'home';

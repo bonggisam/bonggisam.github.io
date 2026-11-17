@@ -240,7 +240,6 @@ body { background: var(--t-page); }
 .tile span { font-size: 30px; line-height: 1; }
 .tile.brass { background: var(--t-tile1); color: var(--t-tile1-ink); }
 .tile.cream { background: var(--t-card); color: var(--t-ink); }
-.tile.deep { background: var(--t-hero); color: var(--t-hero-ink); }
 
 /* 만든 사람 탭 */
 .maker { display: flex; align-items: center; gap: 14px; margin-top: 6px; }
@@ -296,10 +295,9 @@ body { background: var(--t-page); }
 .mini-hero b { font-family: var(--m-num); font-weight: var(--m-num-w); font-size: 26px; line-height: .9; color: var(--m-big); }
 .mini-card { display: grid; gap: 5px; padding: 6px 8px 7px; border-radius: 9px; background: var(--m-card); color: var(--m-ink); box-shadow: 0 0 0 1.5px var(--m-edge); font-size: 11px; font-weight: 700; }
 .mini-card i { display: block; height: 5px; border-radius: 3px; background: linear-gradient(90deg, var(--m-track) 18%, var(--m-accent) 18% 76%, var(--m-track) 76%); }
-.mini-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.mini-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; }
 .mini-tiles i { display: block; height: 18px; border-radius: 6px; box-shadow: 0 0 0 1.5px var(--m-edge); background: var(--m-card); }
 .mini-tiles i:first-child { background: var(--m-tile1); }
-.mini-tiles i:last-child { background: var(--m-hero); }
 .mini-tab { display: flex; justify-content: space-around; margin: 2px -8px 0; padding: 4px 0 5px; background: var(--m-tab); }
 .mini-tab i { display: block; width: 14px; height: 4px; border-radius: 2px; background: var(--m-tab-ink); opacity: .7; }
 .mini-tab i:first-child { background: var(--m-tab-on); opacity: 1; }
@@ -326,7 +324,7 @@ body { background: var(--t-page); }
 .home-store .time { font-weight: 700; }
 .home-empty { gap: 10px; text-decoration: none; }
 .home-empty b { font-size: 17px; line-height: 1.45; }
-.tiles { gap: 8px; }
+.tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .tile { min-height: 74px; gap: 4px; padding: 9px 6px; overflow-wrap: normal; align-items: center; justify-content: center; text-align: center; font-size: 15px; line-height: 1.3; border-radius: 16px; }
 .tile span { font-size: 26px; }
 /* 처음 화면의 화면 디자인 칸(3줄 4칸). 고르면 바로 앱 전체 색이 바뀐다. */
@@ -354,6 +352,9 @@ body { background: var(--t-page); }
 .menu-row b { font-size: 17px; font-weight: 800; }
 .menu-row small { font-size: 13.5px; }
 .menu-row > i { font-style: normal; font-size: 24px; color: var(--t-muted); }
+.menu-row.big { min-height: 72px; }
+.menu-row.big b { font-size: 21px; font-weight: 900; }
+.menu-row.big .em { font-size: 30px; }
 .menu-row:focus-visible { outline: 3px solid var(--t-ink); outline-offset: -4px; }
 
 /* 12번 "또렷하게": 글자와 칸을 한 단계 크게 */
