@@ -53,7 +53,8 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
-      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
+      // 같은 주소(bonggisam.github.io)에 다른 앱(/sijakjang/)도 있어 이 앱의 옛 저장소(adeul-)만 지운다.
+      .then((keys) => Promise.all(keys.filter((key) => key.startsWith('adeul-') && key !== CACHE).map((key) => caches.delete(key))))
       .then(() => self.clients.claim()),
   );
 });
