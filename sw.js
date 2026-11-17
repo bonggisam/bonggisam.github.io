@@ -1,6 +1,6 @@
 // 앱 파일은 저장해 두고 오프라인에서도 연다. 자료(content.json)는 온라인이면 새 자료를 먼저 받는다.
 // 받은 자료는 검사를 통과하고 저장된 자료보다 새 판일 때만 저장한다. 앱 파일을 바꾸면 CACHE 이름을 올린다.
-const CACHE = 'adeul-v16';
+const CACHE = 'adeul-v19';
 const SCHEMA = 1;
 
 // logic.js의 contentProblem과 같은 검사. 서비스워커는 모듈을 못 쓰는 브라우저가 있어 그대로 옮겨 둔다.
@@ -44,7 +44,7 @@ async function freshContent(request) {
   }
   return saved || Response.error();
 }
-const FILES = ['./', 'index.html', 'style.css', 'app.js', 'logic.js', 'content.json', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-180.png', 'fonts/DoHyeon-Regular.ttf', 'fonts/GasoekOne-Regular.ttf'];
+const FILES = ['./', 'index.html', 'style.css', 'app.js', 'logic.js', 'themes.js', 'content.json', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/icon-180.png', 'fonts/DoHyeon-Regular.ttf', 'fonts/GasoekOne-Regular.ttf'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(FILES.map((f) => new Request(f, { cache: 'reload' })))).then(() => self.skipWaiting()));
@@ -70,6 +70,14 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(caches.match(request, { ignoreSearch: true })
       .then((hit) => hit || fetch(request))
       .catch(() => caches.match('./')));
+    return;
+  }
+  // 홈 그림(art/)은 12장이라 처음 설치 때 다 받지 않고, 본 그림만 저장해 두었다가 오프라인에서도 쓴다.
+  if (new URL(request.url).pathname.includes('/art/')) {
+    event.respondWith(caches.match(request).then((hit) => hit || fetch(request).then((res) => {
+      if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((cache) => cache.put(request, copy)); }
+      return res;
+    })));
     return;
   }
   event.respondWith(caches.match(request).then((hit) => hit || fetch(request)));

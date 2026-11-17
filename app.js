@@ -1,4 +1,5 @@
 import { SERVICES, badgeText, barPosition, cityOf, contentProblem, dialable, entryRows, longDay, parseDay, rankTrack, staleNotice, storeNotices, storeStatus, suggestedStage, summarize, toIso, today, weekRows } from './logic.js';
+import { NUMBER_FONTS, PATTERNS, THEMES, applyTheme, colorsOf, themeById } from './themes.js';
 
 /** 제보를 받을 주소. 정해지면 HTTPS 주소를 넣는다. 비어 있으면 내용을 복사해 옮기도록 안내한다. */
 const REPORT_ENDPOINT = '';
@@ -77,8 +78,26 @@ const linksView = { group: null };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const nowDay = () => today();
 
+/** 홈 맨 위 그림 12장(수묵화 6, 수채화 6). 건강과 행복을 비는 우리 자연. 그림 위 글씨는 그림 파일에 들어 있다.
+ *  원본은 기획안/아들아사랑해_상단그림_수묵화_자연_6.html, 수채화_6.html. 앱의 HomeArt와 같은 목록. */
+const HOME_ART = [
+  { id: 'ink-1', group: '수묵화', name: '해돋이와 학', msg: '아프지 말고 건강하게 지내길 바라요' },
+  { id: 'ink-2', group: '수묵화', name: '소나무와 폭포', msg: '소나무처럼 늘 푸르고 튼튼하길 바라요' },
+  { id: 'ink-3', group: '수묵화', name: '매화 가지에 까치', msg: '까치가 반가운 소식 물어다 주길 바라요' },
+  { id: 'ink-4', group: '수묵화', name: '바람 부는 대숲', msg: '어떤 바람에도 마음 편히 지내길 바라요' },
+  { id: 'ink-5', group: '수묵화', name: '연꽃 핀 연못', msg: '연꽃처럼 맑게 웃는 날이 많길 바라요' },
+  { id: 'ink-6', group: '수묵화', name: '보름달 뜬 억새 강가', msg: '같은 달 아래서 늘 행복하길 빌어요' },
+  { id: 'wc-1', group: '수채화', name: '진달래 핀 봄 산', msg: '꽃길만 걷는 날들이길 바라요' },
+  { id: 'wc-2', group: '수채화', name: '바람 부는 청보리밭', msg: '청보리처럼 쑥쑥 튼튼하길 바라요' },
+  { id: 'wc-3', group: '수채화', name: '비 갠 뒤 무지개', msg: '비 온 뒤 무지개처럼 좋은 일만 있길 바라요' },
+  { id: 'wc-4', group: '수채화', name: '단풍 든 가을 산', msg: '단풍처럼 고운 하루하루 되길 바라요' },
+  { id: 'wc-5', group: '수채화', name: '까치밥 남긴 감나무', msg: '감나무에 감 열리듯 행복이 주렁주렁하길 바라요' },
+  { id: 'wc-6', group: '수채화', name: '눈 속에 핀 동백', msg: '추운 날에도 마음만은 따뜻하길 바라요' },
+];
+const artById = (id) => HOME_ART.find((a) => a.id === id) || HOME_ART[0];
+
 function readLocal() {
-  const base = { enlist: '', service: 'army', manualEnd: '', saved: [], welcomed: false };
+  const base = { enlist: '', service: 'army', manualEnd: '', saved: [], welcomed: false, art: HOME_ART[0].id, theme: THEMES[0].id };
   try {
     return { ...base, ...JSON.parse(localStorage.getItem(KEY) || '{}') };
   } catch {
@@ -143,7 +162,9 @@ function renderHome() {
   const now = nowDay();
   const s = summarize(local, now);
   const saved = local.saved.map(storeById).filter(Boolean);
+  const art = artById(local.art);
   return `<h1 class="sr">홈</h1>
+  <a class="art" href="#/art"><img src="art/${art.id}.jpg" alt="${esc(art.name)} 그림" width="1080" height="450"><span class="art-msg"><span>${em('🍀')}${esc(art.msg)}</span><small>🖼️ 바꾸기</small></span></a>
   ${ddayHero(s, now)}
   ${saved.length ? '<h2 class="on-olive">🛒 오늘 갈 마트</h2>' : ''}
   ${saved.length ? `${todayCard(saved[0])}${saved.slice(1).map(storeRow).join('')}${staleBox() || `<small>${esc(baseText())} 운영표와 휴점 공지를 보고 정리했어요.</small>`}`
@@ -239,7 +260,13 @@ function renderCheck() {
 
 const renderPapers = () => `${backLink('#/home')}<h1>이것만 챙겨 가세요</h1>${content.papers.map(card).join('')}<a class="btn outline" href="#/rules">${em('💡')}더 알아 두면 좋은 것</a>`;
 const renderRules = () => `${backLink('#/home')}<h1>알아 두면 좋아요</h1>${content.rules.map(card).join('')}`;
-const renderGoods = () => `${backLink('#/shop')}<h1>이런 걸 팔아요</h1><p>${esc(content.goodsNote)}</p>${content.goods.map(card).join('')}`;
+// 마트 상세에서 왔으면(#/goods/마트번호) 뒤로 가기가 그 마트로 돌아간다.
+// 상품 이름(items)이 있는 칸은 짧은 설명(lead) 아래에 이름을 하나씩 이름표로 보여 준다.
+// 이 칸이 없는 자료(옛 판)나 주류 칸은 지금처럼 글로 보인다. 앱의 GoodsCard와 같다.
+const goodsCard = (item) => (Array.isArray(item.items) && item.items.length
+  ? `<div class="card"><h3>${esc(item.title)}</h3>${item.lead ? `<p>${esc(item.lead)}</p>` : ''}<p class="tags-k">${em('🏷️')}최근 1년 인기상품</p><ul class="tags">${item.items.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>${item.source ? `<small>${esc(item.source)}</small>` : ''}</div>`
+  : card(item));
+const renderGoods = (id) => `${backLink(storeById(id) ? `#/store/${id}` : '#/shop')}<h1>이런 걸 팔아요</h1><p>${esc(content.goodsNote)}</p>${content.goods.map(goodsCard).join('')}`;
 
 function shopResults() {
   const q = shop.query.trim();
@@ -295,6 +322,7 @@ function renderStore(id) {
   </div>
   ${store.separate ? `<div class="card"><dl>${fact('누가 언제 들어가나요', lines(store.separate).join('\n'))}</dl><small>부모님도 '현역가족' 시간에 들어가실 수 있을 것 같은데, 딱 잘라 적어 둔 규정은 아직 못 찾았어요. 처음 가실 땐 전화로 한 번 물어보시면 마음 편해요.</small></div>` : ''}
   <div class="card"><dl>${store.notes.length ? fact('알아 두면 좋아요', store.notes.join('\n')) : ''}${fact('물건 들어오는 날', content.stockNote)}</dl></div>
+  <a class="btn outline" href="#/goods/${store.id}">${em('🛍️')}무엇을 파나요</a>
   ${tel ? `<a class="btn" href="tel:${esc(tel)}">${em('📞')}전화 걸기 ${esc(firstPhone)}</a>` : '<p class="notice caution">전화번호는 아직 확인하고 있어요.</p>'}
   <div class="pair">
     <a class="btn outline" target="_blank" rel="noopener" href="https://map.naver.com/p/search/${encodeURIComponent(`국군복지단 ${mapName}`)}">${em('🗺️')}네이버 지도</a>
@@ -476,6 +504,36 @@ function renderTodo() {
   <a class="btn outline" href="#/report">${em('✏️')}틀린 내용 알려 주기</a>`;
 }
 
+/** 홈 맨 위 그림 고르기. 고른 그림은 이 기기에만 저장한다. 앱의 HomeArtPicker와 같다. */
+function renderArt() {
+  const now = readLocal().art;
+  const pick = (a) => `<button type="button" class="art-pick" data-art="${a.id}" aria-pressed="${a.id === now}"><img src="art/${a.id}.jpg" alt="" width="1080" height="450" loading="lazy"><span>${a.id === now ? '✅ ' : ''}${esc(a.name)}</span></button>`;
+  return `${backLink('#/home', '홈')}<h1>홈 그림 고르기</h1>
+  <p class="on-olive-text">건강하고 행복하길 바라는 마음을 담은 우리 자연 그림이에요. 고르시면 홈 맨 위에 바로 보여요.</p>
+  ${['수묵화', '수채화'].map((g) => `<h2 class="on-olive">${g === '수묵화' ? '🖌️' : '🎨'} ${g}</h2><div class="art-grid">${HOME_ART.filter((a) => a.group === g).map(pick).join('')}</div>`).join('')}`;
+}
+
+/** 화면 디자인 고르기. 칸마다 작은 홈 화면을 그 디자인의 색으로 그린다. 고른 디자인은 이 기기에만 저장한다. 앱의 ThemePicker와 같다. */
+function renderTheme() {
+  const now = themeById(readLocal().theme).id;
+  const vars = (t) => {
+    const c = colorsOf(t);
+    const pattern = PATTERNS[t.pattern || 'none'];
+    const [font, weight] = NUMBER_FONTS[t.num] || NUMBER_FONTS.gasoek;
+    const v = { page: pattern ? `${pattern.replace(/100vh/g, '100%')}, ${c.bg}` : c.bg, hero: c.hero, 'hero-ink': c.heroInk, 'hero-edge': c.heroEdge, big: c.big, card: c.card, ink: c.ink, edge: c.edge, track: c.track, accent: c.accent, tile1: c.tile1, tab: c.tab, 'tab-ink': c.tabInk, 'tab-on': c.tabOn, num: font, 'num-w': weight };
+    return Object.entries(v).map(([k, x]) => `--m-${k}:${x}`).join(';');
+  };
+  let n = 0;
+  const pick = (t) => `<button type="button" class="theme-pick" data-theme="${t.id}" aria-pressed="${t.id === now}">
+    <span class="mini" aria-hidden="true" style="${esc(vars(t))}"><span class="mini-hero"><span>🪖 전역까지</span><b>540</b></span><span class="mini-card">🛒 오늘 갈 마트<i></i></span><span class="mini-tiles"><i></i><i></i><i></i></span><span class="mini-tab"><i></i><i></i><i></i><i></i><i></i></span></span>
+    <b>${t.id === now ? '✅ ' : ''}${++n}. ${esc(t.name)} ${t.emoji}</b><small>${esc(t.mood)}</small></button>`;
+  const groups = [...new Set(THEMES.map((t) => t.group))];
+  return `${backLink('#/about', '만든 사람')}<h1>화면 디자인 고르기</h1>
+  <p class="on-olive-text">앱의 바탕색과 칸 색, 큰 숫자 글꼴이 바뀌어요. 누르시면 바로 바뀌고, 이 기기에만 저장돼요. 홈 맨 위 그림은 따로 골라요.</p>
+  ${groups.map((g) => `<h2 class="on-olive">${esc(g)}</h2><div class="theme-grid">${THEMES.filter((t) => t.group === g).map(pick).join('')}</div>`).join('')}
+  <a class="btn outline" href="#/art">${em('🖼️')}홈 그림 고르기</a>`;
+}
+
 /** 다섯 번째 탭 "만든 사람". 소개, 커피 한 잔, 바라는 점. 앱의 AboutView와 같은 내용. */
 function renderAbout() {
   const reasons = [
@@ -505,10 +563,12 @@ function renderAbout() {
   ${wishView.state === 'copied' ? '<p class="notice caution">아직 받는 곳을 준비하고 있어요. 적으신 내용을 복사해 두었어요.</p>' : ''}
   <button type="button" class="btn accent" data-send-wish="1">${em('📮')}설문지로 보내기</button>
   <small>로그인 없이 보내지고, 이름이나 연락처는 묻지 않아요. 따로 답장은 못 드려요.</small></div>
+  <a class="btn outline" href="#/theme">${em('🎨')}화면 디자인 고르기</a>
+  <a class="btn outline" href="#/art">${em('🖼️')}홈 그림 고르기</a>
   <h2 class="section">${em('ℹ️')}알아 두실 것</h2>
   ${card({ title: '국군복지단의 공식 앱이 아니에요', emoji: '🏷️', body: '공개된 공식 자료를 사람이 하나하나 읽고 정리한 무료 앱이에요. 법률 상담은 아니라서, 가시기 전엔 마트에 전화해 보시는 게 제일 정확해요.' })}
   ${card({ title: '언제 자료인가요', emoji: '🗓️', body: `마트 ${content.stores.length}곳은 ${baseText()} 운영표로, 휴점 공지는 ${checkedText()}까지 살펴보고 정리했어요. 지금 쓰는 자료는 ${content.revision}판이에요.`, source: '국군복지단 월간 공지' })}
-  ${card({ title: '무엇을 저장하나요', emoji: '🔒', body: '입대일, 복무 형태, 전역일, 저장한 마트만 이 기기에 저장해요. 가입은 없고 위치도 쓰지 않아요. 질문·제보·바라는 점은 구글 설문지로 받고, 적어 주신 내용만 만든 사람에게 가요. 이름이나 연락처는 받지 않아요.' })}
+  ${card({ title: '무엇을 저장하나요', emoji: '🔒', body: '입대일, 복무 형태, 전역일, 저장한 마트, 고른 홈 그림과 화면 디자인만 이 기기에 저장해요. 가입은 없고 위치도 쓰지 않아요. 질문·제보·바라는 점은 구글 설문지로 받고, 적어 주신 내용만 만든 사람에게 가요. 이름이나 연락처는 받지 않아요.' })}
   ${eraseAsked ? '<p class="notice">입대일과 저장한 마트를 모두 지울까요?</p><button type="button" class="btn" data-erase="yes">지우기</button><button type="button" class="btn outline" data-erase="no">취소</button>'
     : `<button type="button" class="btn outline" data-erase="ask">${em('🧹')}이 기기에 저장한 정보 지우기</button>`}`;
 }
@@ -522,6 +582,9 @@ function route() {
   if (name === 'qna') return { tab: 'todo', html: renderQna() };
   if (name === 'ask') return { tab: 'todo', html: renderAsk() };
   if (name === 'report') return { tab: arg ? 'shop' : 'todo', html: renderReport(arg) };
+  if (name === 'goods') return { tab: 'shop', html: renderGoods(arg) };
+  if (name === 'art') return { tab: 'home', html: renderArt() };
+  if (name === 'theme') return { tab: 'about', html: renderTheme() };
   const tab = ['shop', 'goods'].includes(name) ? 'shop' : name === 'camps' ? 'camps' : name === 'about' ? 'about' : ['todo', 'links'].includes(name) ? 'todo' : 'home';
   return { tab, html: (known[name] || renderHome)() };
 }
@@ -615,6 +678,14 @@ document.addEventListener('click', async (event) => {
     const saved = local.saved.includes(d.toggleSave) ? local.saved.filter((x) => x !== d.toggleSave) : [...local.saved, d.toggleSave];
     writeLocal({ saved });
     draw({ keepFocusId: 'data-toggle-save' });
+  } else if (d.theme) {
+    const theme = themeById(d.theme);
+    writeLocal({ theme: theme.id });
+    applyTheme(theme);
+    draw({ keepFocusId: `data-theme="${theme.id}"` });
+  } else if (d.art) {
+    writeLocal({ art: artById(d.art).id });
+    draw({ keepFocusId: `data-art="${d.art}"` });
   } else if (d.issue !== undefined) { report.issue = d.issue; draw(); }
   else if (d.sendReport !== undefined) await sendReport(d.sendReport);
   else if (d.sendWish) {
@@ -644,6 +715,7 @@ document.addEventListener('click', async (event) => {
   else if (d.erase === 'no') { eraseAsked = false; draw(); }
   else if (d.erase === 'yes') {
     try { localStorage.removeItem(KEY); } catch { /* 저장소 없음 */ }
+    applyTheme(THEMES[0]);
     eraseAsked = false;
     location.hash = '#/welcome';
   }
@@ -691,6 +763,9 @@ window.addEventListener('hashchange', () => {
 });
 
 document.getElementById('tabs').innerHTML = TABS.map(([k, label]) => `<a data-tab="${k}" href="#/${k}"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICONS[k]}</svg>${label}</a>`).join('');
+
+// 고른 화면 디자인은 자료를 받기 전에 먼저 입혀 처음 화면이 깜빡이지 않게 한다.
+applyTheme(themeById(readLocal().theme));
 
 async function start() {
   try {
