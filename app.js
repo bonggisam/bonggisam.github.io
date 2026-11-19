@@ -281,7 +281,17 @@ const renderRules = (from) => `${from === 'more' ? backLink('#/todo', '더보기
 const goodsCard = (item) => (Array.isArray(item.items) && item.items.length
   ? `<div class="card"><h3>${esc(item.title)}</h3>${item.lead ? `<p>${esc(item.lead)}</p>` : ''}<p class="tags-k">${em('🏷️')}최근 1년 인기상품</p><ul class="tags">${item.items.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>${item.source ? `<small>${esc(item.source)}</small>` : ''}</div>`
   : card(item));
-const renderGoods = (id) => `${backLink(storeById(id) ? `#/store/${id}` : '#/shop')}<h1>이런 걸 팔아요</h1><p>${esc(content.goodsNote)}</p>${content.goods.map(goodsCard).join('')}`;
+/** "이런 걸 팔아요" 아래 후기 값(2026-11-20). 자료에 priceSamples가 없으면(예전 자료) 보이지 않는다. 앱의 PriceSamplesView와 같다. */
+const won = (n) => `${Number(n).toLocaleString('ko-KR')}원`;
+function priceSection() {
+  const p = content.priceSamples;
+  if (!p || !Array.isArray(p.groups) || !p.groups.length) return '';
+  const rows = (g) => g.items.filter((x) => x.name && x.price > 0).map((x) => `<li><span><b>${esc(x.name)}</b>${x.size ? `<small>${esc(x.size)}</small>` : ''}</span><span class="won">${esc(won(x.price))}</span></li>`).join('');
+  return `<h2 class="on-olive section">${em('💰')}${esc(p.title || '후기에 나온 값')}</h2>
+  <p class="notice caution">${esc(p.note)}</p>
+  ${p.groups.map((g) => `<div class="card prices"><h3>${esc(g.title)}</h3><ul>${rows(g)}</ul>${p.basis ? `<small>${esc(p.basis)}, 가격은 바뀔 수 있어요</small>` : ''}</div>`).join('')}`;
+}
+const renderGoods = (id) => `${backLink(storeById(id) ? `#/store/${id}` : '#/shop')}<h1>이런 걸 팔아요</h1><p>${esc(content.goodsNote)}</p>${content.goods.map(goodsCard).join('')}${priceSection()}`;
 
 function shopResults() {
   const q = shop.query.trim();

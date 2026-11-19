@@ -343,6 +343,14 @@ body { background: var(--t-page); }
   .tile span { font-size: 22px; }
 }
 
+/* "이런 걸 팔아요"의 후기 값 표(2026-11-20). 이름과 규격은 왼쪽, 값은 오른쪽. 앱의 PriceSamplesView와 같다. */
+.card.prices ul { display: grid; margin: 0; padding: 0; list-style: none; }
+.card.prices li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 9px 0; border-top: 1.5px solid var(--t-card-line); }
+.card.prices li:first-child { border-top: 0; padding-top: 2px; }
+.card.prices li > span:first-child { display: grid; min-width: 0; }
+.card.prices li b { font-size: 16px; font-weight: 800; line-height: 1.4; }
+.card.prices .won { flex: none; font-size: 17px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--t-accent-ink); }
+
 /* 더보기 탭 차림표(2026-11-17). 갈래마다 한 칸에 줄을 모은다. 앱의 MoreView와 같다. */
 .menu { display: grid; background: var(--t-card); color: var(--t-ink); --muted: var(--t-muted); border: var(--t-edge-w) solid var(--t-edge); border-radius: 18px; overflow: hidden; }
 .menu-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 10px 16px; border: 0; background: none; color: inherit; font: inherit; text-align: left; text-decoration: none; cursor: pointer; }
