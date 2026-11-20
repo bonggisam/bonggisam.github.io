@@ -69,7 +69,7 @@ export function summarize({ enlist, service, manualEnd }, now) {
   if (!sv.ok) note = sv.why;
   else if (dateProblem) note = '전역일이 입대일보다 빨라요. 날짜를 다시 확인해 주세요.';
   else if (!end) note = sv.months ? '입대일을 넣으시면 전역일을 계산해 드릴게요.' : '장교와 부사관은 복무 기간이 달라 전역일을 직접 넣어 주세요.';
-  else if (start && before(now, start)) note = '아직 입대 전이네요. 가족 증명은 입대한 뒤에 준비하시면 되고, 훈련소에 있는 동안 이용할 수 있는지는 마트에 물어보세요.';
+  else if (start && before(now, start)) note = '아직 입대 전이네요. 국군복지포털 가족 증명은 아이가 자대에 간 뒤에 만들 수 있어요. 훈련소에 있는 동안 서류로 들어갈 수 있는지는 마트에 물어보세요.';
   else if (left < 0) note = '아이가 전역하면 부모님 이용 자격도 달라져요. 가시기 전에 마트에 물어보세요.';
   else note = '전역일까지 남은 날이에요. 전역하는 날에도 이용할 수 있는지, 정확히 언제까지 되는지는 공식 자료에 없어서 마트에 물어보시는 게 정확해요.';
   return { sv, start, end, left, progress, dateProblem, headline, note };
